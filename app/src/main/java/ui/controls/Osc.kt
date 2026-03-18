@@ -30,7 +30,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.libopenmw.openmw.R
-import org.jetbrains.anko.defaultSharedPreferences
 import org.libsdl.app.SDLActivity
 import ui.activity.GameActivity
 import ui.activity.MouseMode
@@ -425,7 +424,7 @@ class Osc {
     }
 
     fun placeElements(target: RelativeLayout) {
-        val prefs = target.context.defaultSharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(target.context)
         val showQp = prefs.getBoolean("pref_show_qp", false)
         val showFn = prefs.getBoolean("pref_show_fn", false)
         val alwaysShowTop = prefs.getBoolean("pref_always_show_top_bar", false)

@@ -19,8 +19,8 @@
 
 package mods
 
+import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import org.jetbrains.anko.db.*
 
 enum class ModType(val v: Int) {
     Plugin(1),
@@ -49,12 +49,17 @@ class Mod(val type: ModType, val filename: String, var order: Int, var enabled: 
      * @param db Database connection
      */
     fun update(db: SQLiteDatabase) {
-        db.update("mod",
-            "load_order" to order,
-            "enabled" to enabled)
-            .whereArgs("filename = {filename} AND type = {type}",
-                "filename" to filename,
-                "type" to type.v).exec()
+        val values = ContentValues().apply {
+            put("load_order", order)
+            put("enabled", if (enabled) 1 else 0)
+        }
+
+        db.update(
+            "mod",
+            values,
+            "filename = ? AND type = ?",
+            arrayOf(filename, type.v.toString())
+        )
     }
 
     /**
@@ -62,20 +67,13 @@ class Mod(val type: ModType, val filename: String, var order: Int, var enabled: 
      * @param db Database connection
      */
     fun insert(db: SQLiteDatabase) {
-        db.insert("mod",
-            "type" to type.v,
-            "filename" to filename,
-            "load_order" to order,
-            "enabled" to (if (enabled) 1 else 0))
-    }
-}
+        val values = ContentValues().apply {
+            put("type", type.v)
+            put("filename", filename)
+            put("load_order", order)
+            put("enabled", if (enabled) 1 else 0)
+        }
 
-class ModRowParser : RowParser<Mod> {
-    override fun parseRow(columns: Array<Any?>): Mod {
-        return Mod(
-            ModType.valueFrom((columns[0] as Long).toInt()),
-            columns[1] as String,
-            (columns[2] as Long).toInt(),
-            (columns[3] as Long) != 0L)
+        db.insert("mod", null, values)
     }
 }

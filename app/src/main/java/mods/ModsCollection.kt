@@ -19,7 +19,6 @@
 
 package mods
 
-import org.jetbrains.anko.db.*
 import java.io.File
 
 /**
@@ -53,9 +52,9 @@ class ModsCollection(private val type: ModType,
      */
     private fun isEmpty(): Boolean {
         var count = 0
-        db.use {
-            count = select("mod", "count(1)").exec {
-                parseSingle(IntParser)
+        db.readableDatabase.rawQuery("SELECT COUNT(1) FROM mod", null).use { cursor ->
+            if (cursor.moveToFirst()) {
+                count = cursor.getInt(0)
             }
         }
         return count == 0
@@ -78,14 +77,13 @@ class ModsCollection(private val type: ModType,
      * @param type Type of the mods (plugins/resources)
      */
     private fun initDbMods(files: List<String>, type: ModType) {
-        db.use {
-            var order = 0
-            files
-                .map { File(dataFiles, it) }
-                .filter { it.exists() }
-                .map { order += 1; Mod(type, it.name, order, true) }
-                .forEach { it.insert(this) }
-        }
+        val database = db.writableDatabase
+        var order = 0
+        files
+            .map { File(dataFiles, it) }
+            .filter { it.exists() }
+            .map { order += 1; Mod(type, it.name, order, true) }
+            .forEach { it.insert(database) }
     }
 
     /**
@@ -96,16 +94,32 @@ class ModsCollection(private val type: ModType,
         var dbMods = listOf<Mod>()
 
         // Get mods from the database
-        db.use {
-            select("mod", "type", "filename", "load_order", "enabled")
-                .whereArgs("type = {type}", "type" to type.v).exec {
-                    dbMods = parseList(ModRowParser())
-                }
+        db.readableDatabase.query(
+            "mod",
+            arrayOf("type", "filename", "load_order", "enabled"),
+            "type = ?",
+            arrayOf(type.v.toString()),
+            null,
+            null,
+            null
+        ).use { cursor ->
+            val parsedMods = arrayListOf<Mod>()
+            while (cursor.moveToNext()) {
+                parsedMods.add(
+                    Mod(
+                        ModType.valueFrom(cursor.getInt(0)),
+                        cursor.getString(1),
+                        cursor.getInt(2),
+                        cursor.getInt(3) != 0
+                    )
+                )
+            }
+            dbMods = parsedMods
         }
 
         // Get file names matching the extensions
         val modFiles = File(dataFiles).listFiles()?.filter {
-            extensions.contains(it.extension.toLowerCase())
+            extensions.contains(it.extension.lowercase())
         }
 
         // Collect filenames of mods on the FS
@@ -126,7 +140,7 @@ class ModsCollection(private val type: ModType,
         }
 
         // Figure current maximum order, new mods will be pushed below it
-        var maxOrder = mods.maxBy { it.order }?.order ?: 0
+        var maxOrder = mods.maxByOrNull { it.order }?.order ?: 0
 
         // Create an entry for each mod that's on FS but not in DB and assign proper order
         val newMods = arrayListOf<Mod>()
@@ -138,19 +152,24 @@ class ModsCollection(private val type: ModType,
         }
 
         // Commit changes to the database
-        db.use {
-            transaction {
-                // Delete all mods which are in db but not on fs
-                (dbNames - fsNames).forEach {
-                    delete("mod",
-                        "type = {type} AND filename = {filename}",
-                        "type" to type.v,
-                        "filename" to it)
-                }
-
-                // Create all mods which are on fs but not in db
-                newMods.forEach { it.insert(this) }
+        val database = db.writableDatabase
+        database.beginTransaction()
+        try {
+            // Delete all mods which are in db but not on fs
+            (dbNames - fsNames).forEach { filename ->
+                database.delete(
+                    "mod",
+                    "type = ? AND filename = ?",
+                    arrayOf(type.v.toString(), filename)
+                )
             }
+
+            // Create all mods which are on fs but not in db
+            newMods.forEach { it.insert(database) }
+
+            database.setTransactionSuccessful()
+        } finally {
+            database.endTransaction()
         }
 
         // Sort the mods in order
@@ -161,11 +180,10 @@ class ModsCollection(private val type: ModType,
      * Performs DB updates for all mods marked as dirty
      */
     fun update() {
-        db.use {
-            mods.filter { it.dirty }.forEach {
-                it.update(this)
-                it.dirty = false
-            }
+        val database = db.writableDatabase
+        mods.filter { it.dirty }.forEach {
+            it.update(database)
+            it.dirty = false
         }
     }
 }

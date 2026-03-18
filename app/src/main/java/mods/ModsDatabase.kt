@@ -21,10 +21,10 @@ package mods
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import org.jetbrains.anko.db.*
+import android.database.sqlite.SQLiteOpenHelper
 
 class ModsDatabaseOpenHelper private constructor(ctx: Context)
-    : ManagedSQLiteOpenHelper(ctx, "ModsDatabase", null, 1) {
+    : SQLiteOpenHelper(ctx, "ModsDatabase", null, 1) {
 
     init {
         instance = this
@@ -38,17 +38,10 @@ class ModsDatabaseOpenHelper private constructor(ctx: Context)
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.createTable("mod", true,
-            "type" to INTEGER,
-            "filename" to TEXT,
-            "load_order" to INTEGER,
-            "enabled" to INTEGER)
-        db.createIndex("mod_type", "mod", false, true,
-            "type")
-        db.createIndex("mod_filename", "mod", false, true,
-            "filename")
-        db.createIndex("mod_type_name", "mod", true, true,
-            "type", "filename")
+        db.execSQL("CREATE TABLE IF NOT EXISTS mod (type INTEGER, filename TEXT, load_order INTEGER, enabled INTEGER)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS mod_type ON mod(type)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS mod_filename ON mod(filename)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS mod_type_name ON mod(type, filename)")
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
