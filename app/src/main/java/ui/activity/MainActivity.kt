@@ -362,6 +362,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGame() {
+        if (!validateRuntimePayload()) {
+            return
+        }
+
         // Get scaling factor from config; if invalid or not provided, generate one
         var scaling = 0f
 
@@ -411,7 +415,7 @@ class MainActivity : AppCompatActivity() {
                 // Only reinstall static files if they are of a mismatched version
                 try {
                     val stamp = File(Constants.VERSION_STAMP).readText().trim()
-                    if (stamp.toInt() != BuildConfig.VERSION_CODE) {
+                    if (stamp.toInt() != BuildConfig.VERSION_CODE || !hasRequiredStaticFiles()) {
                         reinstallStaticFiles()
                     }
                 } catch (e: Exception) {
@@ -490,11 +494,48 @@ class MainActivity : AppCompatActivity() {
                     dialog.hide()
                     runGame()
                 }
-            } catch (e: IOException) {
-                Log.e(TAG, "Failed to write config files.", e)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to prepare game launch.", e)
+                runOnUiThread {
+                    dialog.hide()
+                    AlertDialog.Builder(this)
+                        .setTitle("Launch failed")
+                        .setMessage("Failed to prepare launch files. Ensure the APK includes OpenMW runtime assets/libraries and that game files are readable.\n\n${e.message ?: "Unknown error"}")
+                        .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int -> }
+                        .show()
+                }
             }
         }
         th.start()
+    }
+
+    private fun hasRequiredStaticFiles(): Boolean {
+        return File(Constants.OPENMW_BASE_CFG).exists()
+            && File(Constants.DEFAULTS_BIN).exists()
+            && File(Constants.RESOURCES).exists()
+    }
+
+    private fun validateRuntimePayload(): Boolean {
+        val hasOpenmwLib = File(applicationInfo.nativeLibraryDir, "libopenmw.so").exists()
+
+        val hasBundledOpenmw = try {
+            val openmwConfig = assets.list("libopenmw/openmw") ?: emptyArray()
+            val openmwResources = assets.list("libopenmw/resources") ?: emptyArray()
+            openmwConfig.isNotEmpty() && openmwResources.isNotEmpty()
+        } catch (e: IOException) {
+            false
+        }
+
+        if (hasOpenmwLib && hasBundledOpenmw) {
+            return true
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Runtime files missing")
+            .setMessage("This APK is missing OpenMW runtime files (libraries/assets), so the game cannot launch. Rebuild using buildscripts/build.sh (or buildscripts/full-build.sh) before installing.")
+            .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int -> }
+            .show()
+        return false
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {

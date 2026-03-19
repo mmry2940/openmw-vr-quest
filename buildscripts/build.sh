@@ -124,8 +124,8 @@ echo "(Please run ./clean.sh manually if you modify any of the options)"
 echo ""
 
 echo "==> Download and set up the NDK"
-./include/download-ndk.sh
-./include/setup-ndk.sh
+bash ./include/download-ndk.sh
+bash ./include/setup-ndk.sh
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 echo "==> Build using $NCPU CPUs"
@@ -157,6 +157,7 @@ source ./command_wrapper.sh true
 
 # Build!
 cmake ../.. \
+	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 	-DCMAKE_INSTALL_PREFIX=$DIR/prefix/$ARCH/ \
 	-DARCH=$ARCH \
 	-DBUILD_TYPE=$BUILD_TYPE \
@@ -166,7 +167,7 @@ cmake ../.. \
 	-DBOOST_ARCH=$BOOST_ARCH \
 	-DBOOST_ADDRESS_MODEL=$BOOST_ADDRESS_MODEL \
 	-DFFMPEG_CPU=$FFMPEG_CPU
-make -j$NCPU
+make -j1
 
 popd
 
@@ -204,7 +205,9 @@ if [[ $DEPLOY_RESOURCES = "true" ]]; then
 	cat "$DIR/../app/openmw.base.cfg" >> "$DST/openmw/openmw.base.cfg"
 
 	# licensing info
-	cp "$DIR/../3rdparty-licenses.txt" "$DST"
+	if [ -f "$DIR/../3rdparty-licenses.txt" ]; then
+		cp "$DIR/../3rdparty-licenses.txt" "$DST"
+	fi
 fi
 
 echo "==> Making your debugging life easier"
@@ -226,7 +229,7 @@ if [ $ASAN = true ]; then
 	chmod +x "../app/wrap/res/lib/$ABI/wrap.sh"
 fi
 
-PATH="$DIR/toolchain/ndk/prebuilt/linux-x86_64/bin/:$DIR/toolchain/$ARCH/$NDK_TRIPLET/bin/:$PATH" ./include/gdb-add-index ./symbols/$ABI/*.so
+PATH="$DIR/toolchain/ndk/prebuilt/linux-x86_64/bin/:$DIR/toolchain/$ARCH/$NDK_TRIPLET/bin/:$PATH" bash ./include/gdb-add-index ./symbols/$ABI/*.so
 
 # gradle should do it, but just in case...
 $NDK_TRIPLET-strip ../app/src/main/jniLibs/$ABI/*.so
