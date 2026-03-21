@@ -28,8 +28,11 @@ import android.system.ErrnoException
 import android.system.Os
 import android.util.Log
 import android.view.WindowManager
+import android.view.View
 import android.widget.RelativeLayout
+import org.json.JSONObject
 import com.libopenmw.openmw.R
+import java.io.File
 
 import org.libsdl.app.SDLActivity
 
@@ -68,7 +71,7 @@ class GameActivity : SDLActivity() {
 
     override fun loadLibraries() {
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val graphicsLibrary = prefs!!.getString("pref_graphicsLibrary_v2", "")
+        val graphicsLibrary = prefs!!.getString("pref_graphicsLibrary_v2", "gles2") ?: "gles2"
         val physicsFPS = prefs!!.getString("pref_physicsFPS2", "")
         if (!physicsFPS!!.isEmpty()) {
             try {
@@ -84,17 +87,37 @@ class GameActivity : SDLActivity() {
         System.loadLibrary("c++_shared")
         System.loadLibrary("openal")
         System.loadLibrary("SDL2")
-        if (graphicsLibrary != "gles1") {
-            try {
-                Os.setenv("OPENMW_GLES_VERSION", "2", true)
-                Os.setenv("LIBGL_ES", "2", true)
-            } catch (e: ErrnoException) {
-                Log.e("OpenMW", "Failed setting environment variables.")
-                e.printStackTrace()
-            }
+        try {
+            when (graphicsLibrary) {
+                "gles1" -> {
+                    // Leave defaults so SDL/OpenMW request GLES 1.x context path.
+                }
 
+                "gles3" -> {
+                    Os.setenv("OPENMW_GLES_VERSION", "3", true)
+                    Os.setenv("LIBGL_ES", "3", true)
+                }
+
+                "vulkan" -> {
+                    // OpenMW Android runtime currently initializes OpenGL contexts.
+                    // Keep a Vulkan intent marker for future support, but use GLES3 on current builds.
+                    Os.setenv("OPENMW_RENDERER", "vulkan", true)
+                    Os.setenv("OPENMW_GLES_VERSION", "3", true)
+                    Os.setenv("LIBGL_ES", "3", true)
+                    Log.w("OpenMW", "Vulkan selected, but this build uses OpenGL. Falling back to GLESv3.")
+                }
+
+                else -> {
+                    Os.setenv("OPENMW_GLES_VERSION", "2", true)
+                    Os.setenv("LIBGL_ES", "2", true)
+                }
+            }
+        } catch (e: ErrnoException) {
+            Log.e("OpenMW", "Failed setting graphics environment variables.", e)
         }
+
         System.loadLibrary("GL")
+        System.loadLibrary("openxr_loader")
         System.loadLibrary("openmw")
     }
 
@@ -104,9 +127,19 @@ class GameActivity : SDLActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ensureNativeLibrariesLoaded()
+        configureQuestOpenXrRuntime()
+        initOpenXRLoader()
         KeepScreenOn()
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         getPathToJni(filesDir.parent, Constants.USER_FILE_STORAGE)
         showControls()
+        enforceImmersiveMode()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        enforceImmersiveMode()
     }
 
     private fun showControls() {
@@ -133,15 +166,27 @@ class GameActivity : SDLActivity() {
     }
 
     public override fun onDestroy() {
-        finish()
-        Process.killProcess(Process.myPid())
         super.onDestroy()
     }
 
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         if (hasFocus) {
-            hideAndroidControls(this)
+            enforceImmersiveMode()
+        }
+    }
+
+    private fun enforceImmersiveMode() {
+        hideAndroidControls(this)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            )
         }
     }
 
@@ -151,9 +196,42 @@ class GameActivity : SDLActivity() {
         return commandlineParser.argv
     }
 
+    @Synchronized
+    private fun ensureNativeLibrariesLoaded() {
+        if (librariesLoaded)
+            return
+        loadLibraries()
+        librariesLoaded = true
+    }
+
     private external fun getPathToJni(path_global: String, path_user: String)
+
+    private external fun setOpenXrRuntimeJson(runtimeJsonPath: String)
+
+    private external fun initOpenXRLoader()
+
+    private fun configureQuestOpenXrRuntime() {
+        try {
+            val runtimeDir = File(filesDir, "openxr")
+            if (!runtimeDir.exists()) {
+                runtimeDir.mkdirs()
+            }
+            val runtimeJson = File(runtimeDir, "active_runtime.aarch64.json")
+            val json = JSONObject()
+            val runtime = JSONObject()
+            runtime.put("library_path", "libopenxr_forwardloader.so")
+            json.put("file_format_version", "1.0.0")
+            json.put("runtime", runtime)
+            runtimeJson.writeText(json.toString())
+            setOpenXrRuntimeJson(runtimeJson.absolutePath)
+        } catch (e: Exception) {
+            Log.e("OpenMW", "Failed to configure OpenXR runtime JSON", e)
+        }
+    }
 
     companion object {
         var mouseMode = MouseMode.Hybrid
+        @Volatile
+        private var librariesLoaded = false
     }
 }

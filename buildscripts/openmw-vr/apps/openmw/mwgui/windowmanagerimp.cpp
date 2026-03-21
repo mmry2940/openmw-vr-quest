@@ -568,8 +568,15 @@ namespace MWGui
             delete mGui;
 
             mGuiPlatform->shutdown();
+#ifdef ANDROID
+            // Android process exits immediately after SDL thread shutdown; avoid
+            // MyGUI platform teardown delete-order crashes during app exit.
+            mGuiPlatform = nullptr;
+            mVideoWrapper = nullptr;
+#else
             delete mGuiPlatform;
             delete mVideoWrapper;
+#endif
         }
         catch(const MyGUI::Exception& e)
         {

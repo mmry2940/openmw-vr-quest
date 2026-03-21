@@ -99,7 +99,11 @@ void KeyboardNavigation::_unlinkWidget(MyGUI::Widget *widget)
 
 #ifdef USE_OPENXR
     if (MWBase::Environment::get().getVrMode())
-        MWVR::Environment::get().getGUIManager()->notifyWidgetUnlinked(widget);
+    {
+        auto* vrGuiManager = MWVR::Environment::get().getGUIManager();
+        if (vrGuiManager)
+            vrGuiManager->notifyWidgetUnlinked(widget);
+    }
 #endif
 }
 

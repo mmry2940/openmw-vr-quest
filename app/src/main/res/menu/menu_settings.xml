@@ -22,5 +22,11 @@
             app:showAsAction="never"
             />
 
+        <item
+            android:id="@+id/action_enter_vr"
+            android:title="@string/action_enter_vr"
+            app:showAsAction="never"
+            />
+
     </group>
 </menu>

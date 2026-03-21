@@ -191,14 +191,23 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
 
                     List<InputDevice.MotionRange> ranges = joystickDevice.getMotionRanges();
                     Collections.sort(ranges, new RangeComparator());
+                    // Track which axis IDs we've already added to avoid duplicates.
+                    // Quest merges both controllers into one InputDevice, causing
+                    // each axis to appear twice and breaking SDL controller mapping.
+                    java.util.HashSet<Integer> seenAxes = new java.util.HashSet<Integer>();
+                    java.util.HashSet<Integer> seenHats = new java.util.HashSet<Integer>();
                     for (InputDevice.MotionRange range : ranges ) {
                         if ((range.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) != 0) {
                             if (range.getAxis() == MotionEvent.AXIS_HAT_X ||
                                     range.getAxis() == MotionEvent.AXIS_HAT_Y) {
-                                joystick.hats.add(range);
+                                if (seenHats.add(range.getAxis())) {
+                                    joystick.hats.add(range);
+                                }
                             }
                             else {
-                                joystick.axes.add(range);
+                                if (seenAxes.add(range.getAxis())) {
+                                    joystick.axes.add(range);
+                                }
                             }
                         }
                     }
@@ -245,7 +254,10 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
 
     @Override
     public boolean handleMotionEvent(MotionEvent event) {
-        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) != 0) {
+        int source = event.getSource();
+        if ((source & InputDevice.SOURCE_CLASS_JOYSTICK) != 0 ||
+            (source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
+            (source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) {
             int actionPointerIndex = event.getActionIndex();
             int action = event.getActionMasked();
             switch(action) {
@@ -547,36 +559,39 @@ class SDLGenericMotionListener_API12 implements View.OnGenericMotionListener {
     public boolean onGenericMotion(View v, MotionEvent event) {
         float x, y;
         int action;
+        int source = event.getSource();
+        int deviceId = event.getDeviceId();
 
-        switch ( event.getSource() ) {
-            case InputDevice.SOURCE_JOYSTICK:
-            case InputDevice.SOURCE_GAMEPAD:
-            case InputDevice.SOURCE_DPAD:
-                return SDLControllerManager.handleJoystickMotionEvent(event);
+        if ((source & InputDevice.SOURCE_CLASS_JOYSTICK) != 0 ||
+            (source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
+            (source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD ||
+            (source & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD) {
+            return SDLControllerManager.handleJoystickMotionEvent(event);
+        }
 
-            case InputDevice.SOURCE_MOUSE:
-                action = event.getActionMasked();
-                switch (action) {
-                    case MotionEvent.ACTION_SCROLL:
-                        x = event.getAxisValue(MotionEvent.AXIS_HSCROLL, 0);
-                        y = event.getAxisValue(MotionEvent.AXIS_VSCROLL, 0);
-                        SDLActivity.onNativeMouse(0, action, x, y, false);
-                        return true;
+        if (SDLControllerManager.isDeviceSDLJoystick(deviceId)) {
+            return true;
+        }
 
-                    case MotionEvent.ACTION_HOVER_MOVE:
-                        x = event.getX(0);
-                        y = event.getY(0);
+        if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
+            action = event.getActionMasked();
+            switch (action) {
+                case MotionEvent.ACTION_SCROLL:
+                    x = event.getAxisValue(MotionEvent.AXIS_HSCROLL, 0);
+                    y = event.getAxisValue(MotionEvent.AXIS_VSCROLL, 0);
+                    SDLActivity.onNativeMouse(0, action, x, y, false);
+                    return true;
 
-                        SDLActivity.onNativeMouse(0, action, x, y, false);
-                        return true;
+                case MotionEvent.ACTION_HOVER_MOVE:
+                    x = event.getX(0);
+                    y = event.getY(0);
 
-                    default:
-                        break;
-                }
-                break;
+                    SDLActivity.onNativeMouse(0, action, x, y, false);
+                    return true;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
 
         // Event was not managed
@@ -681,57 +696,60 @@ class SDLGenericMotionListener_API26 extends SDLGenericMotionListener_API24 {
     public boolean onGenericMotion(View v, MotionEvent event) {
         float x, y;
         int action;
+        int source = event.getSource();
+        int deviceId = event.getDeviceId();
 
-        switch ( event.getSource() ) {
-            case InputDevice.SOURCE_JOYSTICK:
-            case InputDevice.SOURCE_GAMEPAD:
-            case InputDevice.SOURCE_DPAD:
-                return SDLControllerManager.handleJoystickMotionEvent(event);
+        if ((source & InputDevice.SOURCE_CLASS_JOYSTICK) != 0 ||
+            (source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
+            (source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD ||
+            (source & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD) {
+            return SDLControllerManager.handleJoystickMotionEvent(event);
+        }
 
-            case InputDevice.SOURCE_MOUSE:
-            // DeX desktop mouse cursor is a separate non-standard input type.
-            case InputDevice.SOURCE_MOUSE | InputDevice.SOURCE_TOUCHSCREEN:
-                action = event.getActionMasked();
-                switch (action) {
-                    case MotionEvent.ACTION_SCROLL:
-                        x = event.getAxisValue(MotionEvent.AXIS_HSCROLL, 0);
-                        y = event.getAxisValue(MotionEvent.AXIS_VSCROLL, 0);
-                        SDLActivity.onNativeMouse(0, action, x, y, false);
-                        return true;
+        if (SDLControllerManager.isDeviceSDLJoystick(deviceId)) {
+            return true;
+        }
 
-                    case MotionEvent.ACTION_HOVER_MOVE:
-                        x = event.getX(0);
-                        y = event.getY(0);
-                        SDLActivity.onNativeMouse(0, action, x, y, false);
-                        return true;
+        if ((source & InputDevice.SOURCE_MOUSE_RELATIVE) == InputDevice.SOURCE_MOUSE_RELATIVE) {
+            action = event.getActionMasked();
+            switch (action) {
+                case MotionEvent.ACTION_SCROLL:
+                    x = event.getAxisValue(MotionEvent.AXIS_HSCROLL, 0);
+                    y = event.getAxisValue(MotionEvent.AXIS_VSCROLL, 0);
+                    SDLActivity.onNativeMouse(0, action, x, y, false);
+                    return true;
 
-                    default:
-                        break;
-                }
-                break;
+                case MotionEvent.ACTION_HOVER_MOVE:
+                    x = event.getX(0);
+                    y = event.getY(0);
+                    SDLActivity.onNativeMouse(0, action, x, y, true);
+                    return true;
 
-            case InputDevice.SOURCE_MOUSE_RELATIVE:
-                action = event.getActionMasked();
-                switch (action) {
-                    case MotionEvent.ACTION_SCROLL:
-                        x = event.getAxisValue(MotionEvent.AXIS_HSCROLL, 0);
-                        y = event.getAxisValue(MotionEvent.AXIS_VSCROLL, 0);
-                        SDLActivity.onNativeMouse(0, action, x, y, false);
-                        return true;
+                default:
+                    break;
+            }
+        }
 
-                    case MotionEvent.ACTION_HOVER_MOVE:
-                        x = event.getX(0);
-                        y = event.getY(0);
-                        SDLActivity.onNativeMouse(0, action, x, y, true);
-                        return true;
+        // DeX desktop mouse cursor is a separate non-standard input type.
+        if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE ||
+            source == (InputDevice.SOURCE_MOUSE | InputDevice.SOURCE_TOUCHSCREEN)) {
+            action = event.getActionMasked();
+            switch (action) {
+                case MotionEvent.ACTION_SCROLL:
+                    x = event.getAxisValue(MotionEvent.AXIS_HSCROLL, 0);
+                    y = event.getAxisValue(MotionEvent.AXIS_VSCROLL, 0);
+                    SDLActivity.onNativeMouse(0, action, x, y, false);
+                    return true;
 
-                    default:
-                        break;
-                }
-                break;
+                case MotionEvent.ACTION_HOVER_MOVE:
+                    x = event.getX(0);
+                    y = event.getY(0);
+                    SDLActivity.onNativeMouse(0, action, x, y, false);
+                    return true;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
 
         // Event was not managed

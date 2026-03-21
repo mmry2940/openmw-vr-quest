@@ -61,7 +61,7 @@ import utils.MyApp
 import utils.Utils.hideAndroidControls
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+open class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity() {
      * - the game files must be selected
      * - there must be at least 1 activated mod (user can ignore this warning)
      */
-    private fun checkStartGame() {
+    protected open fun checkStartGame() {
         // First, check that there are game files present
         val inst = GameInstaller(prefs.getString("game_files", "")!!)
         if (!inst.check()) {
@@ -349,22 +349,56 @@ class MainActivity : AppCompatActivity() {
     private fun configureDefaultsBin(args: Map<String, String>) {
         val defaults = File(Constants.DEFAULTS_BIN).readText()
         val decoded = String(Base64.getDecoder().decode(defaults))
-        val lines = decoded.lines().map {
-            for ((k, v) in args) {
-                if (it.startsWith("$k ="))
-                    return@map "$k = $v"
+        val normalizedArgs = args.mapKeys { it.key.trim().lowercase(Locale.ROOT) }
+
+        var currentCategory = ""
+        val seenSettings = HashSet<String>()
+        val lines = decoded.lines().mapNotNull { rawLine ->
+            val line = rawLine
+            val trimmed = line.trim()
+
+            if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+                currentCategory = trimmed.substring(1, trimmed.length - 1).trim().lowercase(Locale.ROOT)
+                return@mapNotNull line
             }
-            it
+
+            if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                return@mapNotNull line
+            }
+
+            val separator = line.indexOf('=')
+            if (separator < 0) {
+                return@mapNotNull line
+            }
+
+            val key = line.substring(0, separator).trim()
+            val normalizedKey = key.lowercase(Locale.ROOT)
+            val settingId = "$currentCategory::$normalizedKey"
+            if (!seenSettings.add(settingId)) {
+                Log.w(TAG, "configureDefaultsBin: dropping duplicate setting [$currentCategory] $key")
+                return@mapNotNull null
+            }
+
+            val replacement = normalizedArgs[normalizedKey]
+            if (replacement != null) {
+                return@mapNotNull "$key = $replacement"
+            }
+
+            line
         }
+
         val data = lines.joinToString("\n")
         val encoded = Base64.getEncoder().encodeToString(data.toByteArray())
         File(Constants.DEFAULTS_BIN).writeText(encoded)
     }
 
-    private fun startGame() {
+    protected open fun startGame() {
+        Log.d(TAG, "startGame: validating runtime payload")
         if (!validateRuntimePayload()) {
+            Log.e(TAG, "startGame: validateRuntimePayload FAILED")
             return
         }
+        Log.d(TAG, "startGame: payload OK, starting prep thread")
 
         // Get scaling factor from config; if invalid or not provided, generate one
         var scaling = 0f
@@ -441,6 +475,8 @@ class MainActivity : AppCompatActivity() {
                         "viewing distance" to "2048.0",
                         "toggle sneak" to "true",
                         "camera sensitivity" to "0.4",
+                        "enable controller" to "true",
+                        "enable gyroscope" to "true",
                         // and a bunch of windows positioning
                         "stats x" to "0.0",
                         "stats y" to "0.0",
@@ -491,13 +527,14 @@ class MainActivity : AppCompatActivity() {
 
                 runOnUiThread {
                     obtainFixedScreenResolution()
-                    dialog.hide()
+                    dialog.dismiss()
+                    Log.d(TAG, "startGame: prep complete, launching GameActivity")
                     runGame()
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to prepare game launch.", e)
                 runOnUiThread {
-                    dialog.hide()
+                    dialog.dismiss()
                     AlertDialog.Builder(this)
                         .setTitle("Launch failed")
                         .setMessage("Failed to prepare launch files. Ensure the APK includes OpenMW runtime assets/libraries and that game files are readable.\n\n${e.message ?: "Unknown error"}")
@@ -510,19 +547,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun hasRequiredStaticFiles(): Boolean {
+        val alchemyLayout = File(Constants.RESOURCES, "mygui/openmw_alchemy_window.layout")
+        val hasAlchemyFilterEdit = try {
+            alchemyLayout.exists() && alchemyLayout.readText().contains("name=\"FilterEdit\"")
+        } catch (e: IOException) {
+            false
+        }
+
         return File(Constants.OPENMW_BASE_CFG).exists()
             && File(Constants.DEFAULTS_BIN).exists()
             && File(Constants.RESOURCES).exists()
+            && File(Constants.RESOURCES, "mygui/core_vr.xml").exists()
+            && File(Constants.RESOURCES, "mygui/openmw_layers_vr.xml").exists()
+            && File(Constants.RESOURCES, "mygui/openmw_hud_vr.layout").exists()
+            && hasAlchemyFilterEdit
+            && File(Constants.GLOBAL_CONFIG, "settings-overrides-vr.cfg").exists()
     }
 
     private fun validateRuntimePayload(): Boolean {
         val hasOpenmwLib = File(applicationInfo.nativeLibraryDir, "libopenmw.so").exists()
+        Log.d(TAG, "validateRuntimePayload: nativeLibDir=${applicationInfo.nativeLibraryDir}, hasOpenmwLib=$hasOpenmwLib")
 
         val hasBundledOpenmw = try {
             val openmwConfig = assets.list("libopenmw/openmw") ?: emptyArray()
             val openmwResources = assets.list("libopenmw/resources") ?: emptyArray()
+            Log.d(TAG, "validateRuntimePayload: openmwConfig.size=${openmwConfig.size}, openmwResources.size=${openmwResources.size}")
             openmwConfig.isNotEmpty() && openmwResources.isNotEmpty()
         } catch (e: IOException) {
+            Log.e(TAG, "validateRuntimePayload: IOException listing assets", e)
             false
         }
 
@@ -566,6 +618,13 @@ class MainActivity : AppCompatActivity() {
                     .setMessage(text)
                     .show()
 
+                true
+            }
+
+            R.id.action_enter_vr -> {
+                val intent = Intent(this, VrEntryActivity::class.java)
+                intent.putExtra(VrEntryActivity.EXTRA_AUTO_START_GAME, true)
+                startActivity(intent)
                 true
             }
 

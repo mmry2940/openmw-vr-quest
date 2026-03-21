@@ -481,12 +481,9 @@ void RenderManager::initialise()
 
 void RenderManager::shutdown()
 {
-    // TODO: Is this method meaningful? Why not just let the destructor handle everything?
-    for (auto guiCamera : mGuiCameras)
-    {
-        guiCamera->removeChildren(0, guiCamera->getNumChildren());
-        mSceneRoot->removeChild(guiCamera);
-    }
+    // Cleanup is performed in the destructor. Keeping shutdown() as a no-op
+    // avoids crashes when a stale pointer invokes shutdown during teardown.
+    return;
 }
 
 MyGUI::IVertexBuffer* RenderManager::createVertexBuffer()

@@ -161,7 +161,8 @@ namespace MWVR
 
     void VRInputManager::injectMousePress(int sdlButton, bool onPress)
     {
-        if (Environment::get().getGUIManager()->injectMouseClick(onPress))
+        auto* vrGuiManager = Environment::get().getGUIManager();
+        if (vrGuiManager && vrGuiManager->injectMouseClick(onPress))
             return;
 
         SDL_MouseButtonEvent arg;

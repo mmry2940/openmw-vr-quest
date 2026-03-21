@@ -1735,6 +1735,8 @@ class SDLMain implements Runnable {
 class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     View.OnKeyListener, View.OnTouchListener, SensorEventListener  {
 
+    private static final float QUEST_HEADLOOK_SENSITIVITY = 600.0f;
+
     // Sensors
     protected SensorManager mSensorManager;
     protected Display mDisplay;
@@ -1747,6 +1749,12 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     private int fixedWidth = 0;
     private int fixedHeight = 0;
+    private boolean mHeadLookEnabled;
+    private boolean mHasHeadRotation;
+    private float mLastHeadYaw;
+    private float mLastHeadPitch;
+    private final float[] mHeadRotationMatrix = new float[9];
+    private final float[] mHeadOrientation = new float[3];
 
     // Startup
     public SDLSurface(Context context) {
@@ -1773,8 +1781,21 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         // Some arbitrary defaults to avoid a potential division by zero
         mWidth = 1.0f;
         mHeight = 1.0f;
+        mHeadLookEnabled = isQuestLikeDevice();
+        mHasHeadRotation = false;
 
         mIsSurfaceReady = false;
+    }
+
+    private static boolean isQuestLikeDevice() {
+        String manufacturer = Build.MANUFACTURER == null ? "" : Build.MANUFACTURER.toLowerCase();
+        String brand = Build.BRAND == null ? "" : Build.BRAND.toLowerCase();
+        String model = Build.MODEL == null ? "" : Build.MODEL.toLowerCase();
+        String product = Build.PRODUCT == null ? "" : Build.PRODUCT.toLowerCase();
+
+        return manufacturer.contains("oculus") || manufacturer.contains("meta") ||
+               brand.contains("oculus") || brand.contains("meta") ||
+               model.contains("quest") || product.contains("quest");
     }
 
     @Override
@@ -1803,6 +1824,11 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     public void handlePause() {
         enableSensor(Sensor.TYPE_ACCELEROMETER, false);
+        if (mHeadLookEnabled) {
+            mHasHeadRotation = false;
+            enableSensor(Sensor.TYPE_GAME_ROTATION_VECTOR, false);
+            enableSensor(Sensor.TYPE_ROTATION_VECTOR, false);
+        }
     }
 
     public void handleResume() {
@@ -1812,6 +1838,10 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         setOnKeyListener(this);
         setOnTouchListener(this);
         enableSensor(Sensor.TYPE_ACCELEROMETER, true);
+        if (mHeadLookEnabled) {
+            enableSensor(Sensor.TYPE_GAME_ROTATION_VECTOR, true);
+            enableSensor(Sensor.TYPE_ROTATION_VECTOR, true);
+        }
     }
 
     public Surface getNativeSurface() {
@@ -1991,7 +2021,17 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             }
         }
 
-        if ((source & InputDevice.SOURCE_KEYBOARD) != 0) {
+        boolean shouldDispatchAsKeyboard = (source & InputDevice.SOURCE_KEYBOARD) != 0;
+        if (!shouldDispatchAsKeyboard) {
+            // Some Android VR runtimes report controller key events as gamepad/dpad only.
+            // Forward these as key events so OpenMW key binds still work when pad mapping fails.
+            shouldDispatchAsKeyboard = ((source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
+                                       ((source & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD) ||
+                                       ((source & InputDevice.SOURCE_CLASS_JOYSTICK) != 0) ||
+                                       ((source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK);
+        }
+
+        if (shouldDispatchAsKeyboard) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 //Log.v("SDL", "key down: " + keyCode);
                 if (SDLActivity.isTextInputEvent(event)) {
@@ -2035,6 +2075,11 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         int mouseButton;
         int i = -1;
         float x,y,p;
+
+        if (SDLControllerManager.isDeviceSDLJoystick(touchDevId)) {
+            // Quest controllers may also present pointer sources; keep them on joystick paths.
+            return true;
+        }
 
         // drop event unless the mouse is shown (i.e. unless we're in a mouse-enabled menu)
         if ((action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) &&
@@ -2145,6 +2190,39 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        int sensorType = event.sensor.getType();
+
+        if (mHeadLookEnabled &&
+            (sensorType == Sensor.TYPE_GAME_ROTATION_VECTOR || sensorType == Sensor.TYPE_ROTATION_VECTOR)) {
+            SensorManager.getRotationMatrixFromVector(mHeadRotationMatrix, event.values);
+            SensorManager.getOrientation(mHeadRotationMatrix, mHeadOrientation);
+
+            float yaw = mHeadOrientation[0];
+            float pitch = mHeadOrientation[1];
+
+            if (mHasHeadRotation && SDLActivity.isMouseShown() == 0) {
+                float deltaYaw = yaw - mLastHeadYaw;
+                if (deltaYaw > Math.PI) {
+                    deltaYaw -= (float) (2.0 * Math.PI);
+                } else if (deltaYaw < -Math.PI) {
+                    deltaYaw += (float) (2.0 * Math.PI);
+                }
+
+                float deltaPitch = pitch - mLastHeadPitch;
+
+                int relX = Math.round(-deltaYaw * QUEST_HEADLOOK_SENSITIVITY);
+                int relY = Math.round(deltaPitch * QUEST_HEADLOOK_SENSITIVITY);
+                if (relX != 0 || relY != 0) {
+                    SDLActivity.sendRelativeMouseMotion(relX, relY);
+                }
+            }
+
+            mLastHeadYaw = yaw;
+            mLastHeadPitch = pitch;
+            mHasHeadRotation = true;
+            return;
+        }
+
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 
             // Since we may have an orientation set, we won't receive onConfigurationChanged events.

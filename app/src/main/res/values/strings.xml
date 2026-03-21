@@ -67,11 +67,15 @@
     <string-array name="pref_graphicsLibrary_entries">
         <item>GLESv1</item>
         <item>GLESv2</item>
+        <item>GLESv3</item>
+        <item>Vulkan (experimental)</item>
     </string-array>
 
     <string-array name="pref_graphicsLibrary_values">
         <item>gles1</item>
         <item>gles2</item>
+        <item>gles3</item>
+        <item>vulkan</item>
     </string-array>
 
     <string-array name="pref_physicsFPS2_entries">
@@ -106,6 +110,7 @@
     <string name="pref_customResolution">Custom resolution</string>
     <string name="mods">Mods…</string>
     <string name="action_about">About</string>
+    <string name="action_enter_vr">Enter VR now</string>
 
     <string name="about_title">About OMW</string>
     <string name="activity_mods">Mods</string>

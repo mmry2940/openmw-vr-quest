@@ -7,6 +7,10 @@
 #include <Windows.h>
 #include <objbase.h>
 
+#elif __ANDROID__
+#include <jni.h>
+#include <EGL/egl.h>
+
 #elif __linux__
 #include <X11/Xlib.h>
 #include <GL/glx.h>

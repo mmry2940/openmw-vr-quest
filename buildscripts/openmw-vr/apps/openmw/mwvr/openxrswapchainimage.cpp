@@ -13,6 +13,10 @@
 #include <dxgi1_2.h>
 #endif
 
+#elif __ANDROID__
+#include <jni.h>
+#include <EGL/egl.h>
+
 #elif __linux__
 #include <X11/Xlib.h>
 #include <GL/glx.h>
@@ -36,6 +40,7 @@ namespace MWVR {
     template<typename Image>
     class OpenXRSwapchainImageTemplate;
 
+#ifdef XR_USE_GRAPHICS_API_OPENGL
     template<>
     class OpenXRSwapchainImageTemplate< XrSwapchainImageOpenGLKHR > : public OpenXRSwapchainImage
     {
@@ -72,6 +77,46 @@ namespace MWVR {
         uint32_t mBufferBits;
         std::unique_ptr<VRFramebuffer> mFramebuffer;
     };
+#endif
+
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+    template<>
+    class OpenXRSwapchainImageTemplate< XrSwapchainImageOpenGLESKHR > : public OpenXRSwapchainImage
+    {
+    public:
+        static constexpr XrStructureType XrType = XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR;
+
+    public:
+        OpenXRSwapchainImageTemplate(osg::GraphicsContext* gc, XrSwapchainCreateInfo swapchainCreateInfo, const XrSwapchainImageOpenGLESKHR& xrImage)
+            : OpenXRSwapchainImage()
+            , mXrImage(xrImage)
+            , mBufferBits(0)
+            , mFramebuffer(nullptr)
+        {
+            mFramebuffer.reset(new VRFramebuffer(gc->getState(), swapchainCreateInfo.width, swapchainCreateInfo.height, swapchainCreateInfo.sampleCount));
+            if (swapchainCreateInfo.usageFlags & XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+            {
+                mFramebuffer->setDepthBuffer(gc, mXrImage.image, false);
+                mBufferBits = GL_DEPTH_BUFFER_BIT;
+            }
+            else
+            {
+                mFramebuffer->setColorBuffer(gc, mXrImage.image, false);
+                mBufferBits = GL_COLOR_BUFFER_BIT;
+            }
+        }
+
+        void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y) override
+        {
+            mFramebuffer->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
+            readBuffer.blit(gc, offset_x, offset_y, offset_x + mFramebuffer->width(), offset_y + mFramebuffer->height(), 0, 0, mFramebuffer->width(), mFramebuffer->height(), mBufferBits, GL_NEAREST);
+        }
+
+        XrSwapchainImageOpenGLESKHR mXrImage;
+        uint32_t mBufferBits;
+        std::unique_ptr<VRFramebuffer> mFramebuffer;
+    };
+#endif
 
 #ifdef XR_USE_GRAPHICS_API_D3D11
     template<>
@@ -197,10 +242,22 @@ namespace MWVR {
     {
         auto* xr = Environment::get().getManager();
 
-        if (xr->xrExtensionIsEnabled(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME))
+        if (false)
+        {
+            // placeholder - OpenGL/GLES extension checks below
+        }
+#ifdef XR_USE_GRAPHICS_API_OPENGL
+        else if (xr->xrExtensionIsEnabled(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME))
         {
             return enumerateSwapchainImagesImpl<XrSwapchainImageOpenGLKHR>(gc, swapchain, swapchainCreateInfo);
         }
+#endif
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+        else if (xr->xrExtensionIsEnabled(XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME))
+        {
+            return enumerateSwapchainImagesImpl<XrSwapchainImageOpenGLESKHR>(gc, swapchain, swapchainCreateInfo);
+        }
+#endif
 #ifdef XR_USE_GRAPHICS_API_D3D11
         else if (xr->xrExtensionIsEnabled(XR_KHR_D3D11_ENABLE_EXTENSION_NAME))
         {

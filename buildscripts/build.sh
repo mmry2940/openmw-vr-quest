@@ -177,8 +177,15 @@ rm -rf ../app/wrap/
 rm -rf ../app/src/main/jniLibs/$ABI/
 mkdir -p ../app/src/main/jniLibs/$ABI/
 
-# libopenmw.so is a special case
-find build/$ARCH/openmw-prefix/ -iname "libopenmw.so" -exec cp "{}" ../app/src/main/jniLibs/$ABI/libopenmw.so \;
+# libopenmw.so is a special case.
+# In VR builds the JNI entry points are linked into libopenmw_vr.so, so prefer
+# that binary and copy it as libopenmw.so for Android runtime loading.
+OPENMW_VR_SO=$(find build/$ARCH/openmw-prefix/ -iname "libopenmw_vr.so" | head -n 1)
+if [[ -n "$OPENMW_VR_SO" ]]; then
+	cp "$OPENMW_VR_SO" ../app/src/main/jniLibs/$ABI/libopenmw.so
+else
+	find build/$ARCH/openmw-prefix/ -iname "libopenmw.so" -exec cp "{}" ../app/src/main/jniLibs/$ABI/libopenmw.so \;
+fi
 
 # copy over libs we compiled
 cp prefix/$ARCH/lib/{libopenal,libSDL2,libhidapi,libGL}.so ../app/src/main/jniLibs/$ABI/

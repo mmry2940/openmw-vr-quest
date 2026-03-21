@@ -632,7 +632,9 @@ namespace MWGui
             MWVR::Environment::get().getSession()->processChangedSettings(changed);
             MWVR::Environment::get().getTrackingManager()->processChangedSettings(changed);
             MWVR::Environment::get().getViewer()->processChangedSettings(changed);
-            MWVR::Environment::get().getGUIManager()->processChangedSettings(changed);
+            auto* vrGuiManager = MWVR::Environment::get().getGUIManager();
+            if (vrGuiManager)
+                vrGuiManager->processChangedSettings(changed);
         }
 #endif
         Settings::Manager::resetPendingChanges();

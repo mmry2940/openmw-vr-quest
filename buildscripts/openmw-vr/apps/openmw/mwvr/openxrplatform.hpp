@@ -72,6 +72,7 @@ namespace MWVR
         void selectGraphicsAPIExtension();
         bool selectDirectX();
         bool selectOpenGL();
+        bool selectOpenGLES();
 
         ExtensionMap mAvailableExtensions;
         LayerMap mAvailableLayers;

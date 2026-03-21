@@ -12,6 +12,10 @@
 #include <d3d11_1.h>
 #endif
 
+#elif __ANDROID__
+#include <jni.h>
+#include <EGL/egl.h>
+
 #elif __linux__
 #include <X11/Xlib.h>
 #include <GL/glx.h>
@@ -51,7 +55,7 @@ namespace MWVR
             std::stringstream ss;
 #ifdef _WIN32
             ss << sourceLocation << ": OpenXR[Error: " << resultString << "][Thread: " << std::this_thread::get_id() << "]: " << originator;
-#elif __linux__
+#else
             ss << sourceLocation << ": OpenXR[Error: " << resultString << "][Thread: " << std::this_thread::get_id() << "]: " << originator;
 #endif
             Log(Debug::Error) << ss.str();
@@ -62,7 +66,7 @@ namespace MWVR
         {
 #ifdef _WIN32
             Log(Debug::Verbose) << sourceLocation << ": OpenXR[" << resultString << "][" << std::this_thread::get_id() << "]: " << originator;
-#elif __linux__
+#else
             Log(Debug::Verbose) << sourceLocation << ": OpenXR[" << resultString << "][" << std::this_thread::get_id() << "]: " << originator;
 #endif
         }
@@ -302,6 +306,20 @@ namespace MWVR
         return false;
     }
 
+    bool OpenXRPlatform::selectOpenGLES()
+    {
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+        if (mAvailableExtensions.count(XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME))
+        {
+            mGraphicsAPIExtension = XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME;
+            return true;
+        }
+        else
+            Log(Debug::Warning) << "Warning: Failed to select OpenGL ES swapchains: OpenXR runtime does not support essential extension '" << XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME << "'";
+#endif
+        return false;
+    }
+
 #ifdef XR_USE_GRAPHICS_API_OPENGL
 #if    !XR_KHR_opengl_enable
 #error "OpenXR extensions missing. Please upgrade your copy of the OpenXR SDK to 1.0.13 minimum"
@@ -323,11 +341,16 @@ namespace MWVR
     {
         bool preferDirectX = Settings::Manager::getBool("Prefer DirectX swapchains", "VR");
 
+#ifdef __ANDROID__
+        if (selectOpenGLES())
+            return;
+#else
         if (preferDirectX)
             if (selectDirectX() || selectOpenGL())
                 return;
         if (selectOpenGL() || selectDirectX())
             return;
+#endif
 
         Log(Debug::Verbose) << "Error: No graphics API supported by OpenMW VR is supported by the OpenXR runtime.";
         throw std::runtime_error("Error: No graphics API supported by OpenMW VR is supported by the OpenXR runtime.");
@@ -474,6 +497,39 @@ namespace MWVR
         {
             throw std::logic_error("Enum value not implemented");
         }
+#elif __ANDROID__
+        {
+            // Get system requirements for OpenGL ES
+            PFN_xrGetOpenGLESGraphicsRequirementsKHR p_getRequirements = nullptr;
+            xrGetInstanceProcAddr(instance, "xrGetOpenGLESGraphicsRequirementsKHR", reinterpret_cast<PFN_xrVoidFunction*>(&p_getRequirements));
+            if (p_getRequirements)
+            {
+                XrGraphicsRequirementsOpenGLESKHR requirements{ XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR };
+                CHECK_XRCMD(p_getRequirements(instance, systemId, &requirements));
+            }
+
+            EGLDisplay display = eglGetCurrentDisplay();
+            EGLContext context = eglGetCurrentContext();
+            EGLint configId = 0;
+            eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
+            const EGLint configAttribs[] = { EGL_CONFIG_ID, configId, EGL_NONE };
+            EGLConfig config = nullptr;
+            EGLint numConfigs = 0;
+            eglChooseConfig(display, configAttribs, &config, 1, &numConfigs);
+
+            XrGraphicsBindingOpenGLESAndroidKHR graphicsBindings{ XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR };
+            graphicsBindings.display = display;
+            graphicsBindings.config = config;
+            graphicsBindings.context = context;
+
+            if (!graphicsBindings.context)
+                Log(Debug::Warning) << "Missing EGL context";
+
+            XrSessionCreateInfo createInfo{ XR_TYPE_SESSION_CREATE_INFO };
+            createInfo.next = &graphicsBindings;
+            createInfo.systemId = systemId;
+            res = CHECK_XRCMD(xrCreateSession(instance, &createInfo, &session));
+        }
 #elif __linux__
         {
             // Get system requirements
@@ -557,7 +613,14 @@ namespace MWVR
     int64_t OpenXRPlatform::selectColorFormat()
     {
         std::string graphicsAPIExtension = graphicsAPIExtensionName();
-        if (graphicsAPIExtension == XR_KHR_OPENGL_ENABLE_EXTENSION_NAME)
+        if (false
+#ifdef XR_USE_GRAPHICS_API_OPENGL
+            || graphicsAPIExtension == XR_KHR_OPENGL_ENABLE_EXTENSION_NAME
+#endif
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+            || graphicsAPIExtension == XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME
+#endif
+        )
         {
             std::vector<int64_t> requestedColorSwapchainFormats;
 
@@ -604,7 +667,14 @@ namespace MWVR
     int64_t OpenXRPlatform::selectDepthFormat()
     {
         std::string graphicsAPIExtension = graphicsAPIExtensionName();
-        if (graphicsAPIExtension == XR_KHR_OPENGL_ENABLE_EXTENSION_NAME)
+        if (false
+#ifdef XR_USE_GRAPHICS_API_OPENGL
+            || graphicsAPIExtension == XR_KHR_OPENGL_ENABLE_EXTENSION_NAME
+#endif
+#ifdef XR_USE_GRAPHICS_API_OPENGL_ES
+            || graphicsAPIExtension == XR_KHR_OPENGL_ES_ENABLE_EXTENSION_NAME
+#endif
+        )
         {
             // Find supported depth swapchain format.
             std::vector<int64_t> requestedDepthSwapchainFormats = {
