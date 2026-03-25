@@ -10,6 +10,7 @@ ASAN="false"
 DEPLOY_RESOURCES="true"
 LTO="false"
 BUILD_TYPE="release"
+REQUIRE_VR_RUNTIME="true"
 CFLAGS="-fPIC"
 CXXFLAGS="-fPIC -frtti -fexceptions"
 LDFLAGS=""
@@ -24,6 +25,7 @@ usage() {
 	echo "	--ccache: use ccache to speed up repeated builds"
 	echo "	--debug: produce a debug build without optimizations"
 	echo "	--release: produce a release build with optimizations (default)"
+	echo "	--allow-non-vr: allow fallback to non-VR libopenmw.so if VR runtime is missing"
 	exit 0
 }
 
@@ -58,6 +60,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--release)
 			BUILD_TYPE="release"
+			shift
+			;;
+		--allow-non-vr)
+			REQUIRE_VR_RUNTIME="false"
 			shift
 			;;
 		--no-resources)
@@ -166,7 +172,8 @@ cmake ../.. \
 	-DABI=$ABI \
 	-DBOOST_ARCH=$BOOST_ARCH \
 	-DBOOST_ADDRESS_MODEL=$BOOST_ADDRESS_MODEL \
-	-DFFMPEG_CPU=$FFMPEG_CPU
+	-DFFMPEG_CPU=$FFMPEG_CPU \
+	-DALLOW_OPENMW_UPSTREAM_FALLBACK=$([[ "$REQUIRE_VR_RUNTIME" = "false" ]] && echo ON || echo OFF)
 make -j1
 
 popd
@@ -181,10 +188,19 @@ mkdir -p ../app/src/main/jniLibs/$ABI/
 # In VR builds the JNI entry points are linked into libopenmw_vr.so, so prefer
 # that binary and copy it as libopenmw.so for Android runtime loading.
 OPENMW_VR_SO=$(find build/$ARCH/openmw-prefix/ -iname "libopenmw_vr.so" | head -n 1)
+SELECTED_OPENMW_SO=""
 if [[ -n "$OPENMW_VR_SO" ]]; then
 	cp "$OPENMW_VR_SO" ../app/src/main/jniLibs/$ABI/libopenmw.so
+	SELECTED_OPENMW_SO="$OPENMW_VR_SO"
 else
+	if [[ "$REQUIRE_VR_RUNTIME" = "true" ]]; then
+		echo "ERROR: libopenmw_vr.so was not produced."
+		echo "Refusing to package a non-VR runtime by default."
+		echo "Use --allow-non-vr only if this fallback is intentional."
+		exit 1
+	fi
 	find build/$ARCH/openmw-prefix/ -iname "libopenmw.so" -exec cp "{}" ../app/src/main/jniLibs/$ABI/libopenmw.so \;
+	SELECTED_OPENMW_SO=$(find build/$ARCH/openmw-prefix/ -iname "libopenmw.so" | head -n 1)
 fi
 
 # copy over libs we compiled
@@ -211,6 +227,18 @@ if [[ $DEPLOY_RESOURCES = "true" ]]; then
 	cat "$SRC/openmw.cfg" | grep -v "data=" | grep -v "data-local=" >> "$DST/openmw/openmw.base.cfg"
 	cat "$DIR/../app/openmw.base.cfg" >> "$DST/openmw/openmw.base.cfg"
 
+	# VR-specific config and controller bindings (mandatory for VR runtime)
+	if [ -f "$SRC/settings-overrides-vr.cfg" ]; then
+		cp "$SRC/settings-overrides-vr.cfg" "$DST/openmw/"
+	elif [ -f "$DIR/openmw-vr/files/settings-overrides-vr.cfg" ]; then
+		cp "$DIR/openmw-vr/files/settings-overrides-vr.cfg" "$DST/openmw/"
+	fi
+	if [ -f "$SRC/xrcontrollersuggestions.xml" ]; then
+		cp "$SRC/xrcontrollersuggestions.xml" "$DST/openmw/"
+	elif [ -f "$DIR/openmw-vr/files/xrcontrollersuggestions.xml" ]; then
+		cp "$DIR/openmw-vr/files/xrcontrollersuggestions.xml" "$DST/openmw/"
+	fi
+
 	# licensing info
 	if [ -f "$DIR/../3rdparty-licenses.txt" ]; then
 		cp "$DIR/../3rdparty-licenses.txt" "$DST"
@@ -224,7 +252,9 @@ rm -rf "./symbols/$ABI/" && mkdir -p "./symbols/$ABI/"
 cp "./build/$ARCH/openal-prefix/src/openal-build/libopenal.so" "./symbols/$ABI/"
 cp "./build/$ARCH/sdl2-prefix/src/sdl2-build/obj/local/$ABI/libSDL2.so" "./symbols/$ABI/"
 cp "./build/$ARCH/sdl2-prefix/src/sdl2-build/obj/local/$ABI/libhidapi.so" "./symbols/$ABI/"
-cp "./build/$ARCH/openmw-prefix/src/openmw-build/libopenmw.so" "./symbols/$ABI/libopenmw.so"
+if [[ -n "$SELECTED_OPENMW_SO" ]]; then
+	cp "$SELECTED_OPENMW_SO" "./symbols/$ABI/libopenmw.so"
+fi
 cp "./build/$ARCH/gl4es-prefix/src/gl4es-build/obj/local/$ABI/libGL.so" "./symbols/$ABI/"
 cp "../app/src/main/jniLibs/$ABI/libc++_shared.so" "./symbols/$ABI/"
 

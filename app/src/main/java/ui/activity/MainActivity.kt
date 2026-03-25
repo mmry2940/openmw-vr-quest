@@ -577,6 +577,7 @@ open class MainActivity : AppCompatActivity() {
             && File(Constants.RESOURCES, "mygui/openmw_hud_vr.layout").exists()
             && hasAlchemyFilterEdit
             && File(Constants.GLOBAL_CONFIG, "settings-overrides-vr.cfg").exists()
+            && File(Constants.GLOBAL_CONFIG, "xrcontrollersuggestions.xml").exists()
     }
 
     private fun validateRuntimePayload(): Boolean {
