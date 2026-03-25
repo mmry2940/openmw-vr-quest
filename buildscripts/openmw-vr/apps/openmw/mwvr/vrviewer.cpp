@@ -259,7 +259,7 @@ namespace MWVR
     static bool applyGamma(osg::RenderInfo& info, VRFramebuffer& target, VRFramebuffer& source)
     {
         osg::State* state = info.getState();
-        static const char* vSource = "#version 120\n varying vec2 uv; void main(){ gl_Position = vec4(gl_Vertex.xy*2.0 - 1, 0, 1); uv = gl_Vertex.xy;}";
+        static const char* vSource = "#version 120\n varying vec2 uv; void main(){ gl_Position = vec4(gl_Vertex.xy * 2.0 - 1.0, 0.0, 1.0); uv = gl_Vertex.xy;}";
         static const char* fSource = "#version 120\n varying vec2 uv; uniform sampler2D t; uniform float gamma; uniform float contrast;"
             "void main() {"
             "vec4 color1 = texture2D(t, uv);"

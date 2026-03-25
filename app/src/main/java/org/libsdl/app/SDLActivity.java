@@ -151,6 +151,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         };
     }
 
+    /**
+     * Some VR runtimes temporarily hand focus to shell/system overlays during immersive
+     * app launch while the activity remains visible and should keep initializing.
+     */
+    protected boolean shouldRequireWindowFocusForResume() {
+        return true;
+    }
+
     // Load the .so
     public void loadLibraries() {
        for (String lib : getLibraries()) {
@@ -557,7 +565,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // Try a transition to resumed state
         if (mNextNativeState == NativeState.RESUMED) {
-            if (mSurface.mIsSurfaceReady && mHasFocus && mIsResumedCalled) {
+            boolean hasResumeFocus = !mSingleton.shouldRequireWindowFocusForResume() || mHasFocus;
+            if (mSurface.mIsSurfaceReady && hasResumeFocus && mIsResumedCalled) {
                 if (mSDLThread == null) {
                     // This is the entry point to the C app.
                     // Start up the C app thread and enable sensor input for the first time

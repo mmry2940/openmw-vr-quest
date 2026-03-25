@@ -205,6 +205,10 @@ fi
 
 # copy over libs we compiled
 cp prefix/$ARCH/lib/{libopenal,libSDL2,libhidapi,libGL}.so ../app/src/main/jniLibs/$ABI/
+OPENXR_LOADER_SO=$(find build/$ARCH/openmw-prefix/ -iname "libopenxr_loader.so" | head -n 1)
+if [[ -n "$OPENXR_LOADER_SO" ]]; then
+	cp "$OPENXR_LOADER_SO" ../app/src/main/jniLibs/$ABI/
+fi
 
 # copy over libc++_shared
 find ./toolchain/$ARCH/sysroot/usr/lib/$NDK_TRIPLET -iname "libc++_shared.so" -exec cp "{}" ../app/src/main/jniLibs/$ABI/ \;
@@ -254,6 +258,9 @@ cp "./build/$ARCH/sdl2-prefix/src/sdl2-build/obj/local/$ABI/libSDL2.so" "./symbo
 cp "./build/$ARCH/sdl2-prefix/src/sdl2-build/obj/local/$ABI/libhidapi.so" "./symbols/$ABI/"
 if [[ -n "$SELECTED_OPENMW_SO" ]]; then
 	cp "$SELECTED_OPENMW_SO" "./symbols/$ABI/libopenmw.so"
+fi
+if [[ -n "$OPENXR_LOADER_SO" ]]; then
+	cp "$OPENXR_LOADER_SO" "./symbols/$ABI/"
 fi
 cp "./build/$ARCH/gl4es-prefix/src/gl4es-build/obj/local/$ABI/libGL.so" "./symbols/$ABI/"
 cp "../app/src/main/jniLibs/$ABI/libc++_shared.so" "./symbols/$ABI/"

@@ -181,11 +181,13 @@ namespace MWVR
 
         frame->mFrameNo = mFrames;
         frame->mShouldSyncFrameLoop = xr->appShouldSyncFrameLoop();
-        //frame->mShouldRender = xr->appShouldRender();
         if (frame->mShouldSyncFrameLoop)
         {
             frame->mFrameInfo = xr->waitFrame();
-            frame->mShouldRender = frame->mFrameInfo.runtimeRequestsRender;
+            // Some Quest runtime paths can keep runtimeRequestsRender false during
+            // startup while session state is already visible/focused. Keep rendering
+            // enabled whenever the session says the app should render.
+            frame->mShouldRender = xr->appShouldRender() || frame->mFrameInfo.runtimeRequestsRender;
             xr->xrResourceAcquired();
         }
     }

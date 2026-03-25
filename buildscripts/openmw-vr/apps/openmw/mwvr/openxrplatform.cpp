@@ -15,6 +15,7 @@
 #elif __ANDROID__
 #include <jni.h>
 #include <EGL/egl.h>
+#include <SDL_system.h>
 
 #elif __linux__
 #include <X11/Xlib.h>
@@ -269,6 +270,12 @@ namespace MWVR
             throw std::runtime_error("No graphics APIs supported by openmw are supported by the OpenXR runtime.");
         }
 
+    #ifdef __ANDROID__
+        // Android runtimes require this extension and instance create info chain
+        // to bind the OpenXR instance to the current Java activity.
+        enableExtension(XR_KHR_ANDROID_CREATE_INSTANCE_EXTENSION_NAME, false);
+    #endif
+
         for (auto optionalExtension : optionalExtensions)
             enableExtension(optionalExtension, true);
     }
@@ -433,6 +440,25 @@ namespace MWVR
         createInfo.enabledExtensionNames = mEnabledExtensions.data();
         strcpy(createInfo.applicationInfo.applicationName, "openmw_vr");
         createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
+
+#ifdef __ANDROID__
+        XrInstanceCreateInfoAndroidKHR androidInfo{ XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR };
+        JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+        jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+        JavaVM* vm = nullptr;
+        if (env)
+            env->GetJavaVM(&vm);
+        if (vm && activity)
+        {
+            androidInfo.applicationVM = vm;
+            androidInfo.applicationActivity = activity;
+            createInfo.next = &androidInfo;
+        }
+        else
+        {
+            Log(Debug::Warning) << "OpenXR Android instance create info missing JavaVM/activity";
+        }
+#endif
 
         auto res = CHECK_XRCMD(xrCreateInstance(&createInfo, &instance));
         if (!XR_SUCCEEDED(res))

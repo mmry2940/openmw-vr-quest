@@ -298,7 +298,7 @@ namespace MWVR
         XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO };
         frameEndInfo.displayTime = frameInfo.runtimePredictedDisplayTime;
         frameEndInfo.environmentBlendMode = mEnvironmentBlendMode;
-        if (layerStack && frameInfo.runtimeRequestsRender)
+        if (layerStack)
         {
             compositionLayerProjectionViews[(int)Side::LEFT_SIDE] = toXR((*layerStack)[(int)Side::LEFT_SIDE]);
             compositionLayerProjectionViews[(int)Side::RIGHT_SIDE] = toXR((*layerStack)[(int)Side::RIGHT_SIDE]);

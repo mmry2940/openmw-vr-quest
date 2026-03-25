@@ -88,28 +88,31 @@ class GameActivity : SDLActivity() {
         System.loadLibrary("openal")
         System.loadLibrary("SDL2")
         try {
+            // Quest VR path is most reliable on GLES3. Force it regardless of UI preference
+            // to avoid black-screen startup on GLES2/GLES1 combinations.
+            Os.setenv("OPENMW_GLES_VERSION", "3", true)
+            Os.setenv("LIBGL_ES", "3", true)
+
             when (graphicsLibrary) {
                 "gles1" -> {
-                    // Leave defaults so SDL/OpenMW request GLES 1.x context path.
+                    Log.w("OpenMW", "GLES1 selected, but this VR build requires GLES3. Forcing GLES3.")
                 }
 
                 "gles3" -> {
-                    Os.setenv("OPENMW_GLES_VERSION", "3", true)
-                    Os.setenv("LIBGL_ES", "3", true)
+                    // Already forced above.
                 }
 
                 "vulkan" -> {
                     // OpenMW Android runtime currently initializes OpenGL contexts.
                     // Keep a Vulkan intent marker for future support, but use GLES3 on current builds.
                     Os.setenv("OPENMW_RENDERER", "vulkan", true)
-                    Os.setenv("OPENMW_GLES_VERSION", "3", true)
-                    Os.setenv("LIBGL_ES", "3", true)
                     Log.w("OpenMW", "Vulkan selected, but this build uses OpenGL. Falling back to GLESv3.")
                 }
 
                 else -> {
-                    Os.setenv("OPENMW_GLES_VERSION", "2", true)
-                    Os.setenv("LIBGL_ES", "2", true)
+                    if (graphicsLibrary != "gles3") {
+                        Log.w("OpenMW", "Forcing GLES3 for Quest VR startup stability (selected: $graphicsLibrary).")
+                    }
                 }
             }
         } catch (e: ErrnoException) {
@@ -125,11 +128,15 @@ class GameActivity : SDLActivity() {
         return "libopenmw.so"
     }
 
+    override fun shouldRequireWindowFocusForResume(): Boolean {
+        return false
+    }
+
     public override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         ensureNativeLibrariesLoaded()
         configureQuestOpenXrRuntime()
         initOpenXRLoader()
+        super.onCreate(savedInstanceState)
         KeepScreenOn()
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         getPathToJni(filesDir.parent, Constants.USER_FILE_STORAGE)

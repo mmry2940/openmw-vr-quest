@@ -211,28 +211,19 @@ open class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun runGame() {
+    protected open fun runGame() {
         logConfig()
         if (this !is VrEntryActivity) {
             val vrIntent = Intent(this@MainActivity, VrEntryActivity::class.java)
             vrIntent.putExtra(VrEntryActivity.EXTRA_AUTO_START_GAME, true)
+            vrIntent.putExtra(EXTRA_SKIP_PREP, true)
             this@MainActivity.startActivity(vrIntent)
             finish()
             return
         }
 
         val intent = Intent(this@MainActivity, GameActivity::class.java)
-        this@MainActivity.startActivityForResult(intent, 1)
-
-        // For Quest immersive launch, avoid immediate finish() race but still
-        // close the entry activity so focus does not bounce back to launcher.
-        if (this is VrEntryActivity) {
-            window.decorView.postDelayed({
-                if (!isFinishing) finish()
-            }, 1200)
-        } else {
-            finish()
-        }
+        this@MainActivity.startActivity(intent)
     }
 
 
@@ -655,6 +646,7 @@ open class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "OpenMW-Launcher"
+        const val EXTRA_SKIP_PREP = "ui.activity.extra.SKIP_PREP"
 
         var resolutionX = 0
         var resolutionY = 0

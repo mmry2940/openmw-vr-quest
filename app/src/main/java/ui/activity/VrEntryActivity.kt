@@ -6,9 +6,15 @@ class VrEntryActivity : MainActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         val autoStart = intent?.getBooleanExtra(EXTRA_AUTO_START_GAME, false) == true
+        val skipPrep = intent?.getBooleanExtra(EXTRA_SKIP_PREP, false) == true
         if (autoStart) {
-            Log.d(TAG, "VrEntryActivity.onCreate: auto-start enabled, starting game")
-            checkStartGame()
+            if (skipPrep) {
+                Log.d(TAG, "VrEntryActivity.onCreate: auto-start enabled, launching GameActivity directly")
+                runGame()
+            } else {
+                Log.d(TAG, "VrEntryActivity.onCreate: auto-start enabled, preparing game launch")
+                checkStartGame()
+            }
         } else {
             Log.d(TAG, "VrEntryActivity.onCreate: showing launcher UI")
         }
