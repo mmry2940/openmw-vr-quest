@@ -22,17 +22,44 @@ package ui.controls
 import android.content.Context
 import androidx.core.math.MathUtils
 import android.util.AttributeSet
+import android.view.KeyEvent
+import org.libsdl.app.SDLActivity
 
 class JoystickLeft : Joystick {
+
+    private var wDown = false
+    private var aDown = false
+    private var sDown = false
+    private var dDown = false
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet, defStyle: Int)
         : super(context, attrs, defStyle)
 
+    private fun setKeyState(keyCode: Int, currentlyDown: Boolean, shouldBeDown: Boolean): Boolean {
+        if (currentlyDown == shouldBeDown)
+            return currentlyDown
+
+        if (shouldBeDown) {
+            SDLActivity.onNativeKeyDown(keyCode)
+        } else {
+            SDLActivity.onNativeKeyUp(keyCode)
+        }
+
+        return shouldBeDown
+    }
+
+    private fun releaseAllMovementKeys() {
+        wDown = setKeyState(KeyEvent.KEYCODE_W, wDown, false)
+        aDown = setKeyState(KeyEvent.KEYCODE_A, aDown, false)
+        sDown = setKeyState(KeyEvent.KEYCODE_S, sDown, false)
+        dDown = setKeyState(KeyEvent.KEYCODE_D, dDown, false)
+    }
+
     override fun updateStick() {
         if (down) {
-            // GamepadEmulator takes values on a scale [-1; 1] so convert our values
+            // Convert joystick drag into normalized movement and map to WASD.
             val w = (width / 3).toFloat()
             var diffX = currentX - initialX
             var diffY = currentY - initialY
@@ -47,9 +74,19 @@ class JoystickLeft : Joystick {
 
             val dx = MathUtils.clamp(diffX / w + 0.2f * Math.signum(diffX), -1f, 1f)
             val dy = MathUtils.clamp(diffY / w + 0.2f * Math.signum(diffY), -1f, 1f)
-            GamepadEmulator.updateStick(stickId, dx, dy)
+
+            val deadzone = 0.25f
+            val wantA = dx < -deadzone
+            val wantD = dx > deadzone
+            val wantW = dy < -deadzone
+            val wantS = dy > deadzone
+
+            aDown = setKeyState(KeyEvent.KEYCODE_A, aDown, wantA)
+            dDown = setKeyState(KeyEvent.KEYCODE_D, dDown, wantD)
+            wDown = setKeyState(KeyEvent.KEYCODE_W, wDown, wantW)
+            sDown = setKeyState(KeyEvent.KEYCODE_S, sDown, wantS)
         } else {
-            GamepadEmulator.updateStick(stickId, 0f, 0f)
+            releaseAllMovementKeys()
         }
     }
 }

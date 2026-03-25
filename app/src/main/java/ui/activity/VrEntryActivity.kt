@@ -5,7 +5,7 @@ import android.util.Log
 class VrEntryActivity : MainActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        val autoStart = intent?.getBooleanExtra(EXTRA_AUTO_START_GAME, true) == true
+        val autoStart = intent?.getBooleanExtra(EXTRA_AUTO_START_GAME, false) == true
         if (autoStart) {
             Log.d(TAG, "VrEntryActivity.onCreate: auto-start enabled, starting game")
             checkStartGame()

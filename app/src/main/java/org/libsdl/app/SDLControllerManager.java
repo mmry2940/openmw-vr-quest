@@ -168,10 +168,77 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
     }
 
     private ArrayList<SDLJoystick> mJoysticks;
+    private boolean mQuestWDown;
+    private boolean mQuestADown;
+    private boolean mQuestSDown;
+    private boolean mQuestDDown;
 
     public SDLJoystickHandler_API16() {
 
         mJoysticks = new ArrayList<SDLJoystick>();
+    }
+
+    private boolean setKeyState(int keyCode, boolean currentState, boolean nextState) {
+        if (currentState == nextState) {
+            return currentState;
+        }
+        if (nextState) {
+            SDLActivity.onNativeKeyDown(keyCode);
+        } else {
+            SDLActivity.onNativeKeyUp(keyCode);
+        }
+        return nextState;
+    }
+
+    private float normalizedAxis(MotionEvent event, int axis) {
+        InputDevice device = event.getDevice();
+        if (device == null) {
+            return 0.0f;
+        }
+        InputDevice.MotionRange range = device.getMotionRange(axis, event.getSource());
+        if (range == null || range.getRange() == 0.0f) {
+            return 0.0f;
+        }
+        float value = event.getAxisValue(axis);
+        return (value - range.getMin()) / range.getRange() * 2.0f - 1.0f;
+    }
+
+    private boolean isQuestTouchController(MotionEvent event) {
+        if (Build.VERSION.SDK_INT < 19) {
+            return false;
+        }
+        InputDevice device = event.getDevice();
+        if (device == null) {
+            return false;
+        }
+        return device.getVendorId() == 0x2833 && device.getProductId() == 0x0160;
+    }
+
+    private void emulateQuestKeyboardMouse(MotionEvent event) {
+        if (!isQuestTouchController(event)) {
+            return;
+        }
+
+        float leftX = normalizedAxis(event, MotionEvent.AXIS_X);
+        float leftY = normalizedAxis(event, MotionEvent.AXIS_Y);
+        float rightX = normalizedAxis(event, MotionEvent.AXIS_RX);
+        float rightY = normalizedAxis(event, MotionEvent.AXIS_RY);
+
+        final float moveDeadzone = 0.25f;
+        final float lookDeadzone = 0.18f;
+
+        mQuestADown = setKeyState(KeyEvent.KEYCODE_A, mQuestADown, leftX < -moveDeadzone);
+        mQuestDDown = setKeyState(KeyEvent.KEYCODE_D, mQuestDDown, leftX > moveDeadzone);
+        mQuestWDown = setKeyState(KeyEvent.KEYCODE_W, mQuestWDown, leftY < -moveDeadzone);
+        mQuestSDown = setKeyState(KeyEvent.KEYCODE_S, mQuestSDown, leftY > moveDeadzone);
+
+        float lookX = Math.abs(rightX) > lookDeadzone ? rightX : 0.0f;
+        float lookY = Math.abs(rightY) > lookDeadzone ? rightY : 0.0f;
+        if (lookX != 0.0f || lookY != 0.0f) {
+            int dx = Math.round(lookX * 16.0f);
+            int dy = Math.round(lookY * 16.0f);
+            SDLActivity.sendRelativeMouseMotion(dx, dy);
+        }
     }
 
     @Override
@@ -255,31 +322,38 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
     @Override
     public boolean handleMotionEvent(MotionEvent event) {
         int source = event.getSource();
-        if ((source & InputDevice.SOURCE_CLASS_JOYSTICK) != 0 ||
-            (source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
-            (source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) {
-            int actionPointerIndex = event.getActionIndex();
-            int action = event.getActionMasked();
-            switch(action) {
-                case MotionEvent.ACTION_MOVE:
-                    SDLJoystick joystick = getJoystick(event.getDeviceId());
-                    if ( joystick != null ) {
-                        for (int i = 0; i < joystick.axes.size(); i++) {
-                            InputDevice.MotionRange range = joystick.axes.get(i);
-                            /* Normalize the value to -1...1 */
-                            float value = ( event.getAxisValue( range.getAxis(), actionPointerIndex) - range.getMin() ) / range.getRange() * 2.0f - 1.0f;
-                            SDLControllerManager.onNativeJoy(joystick.device_id, i, value );
-                        }
-                        for (int i = 0; i < joystick.hats.size(); i+=2) {
-                            int hatX = Math.round(event.getAxisValue( joystick.hats.get(i).getAxis(), actionPointerIndex ) );
-                            int hatY = Math.round(event.getAxisValue( joystick.hats.get(i+1).getAxis(), actionPointerIndex ) );
-                            SDLControllerManager.onNativeHat(joystick.device_id, i/2, hatX, hatY );
-                        }
+        boolean isJoystickSource = (source & InputDevice.SOURCE_CLASS_JOYSTICK) != 0 ||
+                (source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
+                (source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD ||
+                (source & InputDevice.SOURCE_DPAD) == InputDevice.SOURCE_DPAD;
+
+        if (!isJoystickSource && !SDLControllerManager.isDeviceSDLJoystick(event.getDeviceId())) {
+            return false;
+        }
+
+        int actionPointerIndex = event.getActionIndex();
+        int action = event.getActionMasked();
+        switch(action) {
+            case MotionEvent.ACTION_MOVE:
+                SDLJoystick joystick = getJoystick(event.getDeviceId());
+                if ( joystick != null ) {
+                    for (int i = 0; i < joystick.axes.size(); i++) {
+                        InputDevice.MotionRange range = joystick.axes.get(i);
+                        /* Normalize the value to -1...1 */
+                        float value = ( event.getAxisValue( range.getAxis(), actionPointerIndex) - range.getMin() ) / range.getRange() * 2.0f - 1.0f;
+                        SDLControllerManager.onNativeJoy(joystick.device_id, i, value );
                     }
-                    break;
-                default:
-                    break;
-            }
+                    for (int i = 0; i < joystick.hats.size(); i+=2) {
+                        int hatX = Math.round(event.getAxisValue( joystick.hats.get(i).getAxis(), actionPointerIndex ) );
+                        int hatY = Math.round(event.getAxisValue( joystick.hats.get(i+1).getAxis(), actionPointerIndex ) );
+                        SDLControllerManager.onNativeHat(joystick.device_id, i/2, hatX, hatY );
+                    }
+                    // Quest fallback path: emit keyboard/mouse style controls directly.
+                    emulateQuestKeyboardMouse(event);
+                }
+                break;
+            default:
+                break;
         }
         return true;
     }
@@ -570,7 +644,7 @@ class SDLGenericMotionListener_API12 implements View.OnGenericMotionListener {
         }
 
         if (SDLControllerManager.isDeviceSDLJoystick(deviceId)) {
-            return true;
+            return SDLControllerManager.handleJoystickMotionEvent(event);
         }
 
         if ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
@@ -707,7 +781,7 @@ class SDLGenericMotionListener_API26 extends SDLGenericMotionListener_API24 {
         }
 
         if (SDLControllerManager.isDeviceSDLJoystick(deviceId)) {
-            return true;
+            return SDLControllerManager.handleJoystickMotionEvent(event);
         }
 
         if ((source & InputDevice.SOURCE_MOUSE_RELATIVE) == InputDevice.SOURCE_MOUSE_RELATIVE) {
