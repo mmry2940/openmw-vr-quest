@@ -88,10 +88,10 @@ class GameActivity : SDLActivity() {
         System.loadLibrary("openal")
         System.loadLibrary("SDL2")
         try {
-            // Quest VR path is most reliable on GLES3. Force it regardless of UI preference
-            // to avoid black-screen startup on GLES2/GLES1 combinations.
-            Os.setenv("OPENMW_GLES_VERSION", "3", true)
-            Os.setenv("LIBGL_ES", "3", true)
+            // Force GLES2 for the GL4ES bridge. On this Quest runtime, LIBGL_ES=3 can
+            // downgrade to a GLES1 backend, which yields audio/input but no visuals.
+            Os.setenv("OPENMW_GLES_VERSION", "2", true)
+            Os.setenv("LIBGL_ES", "2", true)
 
             when (graphicsLibrary) {
                 "gles1" -> {

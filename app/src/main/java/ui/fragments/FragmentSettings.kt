@@ -32,6 +32,7 @@ import android.preference.EditTextPreference
 import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.preference.PreferenceGroup
+import android.util.Log
 import androidx.core.content.ContextCompat
 
 import com.codekidlabs.storagechooser.StorageChooser
@@ -44,15 +45,24 @@ import ui.activity.ModsActivity
 import utils.MyApp
 import java.util.*
 
+private const val TAG = "FragmentSettings"
+
 class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "FragmentSettings.onCreate: starting")
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "FragmentSettings.onCreate: super.onCreate completed")
 
+        Log.d(TAG, "FragmentSettings.onCreate: calling addPreferencesFromResource")
         addPreferencesFromResource(R.xml.settings)
+        Log.d(TAG, "FragmentSettings.onCreate: addPreferencesFromResource completed")
+        
         preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        Log.d(TAG, "FragmentSettings.onCreate: registered preference listener")
 
         updateGammaState()
+        Log.d(TAG, "FragmentSettings.onCreate: updated gamma state")
 
         findPreference("pref_controls").setOnPreferenceClickListener {
             val intent = Intent(activity, ConfigureControls::class.java)

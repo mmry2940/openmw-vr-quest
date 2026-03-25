@@ -761,6 +761,9 @@ namespace MWVR
 
     bool VRGUIManager::updateFocus()
     {
+        if (!MWBase::Environment::get().hasWorld())
+            return false;
+
         auto* world = MWBase::Environment::get().getWorld();
         if (world)
         {

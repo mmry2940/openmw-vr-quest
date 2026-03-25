@@ -4,6 +4,7 @@
 #include "vrframebuffer.hpp"
 
 #include <components/debug/debuglog.hpp>
+#include <android/log.h>
 
 namespace MWVR {
     OpenXRSwapchainImpl::OpenXRSwapchainImpl(osg::ref_ptr<osg::State> state, SwapchainConfig config)
@@ -73,6 +74,15 @@ namespace MWVR {
             {
                 mSwapchainDepth->acquire(gc);
                 mShouldRelease = mSwapchainDepth->isAcquired();
+            }
+
+            if (!mShouldRelease)
+            {
+                Log(Debug::Warning) << "XR swapchain acquire not ready (color/depth image unavailable this frame)";
+                __android_log_print(
+                    ANDROID_LOG_WARN,
+                    "OpenMWXRDiag",
+                    "swapchain acquire not ready");
             }
         }
 
@@ -224,6 +234,14 @@ namespace MWVR {
                 mIsIndexAcquired = false;
                 xr->xrResourceReleased();
             }
+        }
+        else if (mIsIndexAcquired)
+        {
+            Log(Debug::Warning) << "XR swapchain image index acquired but not ready for blit/release";
+            __android_log_print(
+                ANDROID_LOG_WARN,
+                "OpenMWXRDiag",
+                "swapchain index acquired but not ready");
         }
     }
 

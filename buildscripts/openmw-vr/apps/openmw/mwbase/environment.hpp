@@ -88,6 +88,8 @@ namespace MWBase
             void setVrMode(bool vrMode);
             bool getVrMode(void) const;
 
+            bool hasWorld() const;
+
             World *getWorld() const;
 
             SoundManager *getSoundManager() const;

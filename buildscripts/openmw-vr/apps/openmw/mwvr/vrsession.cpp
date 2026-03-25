@@ -22,6 +22,7 @@
 #include <time.h>
 #include <thread>
 #include <chrono>
+#include <android/log.h>
 
 #ifdef max
 #undef max
@@ -49,6 +50,13 @@ namespace MWVR
 
     void VRSession::beginFrame()
     {
+        static int sBeginFrameCalls = 0;
+        ++sBeginFrameCalls;
+        if (sBeginFrameCalls <= 10 || (sBeginFrameCalls % 300) == 0)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRSession::beginFrame call=%d", sBeginFrameCalls);
+        }
+
         // Viewer traversals are sometimes entered without first updating the input manager.
         if (getFrame(FramePhase::Update) == nullptr)
         {
@@ -99,6 +107,20 @@ namespace MWVR
 
         auto* frameMeta = getFrame(FramePhase::Draw).get();
 
+        if (frameMeta)
+        {
+            if (frameMeta->mFrameNo <= 10 || (frameMeta->mFrameNo % 300) == 0)
+            {
+                __android_log_print(
+                    ANDROID_LOG_WARN,
+                    "OpenMWXRDiag",
+                    "VRSession::swapBuffers frame=%llu shouldSync=%d shouldRender=%d",
+                    static_cast<unsigned long long>(frameMeta->mFrameNo),
+                    frameMeta->mShouldSyncFrameLoop ? 1 : 0,
+                    frameMeta->mShouldRender ? 1 : 0);
+            }
+        }
+
         if (frameMeta->mShouldSyncFrameLoop)
         {
             gc->swapBuffersImplementation();
@@ -111,10 +133,44 @@ namespace MWVR
                 layerStack[(int)Side::RIGHT_SIDE].pose = frameMeta->mViews[(int)ReferenceSpace::STAGE][(int)Side::RIGHT_SIDE].pose;
                 layerStack[(int)Side::LEFT_SIDE].fov = frameMeta->mViews[(int)ReferenceSpace::STAGE][(int)Side::LEFT_SIDE].fov;
                 layerStack[(int)Side::RIGHT_SIDE].fov = frameMeta->mViews[(int)ReferenceSpace::STAGE][(int)Side::RIGHT_SIDE].fov;
+
+                if (frameMeta->mFrameNo <= 10 || (frameMeta->mFrameNo % 300) == 0)
+                {
+                    Log(Debug::Warning)
+                        << "XR submit frame=" << frameMeta->mFrameNo
+                        << " shouldRender=" << frameMeta->mShouldRender
+                        << " leftSwapchain=" << static_cast<const void*>(layerStack[(int)Side::LEFT_SIDE].subImage.swapchain)
+                        << " rightSwapchain=" << static_cast<const void*>(layerStack[(int)Side::RIGHT_SIDE].subImage.swapchain);
+                    __android_log_print(
+                        ANDROID_LOG_WARN,
+                        "OpenMWXRDiag",
+                        "submit frame=%llu shouldRender=%d leftSwapchain=%p rightSwapchain=%p",
+                        static_cast<unsigned long long>(frameMeta->mFrameNo),
+                        frameMeta->mShouldRender ? 1 : 0,
+                        static_cast<const void*>(layerStack[(int)Side::LEFT_SIDE].subImage.swapchain),
+                        static_cast<const void*>(layerStack[(int)Side::RIGHT_SIDE].subImage.swapchain));
+                }
+
                 xr->endFrame(frameMeta->mFrameInfo, &layerStack);
             }
             else
             {
+                if (frameMeta->mFrameNo <= 10 || (frameMeta->mFrameNo % 300) == 0)
+                {
+                    Log(Debug::Warning)
+                        << "XR skipping render frame=" << frameMeta->mFrameNo
+                        << " shouldSync=" << frameMeta->mShouldSyncFrameLoop
+                        << " runtimeRequestsRender=" << frameMeta->mFrameInfo.runtimeRequestsRender
+                        << " appShouldRender=" << xr->appShouldRender();
+                    __android_log_print(
+                        ANDROID_LOG_WARN,
+                        "OpenMWXRDiag",
+                        "skip frame=%llu shouldSync=%d runtimeRequestsRender=%d appShouldRender=%d",
+                        static_cast<unsigned long long>(frameMeta->mFrameNo),
+                        frameMeta->mShouldSyncFrameLoop ? 1 : 0,
+                        frameMeta->mFrameInfo.runtimeRequestsRender ? 1 : 0,
+                        xr->appShouldRender() ? 1 : 0);
+                }
                 xr->endFrame(frameMeta->mFrameInfo, nullptr);
             }
 

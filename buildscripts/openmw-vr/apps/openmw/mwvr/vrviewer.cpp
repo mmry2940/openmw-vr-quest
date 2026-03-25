@@ -259,12 +259,12 @@ namespace MWVR
     static bool applyGamma(osg::RenderInfo& info, VRFramebuffer& target, VRFramebuffer& source)
     {
         osg::State* state = info.getState();
-        static const char* vSource = "#version 120\n varying vec2 uv; void main(){ gl_Position = vec4(gl_Vertex.xy * 2.0 - 1.0, 0.0, 1.0); uv = gl_Vertex.xy;}";
+        static const char* vSource = "#version 120\n varying vec2 uv; void main(){ float x = gl_Vertex.x * 2.0 - 1.0; float y = gl_Vertex.y * 2.0 - 1.0; gl_Position = vec4(x, y, 0.0, 1.0); uv = gl_Vertex.xy;}";
         static const char* fSource = "#version 120\n varying vec2 uv; uniform sampler2D t; uniform float gamma; uniform float contrast;"
             "void main() {"
             "vec4 color1 = texture2D(t, uv);"
             "vec3 rgb = color1.rgb;"
-            "rgb = (rgb - 0.5f) * contrast + 0.5f;"
+            "rgb = (rgb - 0.5) * contrast + 0.5;"
             "rgb = pow(rgb, vec3(1.0/gamma));"
             "gl_FragColor = vec4(rgb, color1.a);"
             "}";
@@ -306,6 +306,22 @@ namespace MWVR
             program->addShader(vShader);
             program->addShader(fShader);
             program->compileGLObjects(*state);
+
+            auto* pcp = program->getPCP(*state);
+            bool programLinked = false;
+            if (pcp)
+            {
+                auto* gl = osg::GLExtensions::Get(state->getContextID(), false);
+                GLint linked = 0;
+                gl->glGetProgramiv(pcp->getHandle(), GL_LINK_STATUS, &linked);
+                programLinked = linked == GL_TRUE;
+            }
+            if (!programLinked)
+            {
+                Log(Debug::Warning) << "Gamma postprocess shader failed to link. Falling back to direct blit.";
+                program = nullptr;
+            }
+
             stateset->setAttributeAndModes(program, osg::StateAttribute::ON);
 
             texture = new osg::Texture2D();

@@ -106,6 +106,11 @@ bool MWBase::Environment::getVrMode(void) const
     return mVrMode;
 }
 
+bool MWBase::Environment::hasWorld() const
+{
+    return mWorld != nullptr;
+}
+
 MWBase::World *MWBase::Environment::getWorld() const
 {
     assert (mWorld);
