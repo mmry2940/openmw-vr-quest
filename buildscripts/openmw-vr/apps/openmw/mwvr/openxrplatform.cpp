@@ -532,16 +532,75 @@ namespace MWVR
             {
                 XrGraphicsRequirementsOpenGLESKHR requirements{ XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR };
                 CHECK_XRCMD(p_getRequirements(instance, systemId, &requirements));
+                Log(Debug::Warning)
+                    << "OpenXR GLES requirements: minApi=0x" << std::hex << requirements.minApiVersionSupported
+                    << " maxApi=0x" << requirements.maxApiVersionSupported << std::dec;
             }
 
             EGLDisplay display = eglGetCurrentDisplay();
             EGLContext context = eglGetCurrentContext();
+            EGLSurface drawSurface = eglGetCurrentSurface(EGL_DRAW);
+            EGLSurface readSurface = eglGetCurrentSurface(EGL_READ);
+            EGLBoolean displayReady = (display != EGL_NO_DISPLAY) ? eglInitialize(display, nullptr, nullptr) : EGL_FALSE;
+
+            if (display == EGL_NO_DISPLAY)
+                Log(Debug::Error) << "OpenXR Android binding: EGL_NO_DISPLAY";
+            if (context == EGL_NO_CONTEXT)
+                Log(Debug::Error) << "OpenXR Android binding: EGL_NO_CONTEXT";
+            if (drawSurface == EGL_NO_SURFACE)
+                Log(Debug::Warning) << "OpenXR Android binding: EGL_NO_SURFACE for draw surface";
+            if (readSurface == EGL_NO_SURFACE)
+                Log(Debug::Warning) << "OpenXR Android binding: EGL_NO_SURFACE for read surface";
+
             EGLint configId = 0;
-            eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
-            const EGLint configAttribs[] = { EGL_CONFIG_ID, configId, EGL_NONE };
+            EGLint clientApi = EGL_NONE;
+            EGLint contextClientVersion = 0;
+            EGLBoolean queryContextOk = EGL_FALSE;
+            if (display != EGL_NO_DISPLAY && context != EGL_NO_CONTEXT)
+            {
+                queryContextOk = eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
+                eglQueryContext(display, context, EGL_CONTEXT_CLIENT_TYPE, &clientApi);
+                eglQueryContext(display, context, EGL_CONTEXT_CLIENT_VERSION, &contextClientVersion);
+            }
+
+            if (queryContextOk != EGL_TRUE)
+            {
+                Log(Debug::Error)
+                    << "OpenXR Android binding: eglQueryContext(EGL_CONFIG_ID) failed, eglError=0x"
+                    << std::hex << eglGetError() << std::dec;
+            }
+
             EGLConfig config = nullptr;
             EGLint numConfigs = 0;
-            eglChooseConfig(display, configAttribs, &config, 1, &numConfigs);
+            if (display != EGL_NO_DISPLAY && configId != 0)
+            {
+                const EGLint configAttribs[] = { EGL_CONFIG_ID, configId, EGL_NONE };
+                EGLBoolean chooseOk = eglChooseConfig(display, configAttribs, &config, 1, &numConfigs);
+                if (chooseOk != EGL_TRUE || numConfigs <= 0 || config == nullptr)
+                {
+                    Log(Debug::Error)
+                        << "OpenXR Android binding: eglChooseConfig failed for configId=" << configId
+                        << ", numConfigs=" << numConfigs
+                        << ", eglError=0x" << std::hex << eglGetError() << std::dec;
+                }
+            }
+            else
+            {
+                Log(Debug::Error)
+                    << "OpenXR Android binding: skipping eglChooseConfig due to invalid display/configId"
+                    << " (displayReady=" << (displayReady == EGL_TRUE ? 1 : 0)
+                    << ", configId=" << configId << ")";
+            }
+
+            Log(Debug::Warning)
+                << "OpenXR Android binding summary: display=" << reinterpret_cast<const void*>(display)
+                << " context=" << reinterpret_cast<const void*>(context)
+                << " drawSurface=" << reinterpret_cast<const void*>(drawSurface)
+                << " readSurface=" << reinterpret_cast<const void*>(readSurface)
+                << " config=" << reinterpret_cast<const void*>(config)
+                << " configId=" << configId
+                << " clientApi=" << clientApi
+                << " contextClientVersion=" << contextClientVersion;
 
             XrGraphicsBindingOpenGLESAndroidKHR graphicsBindings{ XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR };
             graphicsBindings.display = display;
@@ -550,6 +609,10 @@ namespace MWVR
 
             if (!graphicsBindings.context)
                 Log(Debug::Warning) << "Missing EGL context";
+            if (!graphicsBindings.display)
+                Log(Debug::Warning) << "Missing EGL display";
+            if (!graphicsBindings.config)
+                Log(Debug::Warning) << "Missing EGL config";
 
             XrSessionCreateInfo createInfo{ XR_TYPE_SESSION_CREATE_INFO };
             createInfo.next = &graphicsBindings;

@@ -88,18 +88,24 @@ class GameActivity : SDLActivity() {
         System.loadLibrary("openal")
         System.loadLibrary("SDL2")
         try {
-            // Force GLES2 for the GL4ES bridge. On this Quest runtime, LIBGL_ES=3 can
-            // downgrade to a GLES1 backend, which yields audio/input but no visuals.
-            Os.setenv("OPENMW_GLES_VERSION", "2", true)
-            Os.setenv("LIBGL_ES", "2", true)
+            val normalizedGraphicsLibrary = graphicsLibrary.lowercase()
+            val selectedGlesVersion = when (normalizedGraphicsLibrary) {
+                "gles3" -> "3"
+                "gles2", "gles1" -> "2"
+                "vulkan" -> "3"
+                else -> "2"
+            }
 
-            when (graphicsLibrary) {
+            Os.setenv("OPENMW_GLES_VERSION", selectedGlesVersion, true)
+            Os.setenv("LIBGL_ES", selectedGlesVersion, true)
+
+            when (normalizedGraphicsLibrary) {
                 "gles1" -> {
-                    Log.w("OpenMW", "GLES1 selected, but this VR build requires GLES3. Forcing GLES3.")
+                    Log.w("OpenMW", "GLES1 selected; using GLES2 backend for compatibility.")
                 }
 
                 "gles3" -> {
-                    // Already forced above.
+                    Log.i("OpenMW", "Using GLES3 backend for rendering.")
                 }
 
                 "vulkan" -> {
@@ -110,11 +116,14 @@ class GameActivity : SDLActivity() {
                 }
 
                 else -> {
-                    if (graphicsLibrary != "gles3") {
-                        Log.w("OpenMW", "Forcing GLES3 for Quest VR startup stability (selected: $graphicsLibrary).")
-                    }
+                    Log.w("OpenMW", "Unknown graphics backend '$graphicsLibrary'; defaulting to GLES2.")
                 }
             }
+
+            Log.i(
+                "OpenMW",
+                "Graphics bootstrap: pref=$graphicsLibrary, OPENMW_GLES_VERSION=$selectedGlesVersion, LIBGL_ES=$selectedGlesVersion"
+            )
         } catch (e: ErrnoException) {
             Log.e("OpenMW", "Failed setting graphics environment variables.", e)
         }

@@ -24,6 +24,10 @@
 
 #include <components/sdlutil/sdlgraphicswindow.hpp>
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 namespace MWVR
 {
     // Callback to do construction with a graphics context
@@ -403,6 +407,57 @@ namespace MWVR
 
         mGammaResolveTexture->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
         mFramebuffer->blit(gc, 0, 0, mFramebuffer->width(), mFramebuffer->height(), 0, 0, mGammaResolveTexture->width(), mGammaResolveTexture->height(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+        static unsigned int sBlitDiagFrame = 0;
+        ++sBlitDiagFrame;
+        const bool shouldLogBlitDiag = (sBlitDiagFrame <= 10) || ((sBlitDiagFrame % 300) == 0);
+        if (shouldLogBlitDiag)
+        {
+            GLint boundFbo = 0;
+            GLint viewport[4] = { 0, 0, 0, 0 };
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &boundFbo);
+            glGetIntegerv(GL_VIEWPORT, viewport);
+
+            GLenum framebufferStatus = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+            const int sampleY = mGammaResolveTexture->height() > 0 ? (mGammaResolveTexture->height() / 2) : 0;
+            const int leftSampleX = mGammaResolveTexture->width() > 0 ? (mGammaResolveTexture->width() / 4) : 0;
+            const int rightSampleX = mGammaResolveTexture->width() > 0 ? ((mGammaResolveTexture->width() * 3) / 4) : 0;
+
+            unsigned char leftPixel[4] = { 0, 0, 0, 0 };
+            unsigned char rightPixel[4] = { 0, 0, 0, 0 };
+
+            glReadPixels(leftSampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, leftPixel);
+            GLenum leftReadErr = glGetError();
+            glReadPixels(rightSampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rightPixel);
+            GLenum rightReadErr = glGetError();
+
+            __android_log_print(
+                ANDROID_LOG_WARN,
+                "OpenMWXRDiag",
+                "VRViewer::blit diag frame=%u fbo=%d status=0x%x vp=%d,%d %dx%d L(%d,%d)=%u,%u,%u,%u errL=0x%x R(%d,%d)=%u,%u,%u,%u errR=0x%x",
+                sBlitDiagFrame,
+                boundFbo,
+                static_cast<unsigned int>(framebufferStatus),
+                viewport[0],
+                viewport[1],
+                viewport[2],
+                viewport[3],
+                leftSampleX,
+                sampleY,
+                leftPixel[0],
+                leftPixel[1],
+                leftPixel[2],
+                leftPixel[3],
+                static_cast<unsigned int>(leftReadErr),
+                rightSampleX,
+                sampleY,
+                rightPixel[0],
+                rightPixel[1],
+                rightPixel[2],
+                rightPixel[3],
+                static_cast<unsigned int>(rightReadErr));
+        }
 
         //// Since OpenXR does not include native support for mirror textures, we have to generate them ourselves
         if (mMirrorTextureEnabled)
