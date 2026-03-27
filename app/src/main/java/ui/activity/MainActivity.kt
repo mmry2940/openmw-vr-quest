@@ -224,6 +224,13 @@ open class MainActivity : AppCompatActivity() {
 
         val intent = Intent(this@MainActivity, GameActivity::class.java)
         this@MainActivity.startActivity(intent)
+        // Ensure VrEntryActivity does not remain in the back stack and re-trigger startup.
+        finish()
+        // VrEntryActivity is only a handoff entry point. Finishing it prevents
+        // focus from bouncing back to the entry screen after GameActivity starts.
+        if (this is VrEntryActivity) {
+            finish()
+        }
     }
 
 

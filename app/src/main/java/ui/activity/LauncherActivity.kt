@@ -25,6 +25,9 @@ private const val TAG = "LauncherActivity"
 
 class LauncherActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
+    private lateinit var selectDataButton: Button
+    private lateinit var launchGameButton: Button
+    private var launchInProgress: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "LauncherActivity.onCreate: starting")
@@ -40,12 +43,26 @@ class LauncherActivity : AppCompatActivity() {
         updateGameDataDisplay()
 
         // Set up button listeners
-        findViewById<Button>(R.id.select_data_button).setOnClickListener {
+        selectDataButton = findViewById(R.id.select_data_button)
+        launchGameButton = findViewById(R.id.launch_game_button)
+
+        selectDataButton.setOnClickListener {
+            if (launchInProgress) {
+                Log.d(TAG, "Select data ignored: launch already in progress")
+                return@setOnClickListener
+            }
             Log.d(TAG, "Select data button clicked")
             selectGameData()
         }
         
-        findViewById<Button>(R.id.launch_game_button).setOnClickListener {
+        launchGameButton.setOnClickListener {
+            if (launchInProgress) {
+                Log.d(TAG, "Launch game ignored: launch already in progress")
+                return@setOnClickListener
+            }
+            launchInProgress = true
+            launchGameButton.isEnabled = false
+            selectDataButton.isEnabled = false
             Log.d(TAG, "Launch game button clicked")
             checkStartGame()
         }
@@ -141,6 +158,9 @@ class LauncherActivity : AppCompatActivity() {
         val gameFilesPath = prefs.getString("game_files", "")!!
         if (gameFilesPath.isEmpty()) {
             Log.d(TAG, "checkStartGame: no game data configured")
+            launchInProgress = false
+            launchGameButton.isEnabled = true
+            selectDataButton.isEnabled = true
             val statusMsg = findViewById<TextView>(R.id.status_message)
             statusMsg.text = "Please select game data first"
             return
@@ -149,6 +169,9 @@ class LauncherActivity : AppCompatActivity() {
         val inst = GameInstaller(gameFilesPath)
         if (!inst.check()) {
             Log.d(TAG, "checkStartGame: game data path is no longer valid")
+            launchInProgress = false
+            launchGameButton.isEnabled = true
+            selectDataButton.isEnabled = true
             AlertDialog.Builder(this)
                 .setTitle(R.string.no_data_files_title)
                 .setMessage(R.string.no_data_files_message)

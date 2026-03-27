@@ -125,20 +125,20 @@ namespace MWVR
             mSwapchainConfig[i].selectedWidth = parseResolution(xConfString[i], mSwapchainConfig[i].recommendedWidth, mSwapchainConfig[i].maxWidth);
             mSwapchainConfig[i].selectedHeight = parseResolution(yConfString[i], mSwapchainConfig[i].recommendedHeight, mSwapchainConfig[i].maxHeight);
 
-            mSwapchainConfig[i].selectedSamples =
-                std::max(1, // OpenXR requires a non-zero value
-                    std::min(mSwapchainConfig[i].maxSamples,
-                        Settings::Manager::getInt("antialiasing", "Video")
-                    )
-                );
+            // Force single-sample eye buffers. On Quest + GL4ES, multisample resolve
+            // can produce black output even while frame submission continues.
+            mSwapchainConfig[i].selectedSamples = 1;
 
             Log(Debug::Verbose) << name << " resolution: Recommended x=" << mSwapchainConfig[i].recommendedWidth << ", y=" << mSwapchainConfig[i].recommendedHeight;
             Log(Debug::Verbose) << name << " resolution: Max x=" << mSwapchainConfig[i].maxWidth << ", y=" << mSwapchainConfig[i].maxHeight;
             Log(Debug::Verbose) << name << " resolution: Selected x=" << mSwapchainConfig[i].selectedWidth << ", y=" << mSwapchainConfig[i].selectedHeight;
 
             mSwapchainConfig[i].name = name;
-            if (i > 0)
-                mSwapchainConfig[i].offsetWidth = mSwapchainConfig[i].selectedWidth + mSwapchainConfig[i].offsetWidth;
+            // Use deterministic side-by-side source offsets in the combined framebuffer.
+            // Avoid accumulating runtime-provided offsets here, as that can shift the right
+            // eye blit outside the rendered region and produce black output.
+            mSwapchainConfig[i].offsetHeight = 0;
+            mSwapchainConfig[i].offsetWidth = (i == 0) ? 0 : mSwapchainConfig[0].selectedWidth;
 
             mSwapchain[i].reset(new OpenXRSwapchain(gc->getState(), mSwapchainConfig[i]));
             mSubImages[i].width = mSwapchainConfig[i].selectedWidth;
@@ -189,10 +189,15 @@ namespace MWVR
 
     void VRViewer::setupMirrorTexture()
     {
-        mMirrorTextureEnabled = Settings::Manager::getBool("mirror texture", "VR");
-        mMirrorTextureEye = mirrorTextureEyeFromString(Settings::Manager::getString("mirror texture eye", "VR"));
-        mFlipMirrorTextureOrder = Settings::Manager::getBool("flip mirror texture order", "VR");
+        // Force mirror texture in Quest VR builds to ensure the casting surface is always populated.
+        // This avoids cases where mirror texture is disabled in settings and the cast window is black.
+        mMirrorTextureEnabled = true;
+
+        mMirrorTextureEye = MirrorTextureEye::Both;
+        mFlipMirrorTextureOrder = false;
         mMirrorTextureShouldBeCleanedUp = true;
+
+        __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::setupMirrorTexture: forced mirror texture enabled, eye=both, flip=%d", mFlipMirrorTextureOrder ? 1 : 0);
 
         mMirrorTextureViews.clear();
         if (mMirrorTextureEye == MirrorTextureEye::Left || mMirrorTextureEye == MirrorTextureEye::Both)
@@ -411,19 +416,31 @@ namespace MWVR
                 mMirrorTexture->createColorBuffer(gc);
             }
 
-            int dstWidth = screenWidth / mMirrorTextureViews.size();
+            int eyeCount = static_cast<int>(mMirrorTextureViews.size());
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit (mirror enabled): screen=%dx%d, gamma=%dx%d, views=%d", screenWidth, screenHeight, mGammaResolveTexture->width(), mGammaResolveTexture->height(), eyeCount);
+
+            int dstWidth = eyeCount ? screenWidth / eyeCount : screenWidth;
             int srcWidth = mGammaResolveTexture->width() / 2;
             int dstX = 0;
             mMirrorTexture->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
             for (auto viewId : mMirrorTextureViews)
             {
                 int srcX = static_cast<int>(viewId) * srcWidth;
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit view %d srcX=%d dstX=%d dstW=%d", viewId, srcX, dstX, dstWidth);
                 mGammaResolveTexture->blit(gc, srcX, 0, srcX + srcWidth, mGammaResolveTexture->height(), dstX, 0, dstX + dstWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
                 dstX += dstWidth;
             }
 
             gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
             mMirrorTexture->blit(gc, 0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit done mirror composite");
+        }
+        else
+        {
+            // Mirror texture is intentionally disabled; still draw to the Android window for casting.
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit: mirror texture disabled, performing direct blit to window");
+            mGammaResolveTexture->blit(gc, 0, 0, mGammaResolveTexture->width(), mGammaResolveTexture->height(), 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
         }
 
         mSwapchain[0]->endFrame(gc, *mGammaResolveTexture);

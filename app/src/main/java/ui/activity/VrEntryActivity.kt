@@ -4,18 +4,36 @@ import android.content.Intent
 import android.util.Log
 
 class VrEntryActivity : MainActivity() {
+    private var autoStartHandled = false
+
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
-        val autoStart = intent?.getBooleanExtra(EXTRA_AUTO_START_GAME, false) == true
-        Log.d(TAG, "VrEntryActivity.onCreate: autoStart=$autoStart")
         super.onCreate(savedInstanceState)
+        handleEntryIntent(intent, "onCreate")
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleEntryIntent(intent, "onNewIntent")
+    }
+
+    private fun handleEntryIntent(intent: Intent?, source: String) {
+        val autoStart = intent?.getBooleanExtra(EXTRA_AUTO_START_GAME, false) == true
+        Log.d(TAG, "VrEntryActivity.$source: autoStart=$autoStart, handled=$autoStartHandled")
 
         if (autoStart) {
-            Log.d(TAG, "VrEntryActivity.onCreate: auto-starting via MainActivity pipeline")
+            if (autoStartHandled) {
+                Log.d(TAG, "VrEntryActivity.$source: auto-start already handled, ignoring")
+                return
+            }
+
+            autoStartHandled = true
+            Log.d(TAG, "VrEntryActivity.$source: auto-starting via MainActivity pipeline")
             checkStartGame()
             return
         }
 
-        Log.d(TAG, "VrEntryActivity.onCreate: launching LauncherActivity")
+        Log.d(TAG, "VrEntryActivity.$source: launching LauncherActivity")
         val launcherIntent = Intent(this, LauncherActivity::class.java)
         startActivity(launcherIntent)
         finish()
