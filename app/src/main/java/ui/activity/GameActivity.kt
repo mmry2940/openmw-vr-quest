@@ -142,10 +142,10 @@ class GameActivity : SDLActivity() {
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         ensureNativeLibrariesLoaded()
         configureQuestOpenXrRuntime()
         initOpenXRLoader()
-        super.onCreate(savedInstanceState)
         KeepScreenOn()
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         getPathToJni(filesDir.parent, Constants.USER_FILE_STORAGE)
@@ -187,6 +187,7 @@ class GameActivity : SDLActivity() {
 
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
             enforceImmersiveMode()
         }
@@ -233,22 +234,13 @@ class GameActivity : SDLActivity() {
 
             if (selectedRuntime == "monado_system") {
                 Log.i("OpenMW", "OpenXR runtime bootstrap: Monado XR Runtime selected (system runtime discovery)")
-                return
+                // For Monado, use the installable broker runtime path if available
+                setOpenXrRuntimeJson("/data/data/org.khronos.openxr.runtime_broker/files/active_runtime.json")
+            } else {
+                Log.i("OpenMW", "OpenXR runtime bootstrap: Meta Quest System Runtime selected")
             }
-
-            val runtimeDir = File(filesDir, "openxr")
-            if (!runtimeDir.exists()) {
-                runtimeDir.mkdirs()
-            }
-            val runtimeJson = File(runtimeDir, "active_runtime.aarch64.json")
-            val json = JSONObject()
-            val runtime = JSONObject()
-            runtime.put("library_path", "libopenxr_forwardloader.so")
-            json.put("file_format_version", "1.0.0")
-            json.put("runtime", runtime)
-            runtimeJson.writeText(json.toString())
-            setOpenXrRuntimeJson(runtimeJson.absolutePath)
-            Log.i("OpenMW", "OpenXR runtime bootstrap: Quest Forward Loader selected")
+            // Do not write active_runtime.aarch64.json since we use the native Quest OS broker
+            // via xrInitializeLoaderKHR, and we lack libopenxr_forwardloader.so locally.
         } catch (e: Exception) {
             Log.e("OpenMW", "Failed to configure OpenXR runtime JSON", e)
         }

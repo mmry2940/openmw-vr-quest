@@ -15,6 +15,7 @@ int stderr = 0; // Hack: fix linker error
 #include <openxr/openxr_platform.h>
 #endif
 #include <string>
+#include <android/log.h>
 
 extern "C" JNIEXPORT void JNICALL Java_ui_activity_GameActivity_setOpenXrRuntimeJson(JNIEnv* env, jobject activity, jstring runtimeJsonPath);
 extern "C" JNIEXPORT void JNICALL Java_ui_activity_GameActivity_initOpenXRLoader(JNIEnv* env, jobject activity);
@@ -115,26 +116,22 @@ extern "C" JNIEXPORT void JNICALL Java_ui_activity_GameActivity_initOpenXRLoader
     (void)activity;
     return;
 #else
-    if (!gJavaVM) {
+    if (!gJavaVM) { __android_log_print(ANDROID_LOG_ERROR, "OpenMW", "gJavaVM is null in initOpenXRLoader!");
         return;
     }
-    
-    // Get the Application context (not Activity context) for a more stable reference
-    jclass activityClass = env->GetObjectClass(activity);
-    jmethodID getApplicationContextMethod = env->GetMethodID(activityClass, "getApplicationContext", "()Landroid/content/Context;");
-    jobject appContext = env->CallObjectMethod(activity, getApplicationContextMethod);
     
     // Create a global reference so it survives beyond this JNI call
     if (gApplicationContext) {
         env->DeleteGlobalRef(gApplicationContext);
     }
-    gApplicationContext = env->NewGlobalRef(appContext);
+    // Meta/OpenXR loaders often require the Activity Context directly, rather than Application.
+    gApplicationContext = env->NewGlobalRef(activity);
     
     // Get the xrInitializeLoaderKHR function pointer
     PFN_xrInitializeLoaderKHR xrInitializeLoaderKHR = nullptr;
     if (xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrInitializeLoaderKHR",
             reinterpret_cast<PFN_xrVoidFunction*>(&xrInitializeLoaderKHR)) != XR_SUCCESS ||
-            !xrInitializeLoaderKHR) {
+            !xrInitializeLoaderKHR) { __android_log_print(ANDROID_LOG_ERROR, "OpenMW", "xrGetInstanceProcAddr failed for xrInitializeLoaderKHR");
         return;
     }
     XrLoaderInitInfoAndroidKHR loaderInitInfo{};
@@ -142,7 +139,7 @@ extern "C" JNIEXPORT void JNICALL Java_ui_activity_GameActivity_initOpenXRLoader
     loaderInitInfo.next = nullptr;
     loaderInitInfo.applicationVM = gJavaVM;
     loaderInitInfo.applicationContext = gApplicationContext;
-    xrInitializeLoaderKHR(reinterpret_cast<const XrLoaderInitInfoBaseHeaderKHR*>(&loaderInitInfo));
+    xrInitializeLoaderKHR(reinterpret_cast<const XrLoaderInitInfoBaseHeaderKHR*>(&loaderInitInfo)); __android_log_print(ANDROID_LOG_INFO, "OpenMW", "xrInitializeLoaderKHR executed successfully!");
 #endif
 }
 
