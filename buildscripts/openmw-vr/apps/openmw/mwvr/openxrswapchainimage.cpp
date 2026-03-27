@@ -16,6 +16,7 @@
 #elif __ANDROID__
 #include <jni.h>
 #include <EGL/egl.h>
+#include <android/log.h>
 
 #elif __linux__
 #include <X11/Xlib.h>
@@ -71,6 +72,51 @@ namespace MWVR {
         {
             mFramebuffer->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
             readBuffer.blit(gc, offset_x, offset_y, offset_x + mFramebuffer->width(), offset_y + mFramebuffer->height(), 0, 0, mFramebuffer->width(), mFramebuffer->height(), mBufferBits, GL_NEAREST);
+
+#ifdef __ANDROID__
+            if (mBufferBits == GL_COLOR_BUFFER_BIT)
+            {
+                static unsigned int sSwapchainBlitDiagFrame = 0;
+                ++sSwapchainBlitDiagFrame;
+                const bool shouldLog = (sSwapchainBlitDiagFrame <= 10) || ((sSwapchainBlitDiagFrame % 300) == 0);
+                if (shouldLog)
+                {
+                    GLint viewport[4] = { 0, 0, 0, 0 };
+                    GLint drawFbo = 0;
+                    glGetIntegerv(GL_VIEWPORT, viewport);
+                    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFbo);
+
+                    const int sampleX = (mFramebuffer->width() > 0) ? (mFramebuffer->width() / 2) : 0;
+                    const int sampleY = (mFramebuffer->height() > 0) ? (mFramebuffer->height() / 2) : 0;
+                    unsigned char pixel[4] = { 0, 0, 0, 0 };
+                    glReadPixels(sampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+                    const GLenum readErr = glGetError();
+
+                    __android_log_print(
+                        ANDROID_LOG_WARN,
+                        "OpenMWXRDiag",
+                        "SwapchainImage::blit diag frame=%u tex=%u fbo=%d vp=%d,%d %dx%d sample(%d,%d)=%u,%u,%u,%u readErr=0x%x srcOffset=%d,%d dstSize=%dx%d",
+                        sSwapchainBlitDiagFrame,
+                        static_cast<unsigned int>(mXrImage.image),
+                        drawFbo,
+                        viewport[0],
+                        viewport[1],
+                        viewport[2],
+                        viewport[3],
+                        sampleX,
+                        sampleY,
+                        pixel[0],
+                        pixel[1],
+                        pixel[2],
+                        pixel[3],
+                        static_cast<unsigned int>(readErr),
+                        offset_x,
+                        offset_y,
+                        mFramebuffer->width(),
+                        mFramebuffer->height());
+                }
+            }
+#endif
         }
 
         XrSwapchainImageOpenGLKHR mXrImage;

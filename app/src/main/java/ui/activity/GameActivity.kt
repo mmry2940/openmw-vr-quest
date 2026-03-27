@@ -228,6 +228,14 @@ class GameActivity : SDLActivity() {
 
     private fun configureQuestOpenXrRuntime() {
         try {
+            val selectedRuntime = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("pref_openxr_runtime", "quest_forward_loader") ?: "quest_forward_loader"
+
+            if (selectedRuntime == "monado_system") {
+                Log.i("OpenMW", "OpenXR runtime bootstrap: Monado XR Runtime selected (system runtime discovery)")
+                return
+            }
+
             val runtimeDir = File(filesDir, "openxr")
             if (!runtimeDir.exists()) {
                 runtimeDir.mkdirs()
@@ -240,6 +248,7 @@ class GameActivity : SDLActivity() {
             json.put("runtime", runtime)
             runtimeJson.writeText(json.toString())
             setOpenXrRuntimeJson(runtimeJson.absolutePath)
+            Log.i("OpenMW", "OpenXR runtime bootstrap: Quest Forward Loader selected")
         } catch (e: Exception) {
             Log.e("OpenMW", "Failed to configure OpenXR runtime JSON", e)
         }

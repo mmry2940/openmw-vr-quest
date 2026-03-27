@@ -59,6 +59,34 @@
                 android:background="@android:color/holo_blue_dark"
                 android:textColor="@android:color/white"
                 android:padding="12dp" />
+
+            <TextView
+                android:id="@+id/runtime_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OpenXR Runtime:"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="8dp" />
+
+            <Spinner
+                android:id="@+id/runtime_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:padding="8dp" />
+
+            <Button
+                android:id="@+id/configure_runtime_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@android:color/holo_purple"
+                android:padding="12dp"
+                android:text="Configure Runtime (Broker)"
+                android:textColor="@android:color/white"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <Button

@@ -8,11 +8,16 @@ package ui.activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -22,11 +27,18 @@ import file.GameInstaller
 import permission.PermissionHelper
 
 private const val TAG = "LauncherActivity"
+private const val PREF_OPENXR_RUNTIME = "pref_openxr_runtime"
+private const val RUNTIME_QUEST = "quest_forward_loader"
+private const val RUNTIME_MONADO = "monado_system"
+private const val OPENXR_INSTALLABLE_BROKER_PACKAGE = "org.khronos.openxr.runtime_broker"
+private const val OPENXR_INSTALLABLE_BROKER_ACTIVITY = "org.khronos.openxr.runtime_broker.MainActivity"
 
 class LauncherActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private lateinit var selectDataButton: Button
     private lateinit var launchGameButton: Button
+    private lateinit var configureRuntimeButton: Button
+    private lateinit var runtimeSpinner: Spinner
     private var launchInProgress: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +57,14 @@ class LauncherActivity : AppCompatActivity() {
         // Set up button listeners
         selectDataButton = findViewById(R.id.select_data_button)
         launchGameButton = findViewById(R.id.launch_game_button)
+        configureRuntimeButton = findViewById(R.id.configure_runtime_button)
+        runtimeSpinner = findViewById(R.id.runtime_spinner)
+
+        setupRuntimeSelector()
+
+        configureRuntimeButton.setOnClickListener {
+            openRuntimeBrokerSettings()
+        }
 
         selectDataButton.setOnClickListener {
             if (launchInProgress) {
@@ -63,6 +83,8 @@ class LauncherActivity : AppCompatActivity() {
             launchInProgress = true
             launchGameButton.isEnabled = false
             selectDataButton.isEnabled = false
+            configureRuntimeButton.isEnabled = false
+            runtimeSpinner.isEnabled = false
             Log.d(TAG, "Launch game button clicked")
             checkStartGame()
         }
@@ -161,6 +183,8 @@ class LauncherActivity : AppCompatActivity() {
             launchInProgress = false
             launchGameButton.isEnabled = true
             selectDataButton.isEnabled = true
+            configureRuntimeButton.isEnabled = true
+            runtimeSpinner.isEnabled = true
             val statusMsg = findViewById<TextView>(R.id.status_message)
             statusMsg.text = "Please select game data first"
             return
@@ -172,6 +196,8 @@ class LauncherActivity : AppCompatActivity() {
             launchInProgress = false
             launchGameButton.isEnabled = true
             selectDataButton.isEnabled = true
+            configureRuntimeButton.isEnabled = true
+            runtimeSpinner.isEnabled = true
             AlertDialog.Builder(this)
                 .setTitle(R.string.no_data_files_title)
                 .setMessage(R.string.no_data_files_message)
@@ -185,6 +211,80 @@ class LauncherActivity : AppCompatActivity() {
 
         Log.d(TAG, "checkStartGame: game data valid, starting game")
         startGame()
+    }
+
+    private fun setupRuntimeSelector() {
+        val runtimeLabels = arrayOf("Quest Forward Loader", "Monado XR Runtime")
+        val runtimeValues = arrayOf(RUNTIME_QUEST, RUNTIME_MONADO)
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, runtimeLabels)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        runtimeSpinner.adapter = adapter
+
+        val currentValue = prefs.getString(PREF_OPENXR_RUNTIME, RUNTIME_QUEST) ?: RUNTIME_QUEST
+        val initialSelection = runtimeValues.indexOf(currentValue).let { if (it >= 0) it else 0 }
+        runtimeSpinner.setSelection(initialSelection)
+
+        runtimeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selected = runtimeValues[position]
+                prefs.edit().putString(PREF_OPENXR_RUNTIME, selected).apply()
+                Log.i(TAG, "OpenXR runtime selected: $selected")
+
+                val statusMsg = findViewById<TextView>(R.id.status_message)
+                if (selected == RUNTIME_MONADO && !isOpenXrInstallableBrokerInstalled()) {
+                    statusMsg.text = "Monado selected: OpenXR Broker app not found"
+                } else {
+                    statusMsg.text = ""
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+    }
+
+    private fun isOpenXrInstallableBrokerInstalled(): Boolean {
+        return try {
+            packageManager.getPackageInfo(OPENXR_INSTALLABLE_BROKER_PACKAGE, 0)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun openRuntimeBrokerSettings() {
+        try {
+            val intent = Intent().setClassName(
+                OPENXR_INSTALLABLE_BROKER_PACKAGE,
+                OPENXR_INSTALLABLE_BROKER_ACTIVITY
+            )
+            startActivity(intent)
+        } catch (e: Exception) {
+            Log.w(TAG, "OpenXR runtime broker activity unavailable", e)
+            AlertDialog.Builder(this)
+                .setTitle("OpenXR Broker Not Found")
+                .setMessage("Install OpenXR Runtime Broker to select/installable runtimes like Monado.")
+                .setPositiveButton("Open Store") { _, _ ->
+                    try {
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("market://details?id=$OPENXR_INSTALLABLE_BROKER_PACKAGE")
+                            )
+                        )
+                    } catch (_: Exception) {
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://play.google.com/store/apps/details?id=$OPENXR_INSTALLABLE_BROKER_PACKAGE")
+                            )
+                        )
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
     }
 
     private fun startGame() {
