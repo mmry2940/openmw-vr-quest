@@ -288,10 +288,11 @@ if(BUILD_OPENMW_VR)
     # Force the openxr-sdk to use its bundled jsoncpp to avoid problems from system jsoncpp if present
     set(BUILD_WITH_SYSTEM_JSONCPP off) 
     include(FetchContent)
-    FetchContent_Declare( 
-        OpenXR 
+    FetchContent_Declare(
+        OpenXR
         GIT_REPOSITORY https://github.com/KhronosGroup/OpenXR-SDK.git
-        GIT_TAG release-1.0.29
+        GIT_TAG release-1.1.57
+        PATCH_COMMAND ${CMAKE_SOURCE_DIR}/../patches/patch_openxr.sh
     )
     FetchContent_MakeAvailable(OpenXR)
 

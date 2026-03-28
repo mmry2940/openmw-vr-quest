@@ -761,6 +761,9 @@ namespace MWVR
 
     bool VRGUIManager::updateFocus()
     {
+        if (!MWBase::Environment::get().hasWorld())
+            return false;
+
         auto* world = MWBase::Environment::get().getWorld();
         if (world)
         {
@@ -978,6 +981,7 @@ namespace MWVR
 
     VRGUITracking::VRGUITracking(const std::string& source)
         : VRTrackingSource("uisource")
+        , mSourceName(source)
     {
         auto* tm = Environment::get().getTrackingManager();
         mSource = tm->getSource(source);
@@ -989,18 +993,31 @@ namespace MWVR
     {
         if (path == mStationaryPath)
             return mStationaryPose;
+        if (!mSource)
+            return VRTrackingPose();
         return mSource->getTrackingPose(predictedDisplayTime, path, reference);
     }
 
     std::vector<VRPath> VRGUITracking::listSupportedTrackingPosePaths() const
     {
-        auto paths = mSource->listSupportedTrackingPosePaths();
+        std::vector<VRPath> paths;
+        if (mSource)
+            paths = mSource->listSupportedTrackingPosePaths();
         paths.push_back(mStationaryPath);
         return paths;
     }
 
     void VRGUITracking::updateTracking(DisplayTime predictedDisplayTime)
     {
+        if (!mSource)
+        {
+            auto* tm = Environment::get().getTrackingManager();
+            mSource = tm ? tm->getSource(mSourceName) : nullptr;
+            if (!mSource)
+                return;
+            notifyAvailablePosesChanged();
+        }
+
         if (mSource->availablePosesChanged())
             notifyAvailablePosesChanged();
 

@@ -24,6 +24,10 @@
 
 #include <components/sdlutil/sdlgraphicswindow.hpp>
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
+
 namespace MWVR
 {
     // Callback to do construction with a graphics context
@@ -125,20 +129,20 @@ namespace MWVR
             mSwapchainConfig[i].selectedWidth = parseResolution(xConfString[i], mSwapchainConfig[i].recommendedWidth, mSwapchainConfig[i].maxWidth);
             mSwapchainConfig[i].selectedHeight = parseResolution(yConfString[i], mSwapchainConfig[i].recommendedHeight, mSwapchainConfig[i].maxHeight);
 
-            mSwapchainConfig[i].selectedSamples =
-                std::max(1, // OpenXR requires a non-zero value
-                    std::min(mSwapchainConfig[i].maxSamples,
-                        Settings::Manager::getInt("antialiasing", "Video")
-                    )
-                );
+            // Force single-sample eye buffers. On Quest + GL4ES, multisample resolve
+            // can produce black output even while frame submission continues.
+            mSwapchainConfig[i].selectedSamples = 1;
 
             Log(Debug::Verbose) << name << " resolution: Recommended x=" << mSwapchainConfig[i].recommendedWidth << ", y=" << mSwapchainConfig[i].recommendedHeight;
             Log(Debug::Verbose) << name << " resolution: Max x=" << mSwapchainConfig[i].maxWidth << ", y=" << mSwapchainConfig[i].maxHeight;
             Log(Debug::Verbose) << name << " resolution: Selected x=" << mSwapchainConfig[i].selectedWidth << ", y=" << mSwapchainConfig[i].selectedHeight;
 
             mSwapchainConfig[i].name = name;
-            if (i > 0)
-                mSwapchainConfig[i].offsetWidth = mSwapchainConfig[i].selectedWidth + mSwapchainConfig[i].offsetWidth;
+            // Use deterministic side-by-side source offsets in the combined framebuffer.
+            // Avoid accumulating runtime-provided offsets here, as that can shift the right
+            // eye blit outside the rendered region and produce black output.
+            mSwapchainConfig[i].offsetHeight = 0;
+            mSwapchainConfig[i].offsetWidth = (i == 0) ? 0 : mSwapchainConfig[0].selectedWidth;
 
             mSwapchain[i].reset(new OpenXRSwapchain(gc->getState(), mSwapchainConfig[i]));
             mSubImages[i].width = mSwapchainConfig[i].selectedWidth;
@@ -189,10 +193,15 @@ namespace MWVR
 
     void VRViewer::setupMirrorTexture()
     {
-        mMirrorTextureEnabled = Settings::Manager::getBool("mirror texture", "VR");
-        mMirrorTextureEye = mirrorTextureEyeFromString(Settings::Manager::getString("mirror texture eye", "VR"));
-        mFlipMirrorTextureOrder = Settings::Manager::getBool("flip mirror texture order", "VR");
+        // Force mirror texture in Quest VR builds to ensure the casting surface is always populated.
+        // This avoids cases where mirror texture is disabled in settings and the cast window is black.
+        mMirrorTextureEnabled = true;
+
+        mMirrorTextureEye = MirrorTextureEye::Both;
+        mFlipMirrorTextureOrder = false;
         mMirrorTextureShouldBeCleanedUp = true;
+
+        __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::setupMirrorTexture: forced mirror texture enabled, eye=both, flip=%d", mFlipMirrorTextureOrder ? 1 : 0);
 
         mMirrorTextureViews.clear();
         if (mMirrorTextureEye == MirrorTextureEye::Left || mMirrorTextureEye == MirrorTextureEye::Both)
@@ -259,12 +268,12 @@ namespace MWVR
     static bool applyGamma(osg::RenderInfo& info, VRFramebuffer& target, VRFramebuffer& source)
     {
         osg::State* state = info.getState();
-        static const char* vSource = "#version 120\n varying vec2 uv; void main(){ gl_Position = vec4(gl_Vertex.xy*2.0 - 1, 0, 1); uv = gl_Vertex.xy;}";
+        static const char* vSource = "#version 120\n varying vec2 uv; void main(){ float x = gl_Vertex.x * 2.0 - 1.0; float y = gl_Vertex.y * 2.0 - 1.0; gl_Position = vec4(x, y, 0.0, 1.0); uv = gl_Vertex.xy;}";
         static const char* fSource = "#version 120\n varying vec2 uv; uniform sampler2D t; uniform float gamma; uniform float contrast;"
             "void main() {"
             "vec4 color1 = texture2D(t, uv);"
             "vec3 rgb = color1.rgb;"
-            "rgb = (rgb - 0.5f) * contrast + 0.5f;"
+            "rgb = (rgb - 0.5) * contrast + 0.5;"
             "rgb = pow(rgb, vec3(1.0/gamma));"
             "gl_FragColor = vec4(rgb, color1.a);"
             "}";
@@ -306,6 +315,22 @@ namespace MWVR
             program->addShader(vShader);
             program->addShader(fShader);
             program->compileGLObjects(*state);
+
+            auto* pcp = program->getPCP(*state);
+            bool programLinked = false;
+            if (pcp)
+            {
+                auto* gl = osg::GLExtensions::Get(state->getContextID(), false);
+                GLint linked = 0;
+                gl->glGetProgramiv(pcp->getHandle(), GL_LINK_STATUS, &linked);
+                programLinked = linked == GL_TRUE;
+            }
+            if (!programLinked)
+            {
+                Log(Debug::Warning) << "Gamma postprocess shader failed to link. Falling back to direct blit.";
+                program = nullptr;
+            }
+
             stateset->setAttributeAndModes(program, osg::StateAttribute::ON);
 
             texture = new osg::Texture2D();
@@ -383,6 +408,57 @@ namespace MWVR
         mGammaResolveTexture->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
         mFramebuffer->blit(gc, 0, 0, mFramebuffer->width(), mFramebuffer->height(), 0, 0, mGammaResolveTexture->width(), mGammaResolveTexture->height(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
+        static unsigned int sBlitDiagFrame = 0;
+        ++sBlitDiagFrame;
+        const bool shouldLogBlitDiag = (sBlitDiagFrame <= 10) || ((sBlitDiagFrame % 300) == 0);
+        if (shouldLogBlitDiag)
+        {
+            GLint boundFbo = 0;
+            GLint viewport[4] = { 0, 0, 0, 0 };
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &boundFbo);
+            glGetIntegerv(GL_VIEWPORT, viewport);
+
+            GLenum framebufferStatus = gl->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+            const int sampleY = mGammaResolveTexture->height() > 0 ? (mGammaResolveTexture->height() / 2) : 0;
+            const int leftSampleX = mGammaResolveTexture->width() > 0 ? (mGammaResolveTexture->width() / 4) : 0;
+            const int rightSampleX = mGammaResolveTexture->width() > 0 ? ((mGammaResolveTexture->width() * 3) / 4) : 0;
+
+            unsigned char leftPixel[4] = { 0, 0, 0, 0 };
+            unsigned char rightPixel[4] = { 0, 0, 0, 0 };
+
+            glReadPixels(leftSampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, leftPixel);
+            GLenum leftReadErr = glGetError();
+            glReadPixels(rightSampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rightPixel);
+            GLenum rightReadErr = glGetError();
+
+            __android_log_print(
+                ANDROID_LOG_WARN,
+                "OpenMWXRDiag",
+                "VRViewer::blit diag frame=%u fbo=%d status=0x%x vp=%d,%d %dx%d L(%d,%d)=%u,%u,%u,%u errL=0x%x R(%d,%d)=%u,%u,%u,%u errR=0x%x",
+                sBlitDiagFrame,
+                boundFbo,
+                static_cast<unsigned int>(framebufferStatus),
+                viewport[0],
+                viewport[1],
+                viewport[2],
+                viewport[3],
+                leftSampleX,
+                sampleY,
+                leftPixel[0],
+                leftPixel[1],
+                leftPixel[2],
+                leftPixel[3],
+                static_cast<unsigned int>(leftReadErr),
+                rightSampleX,
+                sampleY,
+                rightPixel[0],
+                rightPixel[1],
+                rightPixel[2],
+                rightPixel[3],
+                static_cast<unsigned int>(rightReadErr));
+        }
+
         //// Since OpenXR does not include native support for mirror textures, we have to generate them ourselves
         if (mMirrorTextureEnabled)
         {
@@ -395,21 +471,37 @@ namespace MWVR
                 mMirrorTexture->createColorBuffer(gc);
             }
 
-            int dstWidth = screenWidth / mMirrorTextureViews.size();
+            int eyeCount = static_cast<int>(mMirrorTextureViews.size());
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit (mirror enabled): screen=%dx%d, gamma=%dx%d, views=%d", screenWidth, screenHeight, mGammaResolveTexture->width(), mGammaResolveTexture->height(), eyeCount);
+
+            int dstWidth = eyeCount ? screenWidth / eyeCount : screenWidth;
             int srcWidth = mGammaResolveTexture->width() / 2;
             int dstX = 0;
             mMirrorTexture->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
             for (auto viewId : mMirrorTextureViews)
             {
                 int srcX = static_cast<int>(viewId) * srcWidth;
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit view %d srcX=%d dstX=%d dstW=%d", viewId, srcX, dstX, dstWidth);
                 mGammaResolveTexture->blit(gc, srcX, 0, srcX + srcWidth, mGammaResolveTexture->height(), dstX, 0, dstX + dstWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
                 dstX += dstWidth;
             }
 
             gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
             mMirrorTexture->blit(gc, 0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit done mirror composite");
+        }
+        else
+        {
+            // Mirror texture is intentionally disabled; still draw to the Android window for casting.
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer::blit: mirror texture disabled, performing direct blit to window");
+            mGammaResolveTexture->blit(gc, 0, 0, mGammaResolveTexture->width(), mGammaResolveTexture->height(), 0, 0, screenWidth, screenHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
         }
 
+        static unsigned int sSwapEndCount = 0;
+        ++sSwapEndCount;
+        if (sSwapEndCount <= 6 || (sSwapEndCount % 600) == 0)
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer: calling swapchain[0/1]->endFrame #%u", sSwapEndCount);
         mSwapchain[0]->endFrame(gc, *mGammaResolveTexture);
         mSwapchain[1]->endFrame(gc, *mGammaResolveTexture);
         gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);

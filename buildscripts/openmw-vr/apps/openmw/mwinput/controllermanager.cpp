@@ -52,8 +52,15 @@ namespace MWInput
 
         // Open all presently connected sticks
         int numSticks = SDL_NumJoysticks();
+        Log(Debug::Info) << "ControllerManager: " << numSticks << " joystick(s) detected, mJoystickEnabled=" << mJoystickEnabled;
         for (int i = 0; i < numSticks; i++)
         {
+            SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(i);
+            char guidStr[33];
+            SDL_JoystickGetGUIDString(guid, guidStr, sizeof(guidStr));
+            Log(Debug::Info) << "  Joystick " << i << ": name=" << SDL_JoystickNameForIndex(i)
+                << " GUID=" << guidStr << " isGameController=" << SDL_IsGameController(i);
+
             if (SDL_IsGameController(i))
             {
                 SDL_ControllerDeviceEvent evt;

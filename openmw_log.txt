@@ -1,0 +1,892 @@
+03-27 10:02:46.776 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:46.776 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:46.887 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:46.888 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.001 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.001 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.111 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.112 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.223 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.224 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.333 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.333 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.444 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.444 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.555 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.555 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.656 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.656 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.656 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.766 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.766 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.874 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.875 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:47.985 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:47.986 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.097 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.097 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.208 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.209 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.321 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.321 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.431 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.431 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.541 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.541 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.653 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.654 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.763 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.764 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.764 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.875 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.876 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:48.976 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:02:48.986 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:48.987 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.097 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.098 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.209 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.209 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.320 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.320 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.430 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.430 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.541 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.541 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.653 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.653 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.765 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.766 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.875 I/MRSS    ( 1168): MIXEDREALITY: MrSystemService: FramesetTelemetry: timeouts stereo/color: compute side: 0/0, render side: 0/0, egl: 0.
+03-27 10:02:49.877 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.877 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.877 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:49.987 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:49.987 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.096 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.096 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.207 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.207 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.319 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.320 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.431 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.432 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.543 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.543 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.655 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.655 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.765 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.765 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.874 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.874 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.986 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:50.986 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:50.986 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.096 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.096 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.208 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.208 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.321 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.321 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.430 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.431 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.542 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.542 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.654 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.655 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.763 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.763 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.874 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.875 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:51.987 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:51.987 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.096 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.096 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.096 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.209 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.209 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.319 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.319 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.428 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.428 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.540 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.540 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.653 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.653 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.763 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.763 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.875 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.875 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:52.986 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:52.986 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.097 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.097 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.209 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.210 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.210 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.319 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.319 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.429 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.429 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.541 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.541 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.651 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.651 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.763 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.764 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.874 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.874 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.912 I/[SEO] VrPlatformOpenXr(18091): xrPollEvent: received XR_TYPE_EVENT_DATA_SYSTEM_BUTTON_FIRED_FBI event
+03-27 10:02:53.945 I/Shell   (18091): OpenXRSystem::createSwapchain: 605: texture, 880x60, 1 view(s),  1 mip(s), 3 buffer(s)
+03-27 10:02:53.948 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2319, idx=0, width: 880, height: 60, array size: 1, MemoryAllocationSize: 233 KB
+03-27 10:02:53.948 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2319, idx=1, width: 880, height: 60, array size: 1, MemoryAllocationSize: 233 KB
+03-27 10:02:53.948 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2319, idx=2, width: 880, height: 60, array size: 1, MemoryAllocationSize: 233 KB
+03-27 10:02:53.948 I/Shell   (18091): OpenXRSystem::createSwapchain: 606: texture, 400x313, 1 view(s),  1 mip(s), 3 buffer(s)
+03-27 10:02:53.950 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2320, idx=0, width: 400, height: 313, array size: 1, MemoryAllocationSize: 573 KB
+03-27 10:02:53.950 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2320, idx=1, width: 400, height: 313, array size: 1, MemoryAllocationSize: 573 KB
+03-27 10:02:53.950 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2320, idx=2, width: 400, height: 313, array size: 1, MemoryAllocationSize: 573 KB
+03-27 10:02:53.953 I/Shell   (18091): OpenXRSystem::createSwapchain: 607: texture, 1680x1760, 2 view(s),  1 mip(s), 3 buffer(s)
+03-27 10:02:53.957 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2321, idx=0, width: 1680, height: 1760, array size: 2, MemoryAllocationSize: 23877 KB
+03-27 10:02:53.957 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2321, idx=1, width: 1680, height: 1760, array size: 2, MemoryAllocationSize: 23877 KB
+03-27 10:02:53.957 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2321, idx=2, width: 1680, height: 1760, array size: 2, MemoryAllocationSize: 23877 KB
+03-27 10:02:53.975 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:53.976 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:53.989 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:02:54.087 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.094 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.169 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992640, this can result with a memory leak.
+03-27 10:02:54.169 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992e90, this can result with a memory leak.
+03-27 10:02:54.169 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992db0, this can result with a memory leak.
+03-27 10:02:54.199 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.199 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.309 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.309 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.310 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.425 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.426 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.537 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.537 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.648 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.648 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.761 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.762 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.871 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.872 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.983 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:54.983 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:54.988 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992f70, this can result with a memory leak.
+03-27 10:02:54.988 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993bb0, this can result with a memory leak.
+03-27 10:02:54.988 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993d70, this can result with a memory leak.
+03-27 10:02:55.094 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.095 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.099 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6994240, this can result with a memory leak.
+03-27 10:02:55.099 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6994080, this can result with a memory leak.
+03-27 10:02:55.099 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992db0, this can result with a memory leak.
+03-27 10:02:55.204 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.205 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.317 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.317 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.429 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.429 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.429 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.538 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.538 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.649 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.649 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.682 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993bb0, this can result with a memory leak.
+03-27 10:02:55.683 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992f70, this can result with a memory leak.
+03-27 10:02:55.683 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6994390, this can result with a memory leak.
+03-27 10:02:55.695 I/ActivityTaskManager( 1419): START u0 {flg=0x10000000 cmp=com.libopenmw.openmw/ui.activity.MainActivity} with LAUNCH_MULTIPLE from uid 2000 result code=-92
+03-27 10:02:55.761 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.762 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.873 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.873 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:55.982 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:55.982 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.016 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993d70, this can result with a memory leak.
+03-27 10:02:56.016 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993f30, this can result with a memory leak.
+03-27 10:02:56.016 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a69940f0, this can result with a memory leak.
+03-27 10:02:56.094 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.094 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.205 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.205 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.304 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993c20, this can result with a memory leak.
+03-27 10:02:56.305 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993830, this can result with a memory leak.
+03-27 10:02:56.305 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a69942b0, this can result with a memory leak.
+03-27 10:02:56.315 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.315 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.428 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.429 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.443 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6994470, this can result with a memory leak.
+03-27 10:02:56.443 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6994320, this can result with a memory leak.
+03-27 10:02:56.443 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993de0, this can result with a memory leak.
+03-27 10:02:56.539 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.539 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.539 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.651 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.651 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.760 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.762 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.872 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.872 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:56.985 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:56.985 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.015 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a69945c0, this can result with a memory leak.
+03-27 10:02:57.016 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a69938a0, this can result with a memory leak.
+03-27 10:02:57.016 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992db0, this can result with a memory leak.
+03-27 10:02:57.093 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.094 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.205 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.206 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.315 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.317 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.427 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.427 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.432 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993d00, this can result with a memory leak.
+03-27 10:02:57.432 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6994080, this can result with a memory leak.
+03-27 10:02:57.432 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993ec0, this can result with a memory leak.
+03-27 10:02:57.540 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.540 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.649 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.650 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.650 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.761 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.761 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.872 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.872 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:57.984 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:57.984 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.094 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.095 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.204 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.205 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.316 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.321 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.427 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.427 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.539 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.540 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.649 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.653 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.694 I/MRSS    ( 1168): MIXEDREALITY: MrSystemService: FramesetTelemetry: timeouts stereo/color: compute side: 0/0, render side: 0/0, egl: 0.
+03-27 10:02:58.761 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.762 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.762 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.803 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993c20, this can result with a memory leak.
+03-27 10:02:58.803 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993830, this can result with a memory leak.
+03-27 10:02:58.803 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6994240, this can result with a memory leak.
+03-27 10:02:58.870 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.872 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:58.983 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:58.985 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.001 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:02:59.094 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.097 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.204 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.205 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.313 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.314 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.425 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.426 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.501 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a69940f0, this can result with a memory leak.
+03-27 10:02:59.502 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993f30, this can result with a memory leak.
+03-27 10:02:59.502 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993d70, this can result with a memory leak.
+03-27 10:02:59.535 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.536 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.648 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.649 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.759 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.761 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.870 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.870 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.870 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:02:59.982 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:02:59.983 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.093 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.093 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.204 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.205 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.262 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6992db0, this can result with a memory leak.
+03-27 10:03:00.262 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993f30, this can result with a memory leak.
+03-27 10:03:00.262 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a69940f0, this can result with a memory leak.
+03-27 10:03:00.315 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.316 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.426 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.426 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.538 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.538 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.650 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.651 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.759 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.760 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.871 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.872 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.982 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:00.983 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:00.983 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.094 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.095 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.206 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.214 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.316 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.316 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.426 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.426 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.538 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.538 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.647 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.651 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.671 D/nativeloader(20156): InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+03-27 10:03:01.760 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.762 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.834 W/Monkey  (20156): args: [-p, com.libopenmw.openmw, -c, android.intent.category.LAUNCHER, 1]
+03-27 10:03:01.834 W/Monkey  (20156):  arg: "com.libopenmw.openmw"
+03-27 10:03:01.834 W/Monkey  (20156): data="com.libopenmw.openmw"
+03-27 10:03:01.870 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.871 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:01.978 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:01.979 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.094 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.097 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.097 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.203 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.204 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.315 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.315 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.427 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.427 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.538 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.539 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.648 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.649 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.758 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.759 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.869 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.872 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:02.982 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:02.983 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.067 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993050, this can result with a memory leak.
+03-27 10:03:03.068 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993bb0, this can result with a memory leak.
+03-27 10:03:03.068 W/Image   ( 2697): eglDestroyImage context (0x767a811a80) is different than eglCreateImage context (0x767a91fa00) for image 0x75a6993520, this can result with a memory leak.
+03-27 10:03:03.094 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.094 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.203 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.204 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.204 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.316 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.317 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.426 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.427 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.538 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.539 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.648 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.649 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.759 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.759 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.871 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.873 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:03.983 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:03.983 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.015 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:03:04.092 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.093 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.204 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.204 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.315 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.315 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.315 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.426 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.427 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.539 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.541 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.648 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.649 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.761 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.761 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.871 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.872 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:04.982 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:04.983 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.093 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.093 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.204 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.205 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.316 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.316 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.425 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.426 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.426 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.538 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.539 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.647 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.648 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.757 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.758 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.870 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.870 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:05.981 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:05.981 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.093 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.094 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.204 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.205 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.315 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.316 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.419 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.419 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.522 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.522 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.522 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.633 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.634 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.744 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.745 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.855 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.856 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:06.970 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:06.970 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.078 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.078 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.190 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.190 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.302 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.303 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.410 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.411 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.512 I/MRSS    ( 1168): MIXEDREALITY: MrSystemService: FramesetTelemetry: timeouts stereo/color: compute side: 0/0, render side: 0/0, egl: 0.
+03-27 10:03:07.524 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.524 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.636 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.636 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.636 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.745 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.745 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.856 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.857 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:07.967 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:07.967 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.078 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.078 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.191 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.191 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.302 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.303 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.412 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.413 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.494 I/Shell   (18091): OpenXRSystem::createSwapchain: 608: texture, 75x38, 1 view(s),  1 mip(s), 1 buffer(s)
+03-27 10:03:08.496 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2322, idx=0, width: 75, height: 38, array size: 1, MemoryAllocationSize: 33 KB
+03-27 10:03:08.523 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.523 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.637 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.645 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.715 I/Shell   (18091): OpenXRSystem::createSwapchain: 609: texture, 75x38, 1 view(s),  1 mip(s), 1 buffer(s)
+03-27 10:03:08.717 V/OpenXR_GPUMemTrace(18091): Swapchain creation, id=2323, idx=0, width: 75, height: 38, array size: 1, MemoryAllocationSize: 33 KB
+03-27 10:03:08.745 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.745 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.745 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.856 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.856 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:08.966 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:08.966 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.019 I/Shell   (18091): OpenXRSystem::destroySwapchain: 608(0x00000075315cca80): texture, 75x38
+03-27 10:03:09.019 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2322, idx=0
+03-27 10:03:09.028 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:03:09.077 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.079 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.189 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.190 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.301 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.302 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.413 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.413 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.524 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.524 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.635 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.635 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.745 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.747 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.856 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.857 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.857 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:09.966 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:09.966 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.078 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.078 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.189 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.189 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.302 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.302 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.412 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.414 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.522 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.523 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.635 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.635 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.671 I/Shell   (18091): OpenXRSystem::destroySwapchain: 609(0x00000075d12ba180): texture, 75x38
+03-27 10:03:10.671 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2323, idx=0
+03-27 10:03:10.744 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.745 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.856 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.856 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.859 I/[SEO] VrPlatformOpenXr(18091): xrPollEvent: received XR_TYPE_EVENT_DATA_SYSTEM_BUTTON_FIRED_FBI event
+03-27 10:03:10.967 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:10.968 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:10.968 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.077 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.077 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.190 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.191 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.301 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.303 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.412 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.413 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.523 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.523 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.636 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.636 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.746 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.746 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.813 I/Shell   (18091): OpenXRSystem::destroySwapchain: 607(0x00000075312f45c0): texture, 1680x1760
+03-27 10:03:11.813 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2321, idx=0
+03-27 10:03:11.813 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2321, idx=1
+03-27 10:03:11.813 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2321, idx=2
+03-27 10:03:11.857 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.857 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:11.869 I/Shell   (18091): OpenXRSystem::destroySwapchain: 605(0x000000756cd77a40): texture, 880x60
+03-27 10:03:11.869 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2319, idx=0
+03-27 10:03:11.869 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2319, idx=1
+03-27 10:03:11.869 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2319, idx=2
+03-27 10:03:11.883 I/Shell   (18091): OpenXRSystem::destroySwapchain: 606(0x00000075312eb800): texture, 400x313
+03-27 10:03:11.883 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2320, idx=0
+03-27 10:03:11.883 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2320, idx=1
+03-27 10:03:11.883 V/OpenXR_GPUMemTrace(18091): Swapchain deletion destroy id=2320, idx=2
+03-27 10:03:11.970 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:11.970 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.080 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.080 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.080 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.191 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.192 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.304 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.305 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.414 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.415 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.526 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.527 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.637 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.638 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.747 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.747 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.858 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.859 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:12.968 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:12.969 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.078 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.078 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.190 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.190 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.191 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.302 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.302 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.414 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.414 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.525 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.527 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.636 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.636 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.744 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.744 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.857 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.857 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:13.968 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:13.969 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.028 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:03:14.080 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.080 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.193 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.194 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.303 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.303 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.303 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.413 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.413 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.524 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.524 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.634 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.637 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.745 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.746 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.857 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.858 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:14.969 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:14.970 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.079 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.080 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.192 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.193 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.303 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.303 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.412 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.413 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.413 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.524 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.525 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.636 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.636 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.746 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.746 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.853 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.854 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:15.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:15.957 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.177 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.177 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.288 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.289 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.344 I/MRSS    ( 1168): MIXEDREALITY: MrSystemService: FramesetTelemetry: timeouts stereo/color: compute side: 0/0, render side: 0/0, egl: 0.
+03-27 10:03:16.399 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.402 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.436 I/OpenXRAnchorDiscovery(18091): xrDiscoverSpacesMETA: buildFilterMETA: filters is null
+03-27 10:03:16.437 I/[CT]    ( 4500): SP:AP:AnchorPersistence: queryEntities: filterInfo: flags: 96, numUuids: 0, radius: -1, enabledComponents: 0, maxNumSpacesToQuery: 0, groupUuids: , tags: , dataSource: 1, hasTrackableStateFilter: 1, appId: com.oculus.vrshell, request: 59044, appOpenXrVersion: 281474976710713
+03-27 10:03:16.511 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.511 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.511 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.622 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.622 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.759 I/[CT]    ( 4500): SP:SceneAnchorFilterUtil: filterOutEntitiesAndComponents : Guardian:false, App OpenXR Version patch:57 (vs. min patch without filtering 45), appIdInOverrideString:false, ocKillswitch:false, fsKillswitch:false
+03-27 10:03:16.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:16.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:16.957 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.178 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.178 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.289 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.289 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.401 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.401 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.510 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.510 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.621 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.621 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.621 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:17.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:17.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.176 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.177 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.289 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.289 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.399 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.399 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.508 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.509 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.622 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.622 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.733 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.845 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:18.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:18.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.042 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:03:19.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.067 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.177 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.178 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.287 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.287 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.397 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.398 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.511 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.512 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.621 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.621 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.844 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.844 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:19.955 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:19.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.178 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.178 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.289 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.290 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.399 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.400 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.508 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.509 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.620 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.621 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.731 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.731 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.841 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.842 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:20.954 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:20.954 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.063 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.064 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.175 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.176 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.289 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.290 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.400 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.400 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.510 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.510 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.621 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.621 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.732 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.842 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.842 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:21.953 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:21.953 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.065 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.065 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.176 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.176 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.286 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.287 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.398 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.398 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.510 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.510 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.622 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.622 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.733 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:22.955 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:22.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.065 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.177 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.177 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.177 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.288 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.289 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.398 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.399 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.510 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.510 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.623 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.623 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.733 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:23.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:23.954 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.055 I/[CT]    ( 2697): PTApiClients: 1/1:com.oculus.vrshell,PT=1,EnvDepth=0,VrMode=1,LCnt=1/2(rec=1,proj=0,bg=0),SppMeshes=1(vs=4,ts=2),SppInst=1(vs=4,ts=2),NS=0,Sty=0
+03-27 10:03:24.064 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.065 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.176 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.177 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.289 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.289 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.289 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.399 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.399 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.508 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.509 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.621 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.621 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.844 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:24.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:24.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.066 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.163 I/MRSS    ( 1168): MIXEDREALITY: MrSystemService: FramesetTelemetry: timeouts stereo/color: compute side: 0/0, render side: 0/0, egl: 0.
+03-27 10:03:25.175 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.176 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.287 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.287 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.399 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.400 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.400 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.509 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.509 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.620 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.620 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.732 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.842 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:25.955 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:25.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.065 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.177 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.177 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.287 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.287 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.396 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.397 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.508 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.509 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.509 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.620 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.621 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.730 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.731 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.842 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:26.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:26.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.066 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.176 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.177 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.288 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.288 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.398 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.398 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.509 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.510 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.620 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.621 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.621 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.731 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.732 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:27.954 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:27.955 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.066 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.066 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.177 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.177 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.286 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.286 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.397 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.398 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.508 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.509 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.620 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.620 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.732 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.733 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.733 I/[CT]    ( 4500): SP:SM:SceneManager: queryAvailableAnchors: maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell
+03-27 10:03:28.843 I/OpenXR_Anchor(18091): xrQuerySpacesFB: split anchor query enabled
+03-27 10:03:28.843 I/[CT]    ( 4500): SP:AP:AnchorPersistenceRuntimeIpcServer: queryAvailableAnchorsSMV2: clientId: 3936617581, maxAnchors: 500, filter: 0, queryMultipleRoomsEnabledByOpenXrVersion: true, source: 1, appId: com.oculus.vrshell

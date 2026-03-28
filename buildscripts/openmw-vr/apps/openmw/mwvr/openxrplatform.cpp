@@ -15,6 +15,8 @@
 #elif __ANDROID__
 #include <jni.h>
 #include <EGL/egl.h>
+#include <SDL_system.h>
+#include <android/log.h>
 
 #elif __linux__
 #include <X11/Xlib.h>
@@ -37,6 +39,45 @@
 
 namespace MWVR
 {
+    // SDL surface lifecycle tracking (Android)
+    #ifdef __ANDROID__
+    static bool sSdlSurfaceReady = false;
+    static unsigned long sLastSurfaceReadyTime = 0;
+    static unsigned long sSurfaceReadyCount = 0;
+    
+    // Called from Java when SDL surface is created/recreated
+    extern "C" void SDL_SurfaceCreated(void) {
+        sSdlSurfaceReady = true;
+        sSurfaceReadyCount++;
+        sLastSurfaceReadyTime = 0;
+        __android_log_print(ANDROID_LOG_INFO, "OpenMWXRDiag",
+            "SDL_SurfaceCreated: Surface ready, count=%lu", sSurfaceReadyCount);
+    }
+    
+    // Called from Java when SDL surface is destroyed
+    extern "C" void SDL_SurfaceDestroyed(void) {
+        sSdlSurfaceReady = false;
+        // Don't reset sLastSurfaceReadyTime here - track time until next creation
+        __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+            "SDL_SurfaceDestroyed: Surface destroyed, count remaining=%lu", sSurfaceReadyCount);
+    }
+    
+    static inline void logEGLDrawState(const char* context) {
+        EGLDisplay display = eglGetCurrentDisplay();
+        EGLContext ctx = eglGetCurrentContext();
+        EGLSurface draw = eglGetCurrentSurface(EGL_DRAW);
+        EGLSurface read = eglGetCurrentSurface(EGL_READ);
+        
+        const char* dispStr = (display == EGL_NO_DISPLAY) ? "NO_DISPLAY" : "valid";
+        const char* ctxStr = (ctx == EGL_NO_CONTEXT) ? "NO_CONTEXT" : "valid";
+        const char* drawStr = (draw == EGL_NO_SURFACE) ? "NO_SURFACE" : "valid";
+        const char* readStr = (read == EGL_NO_SURFACE) ? "NO_SURFACE" : "valid";
+        
+        __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+            "EGL state [%s]: display=%s context=%s draw=%s read=%s sdlReady=%d",
+            context, dispStr, ctxStr, drawStr, readStr, sSdlSurfaceReady ? 1 : 0);
+    }
+    #endif
 
     XrResult CheckXrResult(XrResult res, const char* originator, const char* sourceLocation) {
         static bool initialized = false;
@@ -269,6 +310,12 @@ namespace MWVR
             throw std::runtime_error("No graphics APIs supported by openmw are supported by the OpenXR runtime.");
         }
 
+    #ifdef __ANDROID__
+        // Android runtimes require this extension and instance create info chain
+        // to bind the OpenXR instance to the current Java activity.
+        enableExtension(XR_KHR_ANDROID_CREATE_INSTANCE_EXTENSION_NAME, false);
+    #endif
+
         for (auto optionalExtension : optionalExtensions)
             enableExtension(optionalExtension, true);
     }
@@ -434,6 +481,25 @@ namespace MWVR
         strcpy(createInfo.applicationInfo.applicationName, "openmw_vr");
         createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
 
+#ifdef __ANDROID__
+        XrInstanceCreateInfoAndroidKHR androidInfo{ XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR };
+        JNIEnv* env = reinterpret_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());
+        jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+        JavaVM* vm = nullptr;
+        if (env)
+            env->GetJavaVM(&vm);
+        if (vm && activity)
+        {
+            androidInfo.applicationVM = vm;
+            androidInfo.applicationActivity = activity;
+            createInfo.next = &androidInfo;
+        }
+        else
+        {
+            Log(Debug::Warning) << "OpenXR Android instance create info missing JavaVM/activity";
+        }
+#endif
+
         auto res = CHECK_XRCMD(xrCreateInstance(&createInfo, &instance));
         if (!XR_SUCCEEDED(res))
             initFailure(res, instance);
@@ -506,16 +572,71 @@ namespace MWVR
             {
                 XrGraphicsRequirementsOpenGLESKHR requirements{ XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_ES_KHR };
                 CHECK_XRCMD(p_getRequirements(instance, systemId, &requirements));
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                    "OpenXR GLES requirements: minApi=0x%x maxApi=0x%x",
+                    requirements.minApiVersionSupported,
+                    requirements.maxApiVersionSupported);
             }
+
+            // Log EGL state before attempting graphics binding
+            logEGLDrawState("before CreateGraphicsBinding");
 
             EGLDisplay display = eglGetCurrentDisplay();
             EGLContext context = eglGetCurrentContext();
+            EGLSurface drawSurface = eglGetCurrentSurface(EGL_DRAW);
+            EGLSurface readSurface = eglGetCurrentSurface(EGL_READ);
+            EGLBoolean displayReady = (display != EGL_NO_DISPLAY) ? eglInitialize(display, nullptr, nullptr) : EGL_FALSE;
+
+            if (display == EGL_NO_DISPLAY)
+                __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag", "OpenXR Android binding: EGL_NO_DISPLAY");
+            if (context == EGL_NO_CONTEXT)
+                __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag", "OpenXR Android binding: EGL_NO_CONTEXT");
+            if (drawSurface == EGL_NO_SURFACE)
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "OpenXR Android binding: EGL_NO_SURFACE for draw surface");
+            if (readSurface == EGL_NO_SURFACE)
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "OpenXR Android binding: EGL_NO_SURFACE for read surface");
+
             EGLint configId = 0;
-            eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
-            const EGLint configAttribs[] = { EGL_CONFIG_ID, configId, EGL_NONE };
+            EGLint clientApi = EGL_NONE;
+            EGLint contextClientVersion = 0;
+            EGLBoolean queryContextOk = EGL_FALSE;
+            if (display != EGL_NO_DISPLAY && context != EGL_NO_CONTEXT)
+            {
+                queryContextOk = eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
+                eglQueryContext(display, context, EGL_CONTEXT_CLIENT_TYPE, &clientApi);
+                eglQueryContext(display, context, EGL_CONTEXT_CLIENT_VERSION, &contextClientVersion);
+            }
+
+            if (queryContextOk != EGL_TRUE)
+            {
+                __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag",
+                    "OpenXR Android binding: eglQueryContext(EGL_CONFIG_ID) failed, eglError=0x%x",
+                    eglGetError());
+            }
+
             EGLConfig config = nullptr;
             EGLint numConfigs = 0;
-            eglChooseConfig(display, configAttribs, &config, 1, &numConfigs);
+            if (display != EGL_NO_DISPLAY && configId != 0)
+            {
+                const EGLint configAttribs[] = { EGL_CONFIG_ID, configId, EGL_NONE };
+                EGLBoolean chooseOk = eglChooseConfig(display, configAttribs, &config, 1, &numConfigs);
+                if (chooseOk != EGL_TRUE || numConfigs <= 0 || config == nullptr)
+                {
+                    __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag",
+                        "OpenXR Android binding: eglChooseConfig failed for configId=%d, numConfigs=%d, eglError=0x%x",
+                        configId, numConfigs, eglGetError());
+                }
+            }
+            else
+            {
+                __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag",
+                    "OpenXR Android binding: skipping eglChooseConfig due to invalid display/configId (displayReady=%d, configId=%d)",
+                    (displayReady == EGL_TRUE ? 1 : 0), configId);
+            }
+
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                "OpenXR Android binding summary: display=%p context=%p drawSurface=%p readSurface=%p config=%p configId=%d clientApi=%d contextClientVersion=%d",
+                display, context, drawSurface, readSurface, config, configId, clientApi, contextClientVersion);
 
             XrGraphicsBindingOpenGLESAndroidKHR graphicsBindings{ XR_TYPE_GRAPHICS_BINDING_OPENGL_ES_ANDROID_KHR };
             graphicsBindings.display = display;
@@ -523,7 +644,11 @@ namespace MWVR
             graphicsBindings.context = context;
 
             if (!graphicsBindings.context)
-                Log(Debug::Warning) << "Missing EGL context";
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "Missing EGL context");
+            if (!graphicsBindings.display)
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "Missing EGL display");
+            if (!graphicsBindings.config)
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "Missing EGL config");
 
             XrSessionCreateInfo createInfo{ XR_TYPE_SESSION_CREATE_INFO };
             createInfo.next = &graphicsBindings;

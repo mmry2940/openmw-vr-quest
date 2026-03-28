@@ -211,13 +211,26 @@ open class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun runGame() {
+    protected open fun runGame() {
         logConfig()
-        val intent = Intent(this@MainActivity,
-            GameActivity::class.java)
-        finish()
+        if (this !is VrEntryActivity) {
+            val vrIntent = Intent(this@MainActivity, VrEntryActivity::class.java)
+            vrIntent.putExtra(VrEntryActivity.EXTRA_AUTO_START_GAME, true)
+            vrIntent.putExtra(EXTRA_SKIP_PREP, true)
+            this@MainActivity.startActivity(vrIntent)
+            finish()
+            return
+        }
 
-        this@MainActivity.startActivityForResult(intent, 1)
+        val intent = Intent(this@MainActivity, GameActivity::class.java)
+        this@MainActivity.startActivity(intent)
+        // Ensure VrEntryActivity does not remain in the back stack and re-trigger startup.
+        finish()
+        // VrEntryActivity is only a handoff entry point. Finishing it prevents
+        // focus from bouncing back to the entry screen after GameActivity starts.
+        if (this is VrEntryActivity) {
+            finish()
+        }
     }
 
 
@@ -562,6 +575,7 @@ open class MainActivity : AppCompatActivity() {
             && File(Constants.RESOURCES, "mygui/openmw_hud_vr.layout").exists()
             && hasAlchemyFilterEdit
             && File(Constants.GLOBAL_CONFIG, "settings-overrides-vr.cfg").exists()
+            && File(Constants.GLOBAL_CONFIG, "xrcontrollersuggestions.xml").exists()
     }
 
     private fun validateRuntimePayload(): Boolean {
@@ -639,6 +653,7 @@ open class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "OpenMW-Launcher"
+        const val EXTRA_SKIP_PREP = "ui.activity.extra.SKIP_PREP"
 
         var resolutionX = 0
         var resolutionY = 0

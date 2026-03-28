@@ -83,6 +83,7 @@ namespace MWVR
         VRPath mStationaryPath = 0;
         VRPath mHeadPath = 0;
         VRTrackingPose mStationaryPose = VRTrackingPose();
+        std::string mSourceName;
         VRTrackingSource* mSource = nullptr;
 
         bool mShouldUpdateStationaryPose = true;

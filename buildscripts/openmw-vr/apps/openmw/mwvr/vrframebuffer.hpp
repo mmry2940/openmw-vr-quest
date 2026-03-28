@@ -47,6 +47,7 @@ namespace MWVR
 
         uint32_t colorBuffer() const { return mColorBuffer.mImage; };
         uint32_t depthBuffer() const { return mDepthBuffer.mImage; };
+        uint32_t framebufferId() const { return mFBO; };
 
     private:
         uint32_t createImage(osg::GraphicsContext* gc, uint32_t formatInternal, uint32_t format);

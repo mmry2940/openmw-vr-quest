@@ -27,6 +27,7 @@
 #include <vector>
 #include <array>
 #include <iostream>
+#include <android/log.h>
 
 #define ENUM_CASE_STR(name, val) case name: return #name;
 #define MAKE_TO_STRING_FUNC(enumType)                  \
@@ -50,6 +51,7 @@ namespace MWVR
     OpenXRManagerImpl::OpenXRManagerImpl(osg::GraphicsContext* gc)
         : mPlatform(gc)
     {
+        __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "OpenXRManagerImpl ctor entered");
         mInstance = mPlatform.createXrInstance("openmw_vr");
 
         LogInstanceInfo();
@@ -267,6 +269,7 @@ namespace MWVR
     FrameInfo
         OpenXRManagerImpl::waitFrame()
     {
+        static uint32_t sWaitFrameCount = 0;
         XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
         XrFrameState frameState{ XR_TYPE_FRAME_STATE };
 
@@ -279,26 +282,41 @@ namespace MWVR
         frameInfo.runtimePredictedDisplayPeriod = mFrameState.predictedDisplayPeriod;
         frameInfo.runtimeRequestsRender = !!mFrameState.shouldRender;
 
+        sWaitFrameCount++;
+        if (sWaitFrameCount <= 3 || (sWaitFrameCount % 300) == 0)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "waitFrame #%u shouldRender=%d displayTime=%lld",
+                sWaitFrameCount, frameInfo.runtimeRequestsRender ? 1 : 0,
+                static_cast<long long>(frameInfo.runtimePredictedDisplayTime));
+        }
+
         return frameInfo;
     }
 
     void
         OpenXRManagerImpl::beginFrame()
     {
+        static uint32_t sBeginFrameCount = 0;
         XrFrameBeginInfo frameBeginInfo{ XR_TYPE_FRAME_BEGIN_INFO };
         CHECK_XRCMD(xrBeginFrame(mSession, &frameBeginInfo));
+        sBeginFrameCount++;
+        if (sBeginFrameCount <= 3 || (sBeginFrameCount % 300) == 0)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "beginFrame #%u", sBeginFrameCount);
+        }
     }
 
     void
         OpenXRManagerImpl::endFrame(FrameInfo frameInfo, const std::array<CompositionLayerProjectionView, 2>* layerStack)
     {
+        static uint32_t sEndFrameCount = 0;
         std::array<XrCompositionLayerProjectionView, 2> compositionLayerProjectionViews{};
         XrCompositionLayerProjection layer{};
         std::array<XrCompositionLayerDepthInfoKHR, 2> compositionLayerDepth{};
         XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO };
         frameEndInfo.displayTime = frameInfo.runtimePredictedDisplayTime;
         frameEndInfo.environmentBlendMode = mEnvironmentBlendMode;
-        if (layerStack && frameInfo.runtimeRequestsRender)
+        if (layerStack)
         {
             compositionLayerProjectionViews[(int)Side::LEFT_SIDE] = toXR((*layerStack)[(int)Side::LEFT_SIDE]);
             compositionLayerProjectionViews[(int)Side::RIGHT_SIDE] = toXR((*layerStack)[(int)Side::RIGHT_SIDE]);
@@ -333,6 +351,12 @@ namespace MWVR
             frameEndInfo.layers = nullptr;
         }
         CHECK_XRCMD(xrEndFrame(mSession, &frameEndInfo));
+        sEndFrameCount++;
+        if (sEndFrameCount <= 3 || (sEndFrameCount % 300) == 0)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "endFrame #%u layers=%u shouldRender=%d",
+                sEndFrameCount, frameEndInfo.layerCount, frameInfo.runtimeRequestsRender ? 1 : 0);
+        }
     }
 
     std::array<View, 2>

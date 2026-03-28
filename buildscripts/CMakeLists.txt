@@ -275,6 +275,7 @@ ExternalProject_Add(sdl2
 	DOWNLOAD_DIR ${download_dir}
 
 	PATCH_COMMAND patch -d <SOURCE_DIR> -p1 -t -N < ${CMAKE_SOURCE_DIR}/patches/sdl2-android-120hz-gyroscope.patch
+		COMMAND patch -d <SOURCE_DIR> -p1 -t -N < ${CMAKE_SOURCE_DIR}/patches/sdl2-egl-bad-display.patch
 
 	CONFIGURE_COMMAND ""
 
@@ -459,6 +460,7 @@ set(OPENMW_PATCH
 )
 
 option(USE_LOCAL_OPENMW_VR "Use local buildscripts/openmw-vr source for OpenMW build" ON)
+option(ALLOW_OPENMW_UPSTREAM_FALLBACK "Allow fallback to upstream non-VR OpenMW source" OFF)
 set(OPENMW_LOCAL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/openmw-vr)
 
 if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
@@ -479,6 +481,12 @@ if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
 		BUILD_COMMAND $(MAKE)
 
 		INSTALL_COMMAND ""
+	)
+elseif(USE_LOCAL_OPENMW_VR AND NOT ALLOW_OPENMW_UPSTREAM_FALLBACK)
+	message(FATAL_ERROR
+		"USE_LOCAL_OPENMW_VR is ON but local source was not found at ${OPENMW_LOCAL_SOURCE_DIR}.\n"
+		"This project targets OpenMW-VR on Quest and blocks non-VR fallback by default.\n"
+		"Set -DALLOW_OPENMW_UPSTREAM_FALLBACK=ON only if you intentionally want a non-VR build."
 	)
 else()
 	message(STATUS "OpenMW source: upstream OpenMW ${OPENMW_VERSION}")

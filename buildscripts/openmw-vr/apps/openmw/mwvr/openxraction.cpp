@@ -77,7 +77,12 @@ namespace MWVR
         auto* xr = Environment::get().getManager();
         XrHapticVibration vibration{ XR_TYPE_HAPTIC_VIBRATION };
         vibration.amplitude = amplitude;
-        vibration.duration = XR_MIN_HAPTIC_DURATION;
+        // Scale duration with amplitude: 20 ms at minimum intensity up to 150 ms at full intensity.
+        // This gives tactile feedback proportional to hit/event strength rather than a fixed
+        // imperceptible XR_MIN_HAPTIC_DURATION pulse.
+        static constexpr XrDuration kMinDurationNs = 20000000LL;   // 20 ms in nanoseconds
+        static constexpr XrDuration kMaxDurationNs = 150000000LL;  // 150 ms in nanoseconds
+        vibration.duration = kMinDurationNs + static_cast<XrDuration>(amplitude * (kMaxDurationNs - kMinDurationNs));
         vibration.frequency = XR_FREQUENCY_UNSPECIFIED;
 
         XrHapticActionInfo hapticActionInfo{ XR_TYPE_HAPTIC_ACTION_INFO };

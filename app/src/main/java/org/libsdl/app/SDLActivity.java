@@ -151,6 +151,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         };
     }
 
+    /**
+     * Some VR runtimes temporarily hand focus to shell/system overlays during immersive
+     * app launch while the activity remains visible and should keep initializing.
+     */
+    protected boolean shouldRequireWindowFocusForResume() {
+        return true;
+    }
+
     // Load the .so
     public void loadLibraries() {
        for (String lib : getLibraries()) {
@@ -506,7 +514,26 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             ) {
             return false;
         }
+
+        int deviceId = event.getDeviceId();
+        if (mSurface != null && SDLControllerManager.isDeviceSDLJoystick(deviceId)) {
+            if (mSurface.onKey(mSurface, keyCode, event)) {
+                return true;
+            }
+        }
+
         return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        int deviceId = event.getDeviceId();
+        if (mSurface != null && SDLControllerManager.isDeviceSDLJoystick(deviceId)) {
+            if (SDLActivity.getMotionListener().onGenericMotion(mSurface, event)) {
+                return true;
+            }
+        }
+        return super.dispatchGenericMotionEvent(event);
     }
 
     /* Transition to next state */
@@ -538,7 +565,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // Try a transition to resumed state
         if (mNextNativeState == NativeState.RESUMED) {
-            if (mSurface.mIsSurfaceReady && mHasFocus && mIsResumedCalled) {
+            boolean hasResumeFocus = !mSingleton.shouldRequireWindowFocusForResume() || mHasFocus;
+            if (mSurface.mIsSurfaceReady && hasResumeFocus && mIsResumedCalled) {
                 if (mSDLThread == null) {
                     // This is the entry point to the C app.
                     // Start up the C app thread and enable sensor input for the first time
@@ -604,7 +632,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     Log.e(TAG, "error handling message, getContext() returned no Activity");
                 }
                 break;
-/*
             case COMMAND_CHANGE_WINDOW_STYLE:
                 if (Build.VERSION.SDK_INT < 19) {
                     // This version of Android doesn't support the immersive fullscreen mode
@@ -636,7 +663,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     Log.e(TAG, "error handling message, getContext() returned no Activity");
                 }
                 break;
- */
             case COMMAND_TEXTEDIT_HIDE:
                 if (mTextEdit != null) {
                     // Note: On some devices setting view to GONE creates a flicker in landscape.
@@ -666,7 +692,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 }
                 break;
             }
-/*
             case COMMAND_CHANGE_SURFACEVIEW_FORMAT:
             {
                 int format = (Integer) msg.obj;
@@ -693,7 +718,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
                 break;
             }
- */
+
             default:
                 if ((context instanceof SDLActivity) && !((SDLActivity) context).onUnhandledMessage(msg.arg1, msg.obj)) {
                     Log.e(TAG, "error handling message, command is " + msg.arg1);
@@ -1869,7 +1894,6 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         mIsSurfaceReady = false;
         SDLActivity.onNativeSurfaceDestroyed();
-
         SDLActivity.omwSurfaceDestroyed();
     }
 
@@ -2002,15 +2026,49 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         // SOURCE_JOYSTICK, while its key events arrive from the keyboard source
         // So, retrieve the device itself and check all of its sources
         if (SDLControllerManager.isDeviceSDLJoystick(deviceId)) {
+            int fallbackKey = 0;
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BUTTON_A:
+                    fallbackKey = KeyEvent.KEYCODE_E;
+                    break;
+                case KeyEvent.KEYCODE_BUTTON_B:
+                    fallbackKey = KeyEvent.KEYCODE_TAB;
+                    break;
+                case KeyEvent.KEYCODE_BUTTON_X:
+                    fallbackKey = KeyEvent.KEYCODE_F;
+                    break;
+                case KeyEvent.KEYCODE_BUTTON_Y:
+                    fallbackKey = KeyEvent.KEYCODE_R;
+                    break;
+                case KeyEvent.KEYCODE_BUTTON_L1:
+                    fallbackKey = KeyEvent.KEYCODE_SPACE;
+                    break;
+                case KeyEvent.KEYCODE_BUTTON_R1:
+                    fallbackKey = KeyEvent.KEYCODE_C;
+                    break;
+                default:
+                    break;
+            }
+
             // Note that we process events with specific key codes here
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (fallbackKey != 0) {
+                    SDLActivity.onNativeKeyDown(fallbackKey);
+                }
                 if (SDLControllerManager.onNativePadDown(deviceId, keyCode) == 0) {
                     return true;
                 }
             } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                if (fallbackKey != 0) {
+                    SDLActivity.onNativeKeyUp(fallbackKey);
+                }
                 if (SDLControllerManager.onNativePadUp(deviceId, keyCode) == 0) {
                     return true;
                 }
+            }
+
+            if (fallbackKey != 0) {
+                return true;
             }
         }
 
@@ -2077,8 +2135,13 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         float x,y,p;
 
         if (SDLControllerManager.isDeviceSDLJoystick(touchDevId)) {
-            // Quest controllers may also present pointer sources; keep them on joystick paths.
-            return true;
+            int src = event.getSource();
+            boolean pointerLike = (src & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE ||
+                    src == (InputDevice.SOURCE_MOUSE | InputDevice.SOURCE_TOUCHSCREEN);
+            if (!pointerLike) {
+                // Non-pointer joystick input is handled via generic motion/key paths.
+                return true;
+            }
         }
 
         // drop event unless the mouse is shown (i.e. unless we're in a mouse-enabled menu)
