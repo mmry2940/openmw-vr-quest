@@ -1,0 +1,19 @@
+--- buildscripts/openmw-vr/apps/openmw/mwvr/openxrswapchainimage.cpp
++++ buildscripts/openmw-vr/apps/openmw/mwvr/openxrswapchainimage.cpp
+@@ -155,7 +155,16 @@
+         void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y) override
+         {
+             mFramebuffer->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
++            
++            auto* gl = osg::GLExtensions::Get(gc->getState()->getContextID(), false);
++            while(glGetError() != GL_NO_ERROR); // clear errors
++            
+             readBuffer.blit(gc, offset_x, offset_y, offset_x + mFramebuffer->width(), offset_y + mFramebuffer->height(), 0, 0, mFramebuffer->width(), mFramebuffer->height(), mBufferBits, GL_NEAREST);
++            
++            GLenum err = glGetError();
++            if (err != GL_NO_ERROR) {
++                __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag", "glBlitFramebuffer -> OpenXR Swapchain failed with 0x%04x", err);
++            }
+         }
+ 
+         XrSwapchainImageOpenGLESKHR mXrImage;

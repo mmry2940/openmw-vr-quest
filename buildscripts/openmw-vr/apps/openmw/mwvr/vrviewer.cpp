@@ -498,6 +498,10 @@ namespace MWVR
             gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
         }
 
+        static unsigned int sSwapEndCount = 0;
+        ++sSwapEndCount;
+        if (sSwapEndCount <= 6 || (sSwapEndCount % 600) == 0)
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer: calling swapchain[0/1]->endFrame #%u", sSwapEndCount);
         mSwapchain[0]->endFrame(gc, *mGammaResolveTexture);
         mSwapchain[1]->endFrame(gc, *mGammaResolveTexture);
         gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);

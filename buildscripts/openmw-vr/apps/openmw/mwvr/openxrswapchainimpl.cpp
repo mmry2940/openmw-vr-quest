@@ -62,6 +62,11 @@ namespace MWVR {
     {
         if (isAcquired())
             throw std::logic_error("Trying to acquire already acquired swapchain");
+        static unsigned int sAcquireCount = 0;
+        ++sAcquireCount;
+        if (sAcquireCount <= 6 || (sAcquireCount % 600) == 0)
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                "SwapchainImpl::acquire #%u mShouldRelease=%d", sAcquireCount, mShouldRelease ? 1 : 0);
 
         // The openxr runtime may fail to acquire/release.
         // Do not re-acquire a swapchain before having successfully released it.
@@ -223,6 +228,17 @@ namespace MWVR {
     {
         auto xr = Environment::get().getManager();
 
+        static unsigned int sBlitReleaseCount = 0;
+        ++sBlitReleaseCount;
+        const bool shouldLogBR = (sBlitReleaseCount <= 6) || ((sBlitReleaseCount % 600) == 0);
+        if (shouldLogBR)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                "blitAndRelease #%u mIsReady=%d mIsIndexAcquired=%d swapchain=%p",
+                sBlitReleaseCount, mIsReady ? 1 : 0, mIsIndexAcquired ? 1 : 0,
+                static_cast<const void*>(mSwapchain));
+        }
+
         XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
         if (mIsReady)
         {
@@ -242,6 +258,11 @@ namespace MWVR {
                 ANDROID_LOG_WARN,
                 "OpenMWXRDiag",
                 "swapchain index acquired but not ready");
+        }
+        else
+        {
+            __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                "blitAndRelease SKIPPED: neither ready nor index-acquired");
         }
     }
 
