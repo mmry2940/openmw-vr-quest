@@ -19,19 +19,10 @@
             android:title="@string/game_files"
             />
 
-        <Preference
-            android:title="@string/mods"
-            android:key="pref_mods"
-            />
     </PreferenceCategory>
 
 
     <PreferenceCategory android:title="@string/pref_ui">
-        <Preference
-            android:title="@string/action_show_screen_controls"
-            android:key="pref_controls"
-            />
-
         <EditTextPreference
             android:key="pref_gamma"
             android:title="@string/pref_gamma"
@@ -59,10 +50,6 @@
             />
 
         <CheckBoxPreference
-            android:key="pref_hide_controls"
-            android:title="@string/pref_hide_controls" />
-
-        <CheckBoxPreference
             android:key="pref_always_show_top_bar"
             android:title="@string/pref_always_show_top_bar" />
 
@@ -74,45 +61,17 @@
             android:key="pref_show_fn"
             android:title="@string/pref_show_fn" />
 
-        <EditTextPreference
-            android:key="pref_customResolution"
-            android:title="@string/pref_customResolution"
-            android:dialogTitle="@string/pref_customResolution"
-            android:hint="640x480"
-            />
-
         <CheckBoxPreference
             android:key="pref_screen_keeper"
             android:title="@string/pref_screen_keeper"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/category_performance">
-        <ListPreference
-            android:key="pref_physicsFPS2"
-            android:title="@string/pref_physicsFPS2"
-            android:dialogTitle="@string/pref_physicsFPS2"
-            android:entries="@array/pref_physicsFPS2_entries"
-            android:entryValues="@array/pref_physicsFPS2_entries"
-            android:defaultValue="@string/pref_physicsFPS2_default"
-            android:summary="%s"
-            />
-    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_advanced">
         <EditTextPreference
             android:key="commandLine"
             android:title="@string/pref_commandLine"
             />
-
-        <ListPreference
-            android:key="pref_graphicsLibrary_v2"
-            android:title="@string/pref_graphicsLibrary"
-            android:dialogTitle="@string/pref_graphicsLibrary"
-            android:entries="@array/pref_graphicsLibrary_entries"
-            android:entryValues="@array/pref_graphicsLibrary_values"
-            android:defaultValue="@string/pref_graphicsLibrary_default"
-            android:summary="%s"
-        />
     </PreferenceCategory>
 
 </PreferenceScreen>

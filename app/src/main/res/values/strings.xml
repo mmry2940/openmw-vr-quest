@@ -114,6 +114,10 @@
 
     <string name="about_title">About OMW</string>
     <string name="activity_mods">Mods</string>
+    <string name="import_mod">Import Mod</string>
+    <string name="import_mod_success">Mod imported successfully</string>
+    <string name="import_mod_error">Failed to import mod: %1$s</string>
+    <string name="import_mod_no_data_files">Game files path not set. Please set it in Settings first.</string>
     <string name="tab_plugins">Plugins</string>
     <string name="tab_resources">Resources</string>
     <string name="data_error_title">Error locating data files</string>

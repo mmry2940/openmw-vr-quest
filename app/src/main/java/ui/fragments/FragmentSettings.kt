@@ -39,9 +39,7 @@ import com.codekidlabs.storagechooser.StorageChooser
 import com.libopenmw.openmw.R
 import file.GameInstaller
 
-import ui.activity.ConfigureControls
 import ui.activity.MainActivity
-import ui.activity.ModsActivity
 import utils.MyApp
 import java.util.*
 
@@ -63,18 +61,6 @@ class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener 
 
         updateGammaState()
         Log.d(TAG, "FragmentSettings.onCreate: updated gamma state")
-
-        findPreference("pref_controls").setOnPreferenceClickListener {
-            val intent = Intent(activity, ConfigureControls::class.java)
-            this.startActivity(intent)
-            true
-        }
-
-        findPreference("pref_mods").setOnPreferenceClickListener {
-            val intent = Intent(activity, ModsActivity::class.java)
-            this.startActivity(intent)
-            true
-        }
 
         findPreference("game_files").setOnPreferenceClickListener {
             if (ContextCompat.checkSelfPermission(activity,
@@ -189,9 +175,7 @@ class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener 
      * @brief Disable gamma preference if GLES1 is selected
      */
     private fun updateGammaState() {
-        val sharedPref = preferenceScreen.sharedPreferences
-        findPreference("pref_gamma").isEnabled =
-                sharedPref.getString("pref_graphicsLibrary_v2", "") != "gles1"
+        findPreference("pref_gamma").isEnabled = true
     }
 
 }

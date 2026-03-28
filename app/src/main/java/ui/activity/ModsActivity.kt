@@ -22,7 +22,13 @@ package ui.activity
 import com.libopenmw.openmw.R
 
 import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -31,7 +37,11 @@ import file.GameInstaller
 import kotlinx.android.synthetic.main.activity_mods.*
 import mods.*
 import android.view.MenuItem
+import java.io.File
+import java.io.InputStream
+import java.util.zip.ZipInputStream
 
+private const val REQUEST_IMPORT_MOD = 1001
 
 class ModsActivity : AppCompatActivity() {
 
@@ -60,6 +70,31 @@ class ModsActivity : AppCompatActivity() {
         // Set up adapters for the lists
         setupModList(findViewById(R.id.list_mods), ModType.Plugin)
         setupModList(findViewById(R.id.list_resources), ModType.Resource)
+
+        // FAB: import a mod archive (zip) into the Data Files folder
+        findViewById<FloatingActionButton>(R.id.fab_import).setOnClickListener {
+            val dataFiles = GameInstaller.getDataFiles(this)
+            if (dataFiles.isEmpty() || !File(dataFiles).exists()) {
+                Toast.makeText(this, R.string.import_mod_no_data_files, Toast.LENGTH_LONG).show()
+            } else {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                }
+                startActivityForResult(intent, REQUEST_IMPORT_MOD)
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMPORT_MOD && resultCode == Activity.RESULT_OK) {
+            val uri = data?.data
+            if (uri != null) {
+                importModFromUri(uri)
+            }
+        }
     }
 
     /**
@@ -88,6 +123,52 @@ class ModsActivity : AppCompatActivity() {
     }
 
     /**
+     * Extracts a zip archive from the given URI into the Data Files directory.
+     * Shows a toast on success/failure and reloads the activity.
+     */
+    private fun importModFromUri(uri: Uri) {
+        val dataFiles = GameInstaller.getDataFiles(this)
+        val destDir = File(dataFiles)
+
+        Thread {
+            try {
+                val inputStream: InputStream = contentResolver.openInputStream(uri)
+                    ?: throw Exception("Cannot open file")
+
+                ZipInputStream(inputStream.buffered()).use { zip ->
+                    var entry = zip.nextEntry
+                    while (entry != null) {
+                        if (!entry.isDirectory) {
+                            val name = File(entry.name).name  // flatten to filename only
+                            if (name.isNotEmpty()) {
+                                val outFile = File(destDir, name)
+                                outFile.outputStream().use { out -> zip.copyTo(out) }
+                                Log.i("ModsImport", "Extracted: $name")
+                            }
+                        }
+                        zip.closeEntry()
+                        entry = zip.nextEntry
+                    }
+                }
+
+                runOnUiThread {
+                    Toast.makeText(this, R.string.import_mod_success, Toast.LENGTH_LONG).show()
+                    recreate()  // refresh the mod lists
+                }
+            } catch (e: Exception) {
+                Log.e("ModsImport", "Import failed", e)
+                runOnUiThread {
+                    Toast.makeText(
+                        this,
+                        getString(R.string.import_mod_error, e.message ?: "unknown error"),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }.start()
+    }
+
+    /**
      * Makes the "back" icon in the actionbar perform the back operation
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -101,3 +182,4 @@ class ModsActivity : AppCompatActivity() {
         }
     }
 }
+

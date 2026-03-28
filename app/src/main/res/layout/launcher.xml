@@ -60,34 +60,29 @@
                 android:textColor="@android:color/white"
                 android:padding="12dp" />
 
-            <TextView
-                android:id="@+id/runtime_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="OpenXR Runtime:"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="8dp" />
-
-            <Spinner
-                android:id="@+id/runtime_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:padding="8dp" />
-
             <Button
-                android:id="@+id/configure_runtime_button"
+                android:id="@+id/manage_mods_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@android:color/holo_purple"
-                android:padding="12dp"
-                android:text="Configure Runtime (Broker)"
+                android:text="Manage Mods / Content Files"
+                android:textSize="14sp"
+                android:background="@android:color/holo_blue_light"
                 android:textColor="@android:color/white"
-                android:textSize="13sp" />
+                android:padding="12dp" />
+
         </LinearLayout>
+
+        <Button
+            android:id="@+id/settings_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textSize="14sp"
+            android:background="@android:color/darker_gray"
+            android:textColor="@android:color/white"
+            android:padding="14dp"
+            android:layout_marginTop="12dp" />
 
         <Button
             android:id="@+id/launch_game_button"
@@ -99,7 +94,7 @@
             android:background="@android:color/holo_green_dark"
             android:textColor="@android:color/white"
             android:padding="16dp"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="12dp" />
 
         <TextView
             android:id="@+id/status_message"

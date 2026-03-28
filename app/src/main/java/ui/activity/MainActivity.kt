@@ -32,7 +32,6 @@ import android.preference.PreferenceManager
 import android.system.ErrnoException
 import android.system.Os
 import android.util.DisplayMetrics
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -76,9 +75,6 @@ open class MainActivity : AppCompatActivity() {
             .replace(R.id.content_frame, FragmentSettings()).commit()
 
         setSupportActionBar(findViewById(R.id.main_toolbar))
-
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { checkStartGame() }
 
         if (prefs.getString("bugsnag_consent", "")!! == "") {
             askBugsnagConsent()

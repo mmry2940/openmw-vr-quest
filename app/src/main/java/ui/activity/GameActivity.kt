@@ -71,7 +71,6 @@ class GameActivity : SDLActivity() {
 
     override fun loadLibraries() {
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val graphicsLibrary = prefs!!.getString("pref_graphicsLibrary_v2", "gles2") ?: "gles2"
         val physicsFPS = prefs!!.getString("pref_physicsFPS2", "")
         if (!physicsFPS!!.isEmpty()) {
             try {
@@ -81,49 +80,16 @@ class GameActivity : SDLActivity() {
                 Log.e("OpenMW", "Failed setting environment variables.")
                 e.printStackTrace()
             }
-
         }
 
         System.loadLibrary("c++_shared")
         System.loadLibrary("openal")
         System.loadLibrary("SDL2")
         try {
-            val normalizedGraphicsLibrary = graphicsLibrary.lowercase()
-            val selectedGlesVersion = when (normalizedGraphicsLibrary) {
-                "gles3" -> "3"
-                "gles2", "gles1" -> "2"
-                "vulkan" -> "3"
-                else -> "2"
-            }
-
-            Os.setenv("OPENMW_GLES_VERSION", selectedGlesVersion, true)
-            Os.setenv("LIBGL_ES", selectedGlesVersion, true)
-
-            when (normalizedGraphicsLibrary) {
-                "gles1" -> {
-                    Log.w("OpenMW", "GLES1 selected; using GLES2 backend for compatibility.")
-                }
-
-                "gles3" -> {
-                    Log.i("OpenMW", "Using GLES3 backend for rendering.")
-                }
-
-                "vulkan" -> {
-                    // OpenMW Android runtime currently initializes OpenGL contexts.
-                    // Keep a Vulkan intent marker for future support, but use GLES3 on current builds.
-                    Os.setenv("OPENMW_RENDERER", "vulkan", true)
-                    Log.w("OpenMW", "Vulkan selected, but this build uses OpenGL. Falling back to GLESv3.")
-                }
-
-                else -> {
-                    Log.w("OpenMW", "Unknown graphics backend '$graphicsLibrary'; defaulting to GLES2.")
-                }
-            }
-
-            Log.i(
-                "OpenMW",
-                "Graphics bootstrap: pref=$graphicsLibrary, OPENMW_GLES_VERSION=$selectedGlesVersion, LIBGL_ES=$selectedGlesVersion"
-            )
+            // VR build always uses GLES2 (GL4ES) with native GLES3 swapchain bypass
+            Os.setenv("OPENMW_GLES_VERSION", "2", true)
+            Os.setenv("LIBGL_ES", "2", true)
+            Log.i("OpenMW", "Graphics bootstrap: VR build fixed to GLES2/GL4ES")
         } catch (e: ErrnoException) {
             Log.e("OpenMW", "Failed setting graphics environment variables.", e)
         }
@@ -223,24 +189,25 @@ class GameActivity : SDLActivity() {
 
     private external fun getPathToJni(path_global: String, path_user: String)
 
-    private external fun setOpenXrRuntimeJson(runtimeJsonPath: String)
-
     private external fun initOpenXRLoader()
+
+    private external fun setOpenXrRuntimeJson(runtimeJsonPath: String)
 
     private fun configureQuestOpenXrRuntime() {
         try {
-            val selectedRuntime = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("pref_openxr_runtime", "quest_forward_loader") ?: "quest_forward_loader"
-
-            if (selectedRuntime == "monado_system") {
-                Log.i("OpenMW", "OpenXR runtime bootstrap: Monado XR Runtime selected (system runtime discovery)")
-                // For Monado, use the installable broker runtime path if available
-                setOpenXrRuntimeJson("/data/data/org.khronos.openxr.runtime_broker/files/active_runtime.json")
-            } else {
-                Log.i("OpenMW", "OpenXR runtime bootstrap: Meta Quest System Runtime selected")
+            val runtimeDir = File(filesDir, "openxr")
+            if (!runtimeDir.exists()) {
+                runtimeDir.mkdirs()
             }
-            // Do not write active_runtime.aarch64.json since we use the native Quest OS broker
-            // via xrInitializeLoaderKHR, and we lack libopenxr_forwardloader.so locally.
+            val runtimeJson = File(runtimeDir, "active_runtime.aarch64.json")
+            val json = JSONObject()
+            val runtime = JSONObject()
+            runtime.put("library_path", "libopenxr_forwardloader.so")
+            json.put("file_format_version", "1.0.0")
+            json.put("runtime", runtime)
+            runtimeJson.writeText(json.toString())
+            setOpenXrRuntimeJson(runtimeJson.absolutePath)
+            Log.i("OpenMW", "OpenXR runtime bootstrap: Quest Forward Loader -> " + runtimeJson.absolutePath)
         } catch (e: Exception) {
             Log.e("OpenMW", "Failed to configure OpenXR runtime JSON", e)
         }
