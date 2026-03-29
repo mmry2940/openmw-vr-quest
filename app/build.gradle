@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "is.xyz.omw"
+        applicationId "com.openmw.vr"
         versionCode 45
         versionName calculateVersion()
 
@@ -82,14 +82,14 @@ android {
 
         nightly {
             dimension "version"
-            applicationId "is.xyz.omw_nightly"
+            applicationId "com.openmw.vr_nightly"
             versionNameSuffix "-nightly"
         }
     }
 
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "omw_${variant.buildType.name}_${defaultConfig.versionName}.apk"
+            outputFileName = "OpenMW-VR_${variant.buildType.name}.apk"
         }
     }
 }

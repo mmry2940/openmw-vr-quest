@@ -29,8 +29,8 @@ def find_app_id():
     while user_input not in ["y", "n"]:
         user_input = input("Nightly? (y/n) ")
     if user_input == "y":
-        return "is.xyz.omw_nightly"
-    return "is.xyz.omw"
+        return "com.openmw.vr_nightly"
+    return "com.openmw.vr"
 
 
 def find_api_key():
