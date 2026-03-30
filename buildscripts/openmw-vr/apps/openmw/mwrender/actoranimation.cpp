@@ -76,7 +76,7 @@ namespace MWRender
         osg::ref_ptr<osg::Node> instance = mResourceSystem->getSceneManager()->getInstance(model, parent);
 
         const NodeMap& nodeMap = getNodeMap();
-        NodeMap::const_iterator found = nodeMap.find(bonename);
+        NodeMap::const_iterator found = nodeMap.find(std::string(bonename));
         if (found == nodeMap.end())
             return {};
 
@@ -92,7 +92,7 @@ namespace MWRender
         osg::ref_ptr<const osg::Node> templateNode = mResourceSystem->getSceneManager()->getTemplate(model);
 
         const NodeMap& nodeMap = getNodeMap();
-        auto found = nodeMap.find(bonename);
+        auto found = nodeMap.find(std::string(bonename));
         if (found == nodeMap.end())
             throw std::runtime_error("Can't find attachment node " + std::string{ bonename });
         if (isLight)

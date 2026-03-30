@@ -16,6 +16,8 @@
 #include <osg/Depth>
 #include <osg/Fog>
 #include <osg/LightModel>
+#include <osg/Matrix>
+#include <osg/Material>
 
 
 #include <osgViewer/Renderer>
@@ -26,7 +28,7 @@
 #include <components/myguiplatform/additivelayer.hpp>
 #include <components/myguiplatform/scalinglayer.hpp>
 #include <components/misc/constants.hpp>
-#include <components/misc/stringops.hpp>
+#include <components/misc/strings/algorithm.hpp>
 #include <components/resource/resourcesystem.hpp>
 #include <components/resource/scenemanager.hpp>
 #include <components/shader/shadermanager.hpp>
@@ -62,6 +64,24 @@ namespace osg
 
 namespace MWVR
 {
+
+    static bool getLayerLocalHitPoint(const VRGUILayer& layer, const osg::Vec3f& worldHitPoint, osg::Vec3f& localHitPoint)
+    {
+        osg::MatrixList worldMatrices = layer.mTransform->getWorldMatrices();
+        if (worldMatrices.empty())
+            return false;
+
+        osg::Matrix worldToLocal;
+        worldToLocal.invert(worldMatrices.front());
+        localHitPoint = worldToLocal.preMult(worldHitPoint);
+
+        const float left = layer.mConfig.center.x() - 0.5f;
+        const float right = left + 1.f;
+        const float top = 0.5f + layer.mConfig.center.y();
+        const float bottom = top - 1.f;
+        return localHitPoint.x() >= left && localHitPoint.x() <= right && localHitPoint.z() >= bottom
+            && localHitPoint.z() <= top;
+    }
 
     // When making a circle of a given radius of equally wide planes separated by a given angle, what is the width
     static osg::Vec2 radiusAngleWidth(float radius, float angleRadian)
@@ -107,12 +127,10 @@ namespace MWVR
             mTexture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
             mTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
             mTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
-            attach(osg::Camera::COLOR_BUFFER, mTexture);
-            // Need to regenerate mipmaps every frame
-            setPostDrawCallback(new MWRender::MipmapCallback(mTexture));
+            attach(osg::Camera::COLOR_BUFFER, mTexture, 0, 0, true);
 
             // Do not want to waste time on shadows when generating the GUI texture
-            SceneUtil::ShadowManager::disableShadowsForStateSet(getOrCreateStateSet());
+            SceneUtil::ShadowManager::instance().disableShadowsForStateSet(*getOrCreateStateSet());
 
             // Put rendering as early as possible
             getOrCreateStateSet()->setRenderBinDetails(-1, "RenderBin");
@@ -208,8 +226,12 @@ namespace MWVR
         if (!mConfig.extraLayers.empty())
             filter = filter + ";" + mConfig.extraLayers;
         mGUICamera = new GUICamera(config.pixelResolution.x(), config.pixelResolution.y(), config.backgroundColor);
-        osgMyGUI::RenderManager& renderManager = static_cast<osgMyGUI::RenderManager&>(MyGUI::RenderManager::getInstance());
-        mMyGUICamera = renderManager.createGUICamera(osg::Camera::NESTED_RENDER, filter);
+        mMyGUICamera = new osg::Camera();
+        mMyGUICamera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
+        mMyGUICamera->setProjectionResizePolicy(osg::Camera::FIXED);
+        mMyGUICamera->setViewMatrix(osg::Matrix::identity());
+        mMyGUICamera->setRenderOrder(osg::Camera::NESTED_RENDER);
+        mMyGUICamera->setClearMask(GL_NONE);
         mGUICamera->setScene(mMyGUICamera);
 
         // Define state set that allows rendering with transparency
@@ -338,14 +360,16 @@ namespace MWVR
             // Stretch according to config
             // This genre of layer should only ever have 1 widget as it will cover the full layer
             auto* widget = mWidgets.front();
-            auto* myGUIWindow = dynamic_cast<MyGUI::Window*>(widget->mMainWidget);
             auto* windowBase = dynamic_cast<MWGui::WindowBase*>(widget);
-            if (windowBase && myGUIWindow)
+            if (windowBase)
             {
                 auto w = mConfig.myGUIViewSize.x();
                 auto h = mConfig.myGUIViewSize.y();
-                windowBase->setCoordf(0.f, 0.f, w, h);
-                windowBase->onWindowResize(myGUIWindow);
+                auto viewSize = MyGUI::RenderManager::getInstance().getViewSize();
+                int width = static_cast<int>(w * static_cast<float>(viewSize.width));
+                int height = static_cast<int>(h * static_cast<float>(viewSize.height));
+                windowBase->setCoord(0, 0, width, height);
+                windowBase->onResChange(width, height);
             }
         }
         updateRect();
@@ -488,7 +512,7 @@ namespace MWVR
     {
         mGeometries->setName("VR GUI Geometry Root");
         mGeometries->setUpdateCallback(new VRGUIManagerUpdateCallback(this));
-        mGeometries->setNodeMask(MWRender::VisMask::Mask_3DGUI);
+        mGeometries->setNodeMask(MWRender::VisMask::Mask_GUI);
         mGeometriesRootNode->addChild(mGeometries);
 
         auto stateSet = mGeometries->getOrCreateStateSet();
@@ -506,11 +530,11 @@ namespace MWVR
         lightmodel->setAmbientIntensity(osg::Vec4(1.0, 1.0, 1.0, 1.0));
         stateSet->setAttributeAndModes(lightmodel, osg::StateAttribute::ON);
 
-        SceneUtil::ShadowManager::disableShadowsForStateSet(stateSet);
+        SceneUtil::ShadowManager::instance().disableShadowsForStateSet(*stateSet);
         mGeometries->setStateSet(stateSet);
 
         mGUICameras->setName("VR GUI Cameras Root");
-        mGUICameras->setNodeMask(MWRender::VisMask::Mask_3DGUI);
+        mGUICameras->setNodeMask(MWRender::VisMask::Mask_GUI);
         mGUICamerasRootNode->addChild(mGUICameras);
 
         LayerConfig defaultConfig = createDefaultConfig(1);
@@ -761,31 +785,37 @@ namespace MWVR
 
     bool VRGUIManager::updateFocus()
     {
-        if (!MWBase::Environment::get().hasWorld())
-            return false;
-
-        auto* world = MWBase::Environment::get().getWorld();
-        if (world)
+        auto* playerAnimation = Environment::get().getPlayerAnimation();
+        if (playerAnimation)
         {
-            auto& pointer = world->getUserPointer();
-            if (pointer.getPointerTarget().mHit)
+            auto pointer = playerAnimation->getUserPointer();
+            if (pointer && pointer->getPointerTarget().mHit)
             {
                 std::shared_ptr<VRGUILayer> newFocusLayer = nullptr;
-                auto* node = pointer.getPointerTarget().mHitNode;
-                if (node->getName() == "VRGUILayer")
+                osg::Vec3f localHitPoint;
+                const auto& hit = pointer->getPointerTarget();
+                for (auto& [name, layer] : mLayers)
                 {
-                    VRGUILayerUserData* userData = static_cast<VRGUILayerUserData*>(node->getUserData());
-                    newFocusLayer = userData->mLayer.lock();
+                    if (layer->mLayerName == "Notification")
+                        continue;
+
+                    if (getLayerLocalHitPoint(*layer, hit.mHitPointWorld, localHitPoint))
+                    {
+                        newFocusLayer = layer;
+                        break;
+                    }
                 }
 
-                if (newFocusLayer && newFocusLayer->mLayerName != "Notification")
+                if (newFocusLayer)
                 {
                     setFocusLayer(newFocusLayer.get());
-                    computeGuiCursor(pointer.getPointerTarget().mHitPointLocal);
+                    computeGuiCursor(localHitPoint);
                     return true;
                 }
             }
         }
+
+        setFocusLayer(nullptr);
         return false;
     }
 
@@ -898,36 +928,9 @@ namespace MWVR
         }
     };
 
-    template <typename L>
-    class MyFactory
-    {
-    public:
-        using LayerType = L;
-        using PickLayerType = PickLayer<LayerType>;
-        using Delegate = MyGUI::delegates::CDelegate1<MyGUI::IObject*&>;
-        static typename Delegate::IDelegate* getFactory()
-        {
-            return MyGUI::newDelegate(createFromFactory);
-        }
-
-        static void registerFactory()
-        {
-            MyGUI::FactoryManager::getInstance().registerFactory("Layer", LayerType::getClassTypeName(), getFactory());
-        }
-
-    private:
-        static void createFromFactory(MyGUI::IObject*& _instance)
-        {
-            _instance = new PickLayerType();
-        }
-    };
-
     void VRGUIManager::registerMyGUIFactories()
     {
-        MyFactory< MyGUI::OverlappedLayer >::registerFactory();
-        MyFactory< MyGUI::SharedLayer >::registerFactory();
-        MyFactory< osgMyGUI::AdditiveLayer >::registerFactory();
-        MyFactory< osgMyGUI::AdditiveLayer >::registerFactory();
+        // Factories are registered by the window manager in current OpenMW.
     }
 
     void VRGUIManager::setPick(MWGui::Layout* widget, bool pick)

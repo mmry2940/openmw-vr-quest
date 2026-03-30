@@ -28,11 +28,11 @@ namespace Files
 #endif
 
         using GetPath = const std::filesystem::path& (Files::FixedPath<>::*)() const;
-        constexpr std::array<std::pair<std::u8string_view, GetPath>, 4> sTokenMappings = {
-            std::make_pair(u8"?local?", &FixedPath<>::getLocalPath),
-            std::make_pair(u8"?userconfig?", &FixedPath<>::getUserConfigPath),
-            std::make_pair(u8"?userdata?", &FixedPath<>::getUserDataPath),
-            std::make_pair(u8"?global?", &FixedPath<>::getGlobalDataPath),
+        constexpr std::array<std::pair<std::string_view, GetPath>, 4> sTokenMappings = {
+            std::make_pair("?local?", &FixedPath<>::getLocalPath),
+            std::make_pair("?userconfig?", &FixedPath<>::getUserConfigPath),
+            std::make_pair("?userdata?", &FixedPath<>::getUserDataPath),
+            std::make_pair("?global?", &FixedPath<>::getGlobalDataPath),
         };
     }
 
@@ -290,9 +290,9 @@ namespace Files
 
     void ConfigurationManager::processPath(std::filesystem::path& path, const std::filesystem::path& basePath) const
     {
-        const auto str = path.u8string();
+        const auto str = path.string();
 
-        if (str.empty() || str[0] != u8'?')
+        if (str.empty() || str[0] != '?')
         {
             if (!path.is_absolute())
                 path = basePath / path;
@@ -300,9 +300,9 @@ namespace Files
         }
 
         const auto pos = str.find('?', 1);
-        if (pos != std::u8string::npos && pos != 0)
+        if (pos != std::string::npos && pos != 0)
         {
-            std::u8string_view view(str);
+            std::string_view view(str);
             auto token = view.substr(0, pos + 1);
             auto found = std::find_if(
                 sTokenMappings.begin(), sTokenMappings.end(), [&](const auto& item) { return item.first == token; });
@@ -459,7 +459,7 @@ namespace Files
             // ampersands, and because it's backwards-compatible with the previous format, which used
             // boost::filesystem::path's operator>>.
             istream >> std::quoted(intermediate, '"', '&');
-            static_cast<std::filesystem::path&>(value) = Misc::StringUtils::stringToU8String(intermediate);
+            static_cast<std::filesystem::path&>(value) = std::filesystem::path(intermediate);
             if (istream && !istream.eof() && istream.peek() != EOF)
             {
                 std::string remainder{ std::istreambuf_iterator(istream), {} };
@@ -470,7 +470,7 @@ namespace Files
         else
         {
             std::string intermediate{ std::istreambuf_iterator(istream), {} };
-            static_cast<std::filesystem::path&>(value) = Misc::StringUtils::stringToU8String(intermediate);
+            static_cast<std::filesystem::path&>(value) = std::filesystem::path(intermediate);
         }
         return istream;
     }

@@ -35,19 +35,19 @@ namespace MWVR
         virtual ~VRAnimation();
 
         /// Overridden to always be false
-        void enableHeadAnimation(bool enable) override;
+        void enableHeadAnimation(bool enable);
 
         /// Overridden to always be false
-        void setAccurateAiming(bool enabled) override;
+        void setAccurateAiming(bool enabled);
 
         /// Overridden, implementation tbd
-        osg::Vec3f runAnimation(float timepassed) override;
+        osg::Vec3f runAnimation(float timepassed);
 
         /// Overriden to always be a variant of VM_VR*
-        void setViewMode(ViewMode viewMode) override;
+        void setViewMode(ViewMode viewMode);
 
         /// Overriden to include VR modifications
-        void updateParts() override;
+        void updateParts();
 
         /// Overrides finger animations to point forward
         void setFingerPointingMode(bool enabled);
@@ -58,11 +58,14 @@ namespace MWVR
         /// @return world transform that yields the position and orientation of the current weapon
         osg::Matrix getWeaponTransformMatrix() const;
 
+        /// @return active VR pointer used for interactions
+        std::shared_ptr<UserPointer> getUserPointer() const { return mUserPointer; }
+
     protected:
 
-        float getVelocity(const std::string& groupname) const override;
+        float getVelocity(const std::string& groupname) const;
 
-        void onTrackingUpdated(VRTrackingSource& source, DisplayTime predictedDisplayTime) override;
+        void onTrackingUpdated(VRTrackingSource& source, DisplayTime predictedDisplayTime);
 
     protected:
         std::shared_ptr<VRSession> mSession;

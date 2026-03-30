@@ -80,7 +80,7 @@ namespace Settings
         template <class T>
         static T getOrDefault(std::string_view setting, std::string_view category, const T& defaultValue)
         {
-            const auto key = std::make_pair(category, setting);
+            const auto key = std::make_pair(std::string(category), std::string(setting));
             if (!mUserSettings.contains(key) && !mDefaultSettings.contains(key))
                 return defaultValue;
             return get<T>(setting, category);

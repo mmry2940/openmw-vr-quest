@@ -17,7 +17,7 @@ namespace MWVR
         ~UserPointer();
 
         void updatePointerTarget();
-        const MWRender::RayResult& getPointerTarget() const;
+        const MWRender::RenderingManager::RayResult& getPointerTarget() const;
         bool canPlaceObject() const;
         void setParent(osg::Group* group);
         void setEnabled(bool enabled);
@@ -36,7 +36,7 @@ namespace MWVR
         VRPath mHandPath;
 
         bool mEnabled;
-        MWRender::RayResult mPointerTarget{};
+        MWRender::RenderingManager::RayResult mPointerTarget{};
         float mDistanceToPointerTarget{ -1.f };
         bool mCanPlaceObject{ false };
     };

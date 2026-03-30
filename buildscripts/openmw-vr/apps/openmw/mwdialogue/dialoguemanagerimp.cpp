@@ -268,7 +268,7 @@ namespace MWDialogue
         const auto topic = journal->getTopics().find(topicId);
         if (topic != journal->getTopics().end())
         {
-            return std::ranges::find_if(topic->second, [&](const MWDialogue::Entry& entry) {
+            return std::find_if(topic->second.begin(), topic->second.end(), [&](const MWDialogue::Entry& entry) {
                 return entry.mInfoId == infoId;
             }) != topic->second.end();
         }

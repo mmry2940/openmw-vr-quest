@@ -7,7 +7,7 @@
 #include <components/debug/debuglog.hpp>
 #include <components/sdlutil/sdlgraphicswindow.hpp>
 #include <components/settings/settings.hpp>
-#include <components/misc/stereo.hpp>
+#include <components/stereo/types.hpp>
 #include <osg/Camera>
 #include <osgViewer/Viewer>
 
@@ -82,9 +82,9 @@ namespace MWVR
     //    bool operator==(const View& rhs) const;
     //};
 
-    using Pose = Misc::Pose;
-    using FieldOfView = Misc::FieldOfView;
-    using View = Misc::View;
+    using Pose = Stereo::Pose;
+    using FieldOfView = Stereo::FieldOfView;
+    using View = Stereo::View;
 
     //! The complete set of poses tracked each frame by MWVR.
     struct PoseSet
@@ -137,9 +137,6 @@ namespace MWVR
     };
 
     // Serialization methods for VR types.
-    std::ostream& operator <<(std::ostream& os, const Pose& pose);
-    std::ostream& operator <<(std::ostream& os, const FieldOfView& fov);
-    std::ostream& operator <<(std::ostream& os, const View& view);
     std::ostream& operator <<(std::ostream& os, const PoseSet& poseSet);
     std::ostream& operator <<(std::ostream& os, TrackedLimb limb);
     std::ostream& operator <<(std::ostream& os, ReferenceSpace space);

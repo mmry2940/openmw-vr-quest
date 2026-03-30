@@ -119,30 +119,6 @@ namespace MWVR
 
     std::ostream& operator <<(
         std::ostream& os,
-        const MWVR::Pose& pose)
-    {
-        os << "position=" << pose.position << ", orientation=" << pose.orientation;
-        return os;
-    }
-
-    std::ostream& operator <<(
-        std::ostream& os,
-        const MWVR::FieldOfView& fov)
-    {
-        os << "left=" << fov.angleLeft << ", right=" << fov.angleRight << ", down=" << fov.angleDown << ", up=" << fov.angleUp;
-        return os;
-    }
-
-    std::ostream& operator <<(
-        std::ostream& os,
-        const MWVR::View& view)
-    {
-        os << "pose=< " << view.pose << " >, fov=< " << view.fov << " >";
-        return os;
-    }
-
-    std::ostream& operator <<(
-        std::ostream& os,
         const MWVR::PoseSet& poseSet)
     {
         os << "eye[" << Side::LEFT_SIDE << "]: " << poseSet.eye[(int)Side::LEFT_SIDE] << std::endl;

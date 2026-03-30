@@ -17,9 +17,9 @@
 
 #include <components/sceneutil/mwshadowtechnique.hpp>
 
-#include <components/misc/stringops.hpp>
+#include <components/misc/strings/algorithm.hpp>
+#include <components/misc/strings/conversion.hpp>
 #include <components/misc/stereo.hpp>
-#include <components/misc/callbackmanager.hpp>
 #include <components/misc/constants.hpp>
 
 #include <components/sdlutil/sdlgraphicswindow.hpp>
@@ -62,9 +62,9 @@ namespace MWVR
 
     int parseResolution(std::string conf, int recommended, int max)
     {
-        if (Misc::StringUtils::isNumber(conf))
+        if (const auto parsed = Misc::StringUtils::toNumeric<int>(conf))
         {
-            int res = std::atoi(conf.c_str());
+            int res = *parsed;
             if (res <= 0)
                 return recommended;
             if (res > max)
@@ -179,13 +179,13 @@ namespace MWVR
 
         // Give the main camera an initial draw callback that disables camera setup (we don't want it)
         Misc::StereoView::instance().setUpdateViewCallback(mUpdateViewCallback);
-        Misc::CallbackManager::instance().addCallback(Misc::CallbackManager::DrawStage::Initial, new InitialDrawCallback(this));
-        Misc::CallbackManager::instance().addCallback(Misc::CallbackManager::DrawStage::PreDraw, mPreDraw);
-        Misc::CallbackManager::instance().addCallback(Misc::CallbackManager::DrawStage::PostDraw, mPostDraw);
-        Misc::CallbackManager::instance().addCallback(Misc::CallbackManager::DrawStage::Final, mFinalDraw);
+        mViewer->getCamera()->setInitialDrawCallback(new InitialDrawCallback(this));
+        mViewer->getCamera()->setPreDrawCallback(mPreDraw);
+        mViewer->getCamera()->setPostDrawCallback(mPostDraw);
+        mViewer->getCamera()->setFinalDrawCallback(mFinalDraw);
         auto cullMask = ~(MWRender::VisMask::Mask_UpdateVisitor | MWRender::VisMask::Mask_SimpleWater);
         cullMask &= ~MWRender::VisMask::Mask_GUI;
-        cullMask |= MWRender::VisMask::Mask_3DGUI;
+        cullMask |= MWRender::VisMask::Mask_GUI;
         Misc::StereoView::instance().setCullMask(cullMask);
 
         mCallbacksConfigured = true;
@@ -613,9 +613,8 @@ namespace MWVR
         mViewer->updateView(left, right);
     }
 
-    void VRViewer::FinaldrawCallback::operator()(osg::RenderInfo& info, Misc::StereoView::StereoDrawCallback::View view) const
+    void VRViewer::FinaldrawCallback::operator()(osg::RenderInfo& info) const
     {
-        if (view != Misc::StereoView::StereoDrawCallback::View::Left)
-            mViewer->finalDrawCallback(info);
+        mViewer->finalDrawCallback(info);
     }
 }

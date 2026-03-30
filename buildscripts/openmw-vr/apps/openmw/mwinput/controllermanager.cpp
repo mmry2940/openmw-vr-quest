@@ -452,6 +452,7 @@ namespace MWInput
     void ControllerManager::enableGyroSensor()
     {
         mGyroAvailable = false;
+#if SDL_VERSION_ATLEAST(2, 0, 14)
         SDL_GameController* cntrl = mBindingsManager->getControllerOrNull();
         if (!cntrl)
             return;
@@ -463,6 +464,7 @@ namespace MWInput
             return;
         }
         mGyroAvailable = true;
+#endif
     }
 
     bool ControllerManager::isGyroAvailable() const
@@ -473,6 +475,7 @@ namespace MWInput
     std::array<float, 3> ControllerManager::getGyroValues() const
     {
         float gyro[3] = { 0.f };
+#if SDL_VERSION_ATLEAST(2, 0, 14)
         SDL_GameController* cntrl = mBindingsManager->getControllerOrNull();
         if (cntrl && mGyroAvailable)
         {
@@ -480,6 +483,7 @@ namespace MWInput
             if (result < 0)
                 Log(Debug::Error) << "Failed to get game controller sensor data: " << SDL_GetError();
         }
+#endif
         return std::array<float, 3>({ gyro[0], gyro[1], gyro[2] });
     }
 
@@ -496,8 +500,12 @@ namespace MWInput
         int controllerType = ControllerManager::getControllerType();
 
         bool isXbox = controllerType == SDL_CONTROLLER_TYPE_XBOX360 || controllerType == SDL_CONTROLLER_TYPE_XBOXONE;
+    #if defined(SDL_CONTROLLER_TYPE_PS5)
         bool isPsx = controllerType == SDL_CONTROLLER_TYPE_PS3 || controllerType == SDL_CONTROLLER_TYPE_PS4
             || controllerType == SDL_CONTROLLER_TYPE_PS5;
+    #else
+        bool isPsx = controllerType == SDL_CONTROLLER_TYPE_PS3 || controllerType == SDL_CONTROLLER_TYPE_PS4;
+    #endif
         bool isSwitch = controllerType == SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO;
 
         switch (button)

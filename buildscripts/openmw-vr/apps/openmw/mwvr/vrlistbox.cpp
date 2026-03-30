@@ -44,7 +44,7 @@ namespace MWVR
         for (unsigned i = 0; i < comboBox->getItemCount(); i++)
             mListBox->addItem(comboBox->getItemNameAt(i));
 
-        mListBox->setItemSelect(comboBox->getIndexSelected());
+        mListBox->setIndexSelected(comboBox->getIndexSelected());
 
         MWBase::Environment::get().getWindowManager()->setKeyFocusWidget(mListBox);
 

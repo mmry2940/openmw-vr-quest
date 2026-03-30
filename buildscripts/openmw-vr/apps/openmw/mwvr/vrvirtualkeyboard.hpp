@@ -4,15 +4,9 @@
 #include "../mwgui/windowbase.hpp"
 
 #include <MyGUI_Button.h>
-#include "components/widgets/virtualkeyboardmanager.hpp"
 
 #include <map>
 #include <memory>
-
-namespace Gui
-{
-    class VirtualKeyboardManager;
-}
 
 namespace MWVR
 {
@@ -54,13 +48,13 @@ namespace MWVR
         bool mCaps;
     };
 
-    class VirtualKeyboardManager : public Gui::VirtualKeyboardManager
+    class VirtualKeyboardManager
     {
     public:
         VirtualKeyboardManager();
 
-        void registerEditBox(MyGUI::EditBox* editBox) override;
-        void unregisterEditBox(MyGUI::EditBox* editBox) override;
+        void registerEditBox(MyGUI::EditBox* editBox);
+        void unregisterEditBox(MyGUI::EditBox* editBox);
         VrVirtualKeyboard& virtualKeyboard() { return *mVk; };
 
     private:

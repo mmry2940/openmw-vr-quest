@@ -40,8 +40,9 @@ void ESM4::Npc::load(ESM4::Reader& reader)
 
     std::uint32_t esmVer = reader.esmVersion();
     mIsTES4 = (esmVer == ESM::VER_080 || esmVer == ESM::VER_100) && !reader.hasFormVersion();
+    mIsFO3 = esmVer == ESM::VER_094 && !reader.hasFormVersion();
     mIsFONV = esmVer == ESM::VER_132 || esmVer == ESM::VER_133 || esmVer == ESM::VER_134;
-    // mIsTES5 = esmVer == ESM::VER_094 || esmVer == ESM::VER_170; // WARN: FO3 is also VER_094
+    // mIsTES5 = esmVer == ESM::VER_170; // FO3 is VER_094 without form version; Skyrim is VER_094 with form version
 
     while (reader.getSubRecordHeader())
     {

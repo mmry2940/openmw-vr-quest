@@ -52,6 +52,10 @@ set(SQLITE_HASH SHA256=f31d445b48e67e284cf206717cc170ab63cbe4fd7f79a82793b772285
 set(LUAJIT_VERSION 2.1.0-beta3)
 set(LUAJIT_HASH SHA256=409f7fe570d3c16558e594421c47bdd130238323c9d6fd6c83dedd2aaeb082a8)
 
+# https://github.com/fmtlib/fmt/releases
+set(FMT_VERSION 8.1.1)
+set(FMT_HASH SHA256=3d794d3cf67633b34b2771eb9f073bde87e846e0d395d254df7b211ef1ec7346)
+
 # https://github.com/lz4/lz4/releases
 set(LZ4_VERSION 1.9.3)
 set(LZ4_HASH SHA256=030644df4611007ff7dc962d981f390361e6c97a34e5cbc393ddfbe019ffe2c1)
@@ -495,6 +499,17 @@ ExternalProject_Add(luajit
 		BUILDMODE=static
 )
 
+ExternalProject_Add(fmt
+	URL https://github.com/fmtlib/fmt/archive/refs/tags/${FMT_VERSION}.tar.gz
+	URL_HASH ${FMT_HASH}
+	DOWNLOAD_DIR ${download_dir}
+
+	CONFIGURE_COMMAND ""
+	BUILD_COMMAND ""
+	INSTALL_COMMAND mkdir -p ${prefix}/include
+	COMMAND cp -r <SOURCE_DIR>/include/fmt ${prefix}/include/
+)
+
 # Build ICU 70.1 for the host (native Linux) so the cross-compile ICU build
 # inside OpenMW's extern/ can use the host tools (genrb, icupkg, etc.).
 # We explicitly unset NDK env vars (CC, CXX, AR, etc.) so autotools picks up
@@ -564,7 +579,7 @@ set(OPENMW_LOCAL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/openmw-vr)
 if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
 	message(STATUS "OpenMW source: local openmw-vr (${OPENMW_LOCAL_SOURCE_DIR})")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3 fmt
 
 		SOURCE_DIR ${OPENMW_LOCAL_SOURCE_DIR}
 		DOWNLOAD_COMMAND ""
@@ -589,7 +604,7 @@ elseif(USE_LOCAL_OPENMW_VR AND NOT ALLOW_OPENMW_UPSTREAM_FALLBACK)
 else()
 	message(STATUS "OpenMW source: upstream OpenMW ${OPENMW_VERSION}")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3 fmt
 
 		URL https://github.com/OpenMW/openmw/archive/${OPENMW_VERSION}.tar.gz
 		URL_HASH ${OPENMW_HASH}

@@ -20,6 +20,7 @@
 #include "../mwbase/windowmanager.hpp"
 #include "../mwbase/statemanager.hpp"
 #include "../mwbase/environment.hpp"
+#include "../mwbase/luamanager.hpp"
 #include "../mwbase/mechanicsmanager.hpp"
 
 #include "../mwgui/draganddrop.hpp"
@@ -28,7 +29,8 @@
 #include "../mwinput/actionmanager.hpp"
 #include "../mwinput/bindingsmanager.hpp"
 #include "../mwinput/mousemanager.hpp"
-#include "../mwinput/sdlmappings.hpp"
+
+#include <components/sdlutil/sdlmappings.hpp>
 
 #include "../mwworld/player.hpp"
 #include "../mwmechanics/actorutil.hpp"
@@ -76,52 +78,18 @@ namespace MWVR
         }
     }
 
-    /**
-     * Makes it possible to use ItemModel::moveItem to move an item from an inventory to the world.
-     */
-    class DropItemAtPointModel : public MWGui::ItemModel
-    {
-    public:
-        DropItemAtPointModel() {}
-        virtual ~DropItemAtPointModel() {}
-        virtual MWWorld::Ptr copyItem(const MWGui::ItemStack& item, size_t count, bool /*allowAutoEquip*/)
-        {
-            MWBase::World* world = MWBase::Environment::get().getWorld();
-            auto& pointer = world->getUserPointer();
-
-            MWWorld::Ptr dropped;
-            if (pointer.canPlaceObject())
-                dropped = world->placeObject(item.mBase, pointer.getPointerTarget(), count);
-            else
-                dropped = world->dropObjectOnGround(world->getPlayerPtr(), item.mBase, count);
-            dropped.getCellRef().setOwner("");
-
-            return dropped;
-        }
-
-        virtual void removeItem(const MWGui::ItemStack& item, size_t count) { throw std::runtime_error("removeItem not implemented"); }
-        virtual ModelIndex getIndex(MWGui::ItemStack item) { throw std::runtime_error("getIndex not implemented"); }
-        virtual void update() {}
-        virtual size_t getItemCount() { return 0; }
-        virtual MWGui::ItemStack getItem(ModelIndex index) { throw std::runtime_error("getItem not implemented"); }
-
-    private:
-        // Where to drop the item
-        MWRender::RayResult mIntersection;
-    };
-
     void VRInputManager::pointActivation(bool onPress)
     {
-        auto* world = MWBase::Environment::get().getWorld();
-        auto& pointer = world->getUserPointer();
-        if (world && pointer.getPointerTarget().mHit)
+        auto world = MWBase::Environment::get().getWorld();
+        auto* playerAnimation = Environment::get().getPlayerAnimation();
+        auto pointer = playerAnimation ? playerAnimation->getUserPointer() : nullptr;
+        if (world && pointer && pointer->getPointerTarget().mHit)
         {
-            auto* node = pointer.getPointerTarget().mHitNode;
-            MWWorld::Ptr ptr = pointer.getPointerTarget().mHitObject;
+            MWWorld::Ptr ptr = pointer->getPointerTarget().mHitObject;
             auto wm = MWBase::Environment::get().getWindowManager();
-            auto& dnd = wm->getDragAndDrop();
+            auto* vrGuiManager = Environment::get().getGUIManager();
 
-            if (node && node->getName() == "VRGUILayer")
+            if (vrGuiManager && vrGuiManager->updateFocus())
             {
                 injectMousePress(SDL_BUTTON_LEFT, onPress);
             }
@@ -129,15 +97,6 @@ namespace MWVR
             {
                 // Other actions should only happen on release;
                 return;
-            }
-            else if (dnd.mIsOnDragAndDrop)
-            {
-                // Intersected with the world while drag and drop is active
-                // Drop item into the world
-                MWBase::Environment::get().getWorld()->breakInvisibility(
-                    MWMechanics::getPlayer());
-                DropItemAtPointModel drop;
-                dnd.drop(&drop, nullptr);
             }
             else if (!ptr.isEmpty())
             {
@@ -152,8 +111,7 @@ namespace MWVR
                 }
                 else
                 {
-                    MWWorld::Player& player = world->getPlayer();
-                    player.activate(ptr);
+                    MWBase::Environment::get().getLuaManager()->objectActivated(ptr, world->getPlayerPtr());
                 }
             }
         }
@@ -165,11 +123,7 @@ namespace MWVR
         if (vrGuiManager && vrGuiManager->injectMouseClick(onPress))
             return;
 
-        SDL_MouseButtonEvent arg;
-        if (onPress)
-            mMouseManager->mousePressed(arg, sdlButton);
-        else
-            mMouseManager->mouseReleased(arg, sdlButton);
+        (void)sdlButton;
     }
 
     void VRInputManager::injectChannelValue(
@@ -177,6 +131,7 @@ namespace MWVR
         float value)
     {
         auto channel = mBindingsManager->ics().getChannel(MWInput::A_MoveLeftRight);// ->setValue(value);
+        channel->setValue(value);
         channel->setEnabled(true);
     }
 
@@ -301,7 +256,7 @@ namespace MWVR
     void VRInputManager::requestRecenter(bool resetZ)
     {
         // TODO: Hack, should have a cleaner way of accessing this
-        reinterpret_cast<VRCamera*>(MWBase::Environment::get().getWorld()->getRenderingManager().getCamera())->requestRecenter(resetZ);
+        reinterpret_cast<VRCamera*>(MWBase::Environment::get().getWorld()->getRenderingManager()->getCamera())->requestRecenter(resetZ);
     }
 
     VRInputManager::VRInputManager(
@@ -330,7 +285,7 @@ namespace MWVR
         if (xrControllerSuggestionsFile.empty())
             throw std::runtime_error("No interaction profiles available (xrcontrollersuggestions.xml not found)");
 
-        Log(Debug::Verbose) << "Reading Input Profile Path suggestions from " << xrControllerSuggestionsFile;
+        Log(Debug::Verbose) << "Reading Input Profile Path suggestions from " << xrControllerSuggestionsFile.string();
 
         TiXmlDocument* xmlDoc = nullptr;
         TiXmlElement* xmlRoot = nullptr;
@@ -341,7 +296,7 @@ namespace MWVR
         if (xmlDoc->Error())
         {
             std::ostringstream message;
-            message << "TinyXml reported an error reading \"" + xrControllerSuggestionsFile + "\". Row " <<
+            message << "TinyXml reported an error reading \"" << xrControllerSuggestionsFile.string() << "\". Row " <<
                 (int)xmlDoc->ErrorRow() << ", Col " << (int)xmlDoc->ErrorCol() << ": " <<
                 xmlDoc->ErrorDesc();
             Log(Debug::Error) << message.str();
@@ -398,7 +353,7 @@ namespace MWVR
             auto guiCursor = vrGuiManager->guiCursor();
             if (vrHasFocus)
             {
-                mMouseManager->setMousePosition(guiCursor.x(), guiCursor.y());
+                MyGUI::InputManager::getInstance().injectMouseMove(guiCursor.x(), guiCursor.y(), 0);
             }
         }
 
@@ -428,7 +383,7 @@ namespace MWVR
 
         if (!guiMode)
         {
-            auto* world = MWBase::Environment::get().getWorld();
+            auto world = MWBase::Environment::get().getWorld();
 
             auto& player = world->getPlayer();
             auto playerPtr = world->getPlayerPtr();
@@ -437,7 +392,7 @@ namespace MWVR
                 auto trackingPath = Environment::get().getTrackingManager()->stringToVRPath("/user/hand/right/input/aim/pose");
                 mRealisticCombat.reset(new RealisticCombat::StateMachine(playerPtr, trackingPath));
             }
-            bool enabled = !guiMode && player.getDrawState() == MWMechanics::DrawState_Weapon && !player.isDisabled();
+            bool enabled = !guiMode && !controlsDisabled() && player.getDrawState() == MWMechanics::DrawState::Weapon;
             mRealisticCombat->update(dt, enabled);
         }
         else if (mRealisticCombat)
@@ -459,23 +414,7 @@ namespace MWVR
     {
         static const bool isToggleSneak = Settings::Manager::getBool("toggle sneak", "Input");
         auto* vrGuiManager = Environment::get().getGUIManager();
-        auto* wm = MWBase::Environment::get().getWindowManager();
-
-        // OpenMW does not currently provide any way to directly request skipping a video.
-        // This is copied from the controller manager and is used to skip videos, 
-        // and works because mygui only consumes the escape press if a video is currently playing.
-        if (wm->isPlayingVideo())
-        {
-            auto kc = MWInput::sdlKeyToMyGUI(SDLK_ESCAPE);
-            if (action->onActivate())
-            {
-                mBindingsManager->setPlayerControlsEnabled(!MyGUI::InputManager::getInstance().injectKeyPress(kc, 0));
-            }
-            else if (action->onDeactivate())
-            {
-                mBindingsManager->setPlayerControlsEnabled(!MyGUI::InputManager::getInstance().injectKeyRelease(kc));
-            }
-        }
+        auto wm = MWBase::Environment::get().getWindowManager();
 
         bool guiMode = MWBase::Environment::get().getWindowManager()->isGuiMode();
 
@@ -608,7 +547,7 @@ namespace MWVR
             {
                 float yaw = osg::DegreesToRadians(action->value()) * 200.f * dt;
                 // TODO: Hack, should have a cleaner way of accessing this
-                reinterpret_cast<VRCamera*>(MWBase::Environment::get().getWorld()->getRenderingManager().getCamera())->rotateStage(yaw);
+                reinterpret_cast<VRCamera*>(MWBase::Environment::get().getWorld()->getRenderingManager()->getCamera())->rotateStage(yaw);
                 break;
             }
             case MWInput::A_MoveLeftRight:
@@ -634,40 +573,49 @@ namespace MWVR
             // OnActivate actions
             if (action->onActivate())
             {
+                const auto actionCode = action->openMWActionCode();
+                auto toggleChannel = [this](MWInput::Actions actionId) {
+                    auto channel = mBindingsManager->ics().getChannel(actionId);
+                    channel->setValue(mBindingsManager->actionIsActive(actionId) ? 0.f : 1.f);
+                };
+
                 switch (action->openMWActionCode())
                 {
                 case MWInput::A_GameMenu:
-                    mActionManager->toggleMainMenu();
+                case MWInput::A_Screenshot:
+                case MWInput::A_Console:
+                case MWInput::A_Rest:
+                case MWInput::A_QuickSave:
+                case MWInput::A_QuickLoad:
+                case MWInput::A_CycleSpellLeft:
+                case MWInput::A_CycleSpellRight:
+                case MWInput::A_CycleWeaponLeft:
+                case MWInput::A_CycleWeaponRight:
+                    mActionManager->executeAction(actionCode);
                     break;
                 case A_VrMetaMenu:
                     MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_VrMetaMenu);
                     break;
-                case MWInput::A_Screenshot:
-                    mActionManager->screenshot();
-                    break;
                 case MWInput::A_Inventory:
-                    mActionManager->toggleInventory();
-                    break;
-                case MWInput::A_Console:
-                    mActionManager->toggleConsole();
+                    wm->toggleVisible(MWGui::GW_Inventory);
                     break;
                 case MWInput::A_Journal:
-                    mActionManager->toggleJournal();
+                    if (wm->containsMode(MWGui::GM_Journal))
+                        wm->exitCurrentGuiMode();
+                    else
+                        wm->pushGuiMode(MWGui::GM_Journal);
                     break;
                 case MWInput::A_AutoMove:
-                    mActionManager->toggleAutoMove();
+                    toggleChannel(MWInput::A_AutoMove);
                     break;
                 case MWInput::A_AlwaysRun:
-                    mActionManager->toggleWalking();
+                    toggleChannel(MWInput::A_AlwaysRun);
                     break;
                 case MWInput::A_ToggleWeapon:
-                    mActionManager->toggleWeapon();
-                    break;
-                case MWInput::A_Rest:
-                    mActionManager->rest();
+                    toggleChannel(MWInput::A_ToggleWeapon);
                     break;
                 case MWInput::A_ToggleSpell:
-                    mActionManager->toggleSpell();
+                    toggleChannel(MWInput::A_ToggleSpell);
                     break;
                 case MWInput::A_QuickKey1:
                     mActionManager->quickKey(1);
@@ -700,40 +648,21 @@ namespace MWVR
                     mActionManager->quickKey(10);
                     break;
                 case MWInput::A_QuickKeysMenu:
-                    mActionManager->showQuickKeysMenu();
+                    if (wm->containsMode(MWGui::GM_QuickKeysMenu))
+                        wm->exitCurrentGuiMode();
+                    else
+                        wm->pushGuiMode(MWGui::GM_QuickKeysMenu);
                     break;
                 case MWInput::A_ToggleHUD:
                     Log(Debug::Verbose) << "Toggle HUD";
-                    MWBase::Environment::get().getWindowManager()->toggleHud();
+                    wm->setHudVisibility(!wm->isHudVisible());
                     break;
                 case MWInput::A_ToggleDebug:
                     Log(Debug::Verbose) << "Toggle Debug";
-                    MWBase::Environment::get().getWindowManager()->toggleDebugWindow();
-                    break;
-                case MWInput::A_QuickSave:
-                    mActionManager->quickSave();
-                    break;
-                case MWInput::A_QuickLoad:
-                    mActionManager->quickLoad();
-                    break;
-                case MWInput::A_CycleSpellLeft:
-                    if (mActionManager->checkAllowedToUseItems() && MWBase::Environment::get().getWindowManager()->isAllowed(MWGui::GW_Magic))
-                        MWBase::Environment::get().getWindowManager()->cycleSpell(false);
-                    break;
-                case MWInput::A_CycleSpellRight:
-                    if (mActionManager->checkAllowedToUseItems() && MWBase::Environment::get().getWindowManager()->isAllowed(MWGui::GW_Magic))
-                        MWBase::Environment::get().getWindowManager()->cycleSpell(true);
-                    break;
-                case MWInput::A_CycleWeaponLeft:
-                    if (mActionManager->checkAllowedToUseItems() && MWBase::Environment::get().getWindowManager()->isAllowed(MWGui::GW_Inventory))
-                        MWBase::Environment::get().getWindowManager()->cycleWeapon(false);
-                    break;
-                case MWInput::A_CycleWeaponRight:
-                    if (mActionManager->checkAllowedToUseItems() && MWBase::Environment::get().getWindowManager()->isAllowed(MWGui::GW_Inventory))
-                        MWBase::Environment::get().getWindowManager()->cycleWeapon(true);
+                    wm->toggleDebugWindow();
                     break;
                 case MWInput::A_Jump:
-                    mActionManager->setAttemptJump(true);
+                    mBindingsManager->ics().getChannel(MWInput::A_Jump)->setValue(1.f);
                     break;
                 case A_Recenter:
                     vrGuiManager->updateTracking();
@@ -759,8 +688,13 @@ namespace MWVR
                         pointActivation(false);
                     break;
                 case MWInput::A_Sneak:
-                    if (isToggleSneak)
-                        mActionManager->toggleSneaking();
+                    if (!isToggleSneak)
+                        break;
+                    mSneakToggled = !mSneakToggled;
+                    mBindingsManager->ics().getChannel(MWInput::A_Sneak)->setValue(mSneakToggled ? 1.f : 0.f);
+                    break;
+                case MWInput::A_Jump:
+                    mBindingsManager->ics().getChannel(MWInput::A_Jump)->setValue(0.f);
                     break;
                 default:
                     break;

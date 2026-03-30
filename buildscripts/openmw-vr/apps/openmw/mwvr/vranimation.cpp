@@ -17,7 +17,6 @@
 
 #include <components/debug/debuglog.hpp>
 
-#include <components/sceneutil/actorutil.hpp>
 #include <components/sceneutil/positionattitudetransform.hpp>
 #include <components/sceneutil/shadow.hpp>
 #include <components/sceneutil/skeleton.hpp>
@@ -27,12 +26,16 @@
 #include <components/settings/settings.hpp>
 
 #include <components/misc/constants.hpp>
+#include <components/esm3/loadrace.hpp>
 
 #include "../mwworld/esmstore.hpp"
+#include "../mwworld/class.hpp"
 
 #include "../mwmechanics/npcstats.hpp"
 #include "../mwmechanics/actorutil.hpp"
 #include "../mwmechanics/weapontype.hpp"
+
+#include "../mwworld/inventorystore.hpp"
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/world.hpp"
@@ -57,6 +60,17 @@ namespace MWVR
             return true;
 
         return false;
+    }
+
+    static int getPlayerWeaponType()
+    {
+        int weaponType = ESM::Weapon::HandToHand;
+        const auto& player = MWMechanics::getPlayer();
+        const auto& inventory = player.getClass().getInventoryStore(player);
+        const auto weapon = inventory.getSlot(MWWorld::InventoryStore::Slot_CarriedRight);
+        if (weapon != inventory.end() && weapon->getType() == ESM::Weapon::sRecordId)
+            weaponType = weapon->get<ESM::Weapon>()->mBase->mData.mType;
+        return weaponType;
     }
 
     /// Implements control of a finger by overriding rotation
@@ -121,10 +135,9 @@ namespace MWVR
         float PI_4 = PI_2 / 2.f;
 
         osg::Quat rotate{ 0,0,0,1 };
-        auto* world = MWBase::Environment::get().getWorld();
         auto windowManager = MWBase::Environment::get().getWindowManager();
         auto animation = MWVR::Environment::get().getPlayerAnimation();
-        auto weaponType = world->getActiveWeaponType();
+        const int weaponType = getPlayerWeaponType();
         // Morrowind models do not hold most weapons at a natural angle, so i rotate the hand
         // to more natural angles on weapons to allow more comfortable combat.
         if (!windowManager->isGuiMode() && !animation->fingerPointingMode())
@@ -194,8 +207,7 @@ namespace MWVR
 
 
         osg::Quat rotate{ 0,0,0,1 };
-        auto* world = MWBase::Environment::get().getWorld();
-        auto weaponType = world->getActiveWeaponType();
+        const int weaponType = getPlayerWeaponType();
         switch (weaponType)
         {
         case ESM::Weapon::MarksmanThrown:
@@ -244,8 +256,7 @@ namespace MWVR
         }
 
         auto matrixTransform = node->asTransform()->asMatrixTransform();
-        auto world = MWBase::Environment::get().getWorld();
-        auto weaponType = world->getActiveWeaponType();
+        const int weaponType = getPlayerWeaponType();
         auto windowManager = MWBase::Environment::get().getWindowManager();
 
         if (!isMeleeWeapon(weaponType) && !windowManager->isGuiMode())
@@ -387,10 +398,10 @@ namespace MWVR
 
     void VRAnimation::setViewMode(NpcAnimation::ViewMode viewMode)
     {
-        if (viewMode != VM_VRFirstPerson && viewMode != VM_VRNormal)
+        if (viewMode != VM_FirstPerson && viewMode != VM_Normal)
         {
-            Log(Debug::Warning) << "Attempted to set view mode of VRAnimation to non-vr mode. Defaulted to VM_VRFirstPerson.";
-            viewMode = VM_VRFirstPerson;
+            Log(Debug::Warning) << "Attempted to set view mode of VRAnimation to unsupported mode. Defaulted to VM_FirstPerson.";
+            viewMode = VM_FirstPerson;
         }
         NpcAnimation::setViewMode(viewMode);
         return;
@@ -400,48 +411,13 @@ namespace MWVR
     {
         NpcAnimation::updateParts();
 
-        if (mViewMode == VM_VRFirstPerson)
-        {
-            // Hide everything other than hands
-            removeIndividualPart(ESM::PartReferenceType::PRT_Hair);
-            removeIndividualPart(ESM::PartReferenceType::PRT_Head);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LForearm);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LUpperarm);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LWrist);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RForearm);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RUpperarm);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RWrist);
-            removeIndividualPart(ESM::PartReferenceType::PRT_Cuirass);
-            removeIndividualPart(ESM::PartReferenceType::PRT_Groin);
-            removeIndividualPart(ESM::PartReferenceType::PRT_Neck);
-            removeIndividualPart(ESM::PartReferenceType::PRT_Skirt);
-            removeIndividualPart(ESM::PartReferenceType::PRT_Tail);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LLeg);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RLeg);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LAnkle);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RAnkle);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LKnee);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RKnee);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LFoot);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RFoot);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LPauldron);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RPauldron);
-        }
-        else
-        {
-            removeIndividualPart(ESM::PartReferenceType::PRT_LForearm);
-            removeIndividualPart(ESM::PartReferenceType::PRT_LWrist);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RForearm);
-            removeIndividualPart(ESM::PartReferenceType::PRT_RWrist);
-        }
-
 
         auto playerPtr = MWMechanics::getPlayer();
         const MWWorld::LiveCellRef<ESM::NPC>* ref = playerPtr.get<ESM::NPC>();
         const ESM::Race* race =
             MWBase::Environment::get().getWorld()->getStore().get<ESM::Race>().find(ref->mBase->mRace);
         bool isMale = ref->mBase->isMale();
-        float charHeightFactor = isMale ? race->mData.mHeight.mMale : race->mData.mHeight.mFemale;
+        float charHeightFactor = isMale ? race->mData.mMaleHeight : race->mData.mFemaleHeight;
         float charHeightBase = 1.8288f; // Is this ~ the right value?
         float charHeight = charHeightBase * charHeightFactor;
         float realHeight = Settings::Manager::getFloat("real height", "VR");
@@ -488,7 +464,7 @@ namespace MWVR
             controller.second->onTrackingUpdated(source, predictedDisplayTime);
 
         if (mSkeleton)
-            mSkeleton->markBoneMatriceDirty();
+            mSkeleton->markDirty();
 
         mUserPointer->updatePointerTarget();
     }
@@ -534,7 +510,8 @@ namespace MWVR
         {
             mUserPointer->setParent(finger->second);
         }
-        mSkeleton->setIsTracked(true);
+        if (mSkeleton)
+            mSkeleton->setActive(SceneUtil::Skeleton::Active);
     }
     void VRAnimation::enableHeadAnimation(bool)
     {

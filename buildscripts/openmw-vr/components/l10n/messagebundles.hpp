@@ -45,7 +45,7 @@ namespace L10n
         void load(std::istream& input, const icu::Locale& lang);
         bool isLoaded(const icu::Locale& loc) const
         {
-            return mBundles.find(std::string_view(loc.getName())) != mBundles.end();
+            return mBundles.find(std::string(loc.getName())) != mBundles.end();
         }
         const icu::Locale& getFallbackLocale() const { return mFallbackLocale; }
         void setGmstLoader(std::function<std::string(std::string_view)> fn) { mGmstLoader = std::move(fn); }

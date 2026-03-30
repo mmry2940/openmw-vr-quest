@@ -10,7 +10,7 @@
 #include <MyGUI_Widget.h>
 
 #include <algorithm>
-#include <format>
+#include <components/misc/format.hpp>
 #include <memory>
 #include <string>
 #include <vector>
