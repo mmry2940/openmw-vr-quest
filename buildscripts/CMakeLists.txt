@@ -433,16 +433,20 @@ ExternalProject_Add(osg
 
 # Build ICU 70.1 for the host (native Linux) so the cross-compile ICU build
 # inside OpenMW's extern/ can use the host tools (genrb, icupkg, etc.).
+# We explicitly unset NDK env vars (CC, CXX, AR, etc.) so autotools picks up
+# the system compiler instead of the Android cross-compiler.
 ExternalProject_Add(icu_host
 	URL https://github.com/unicode-org/icu/archive/refs/tags/release-70-1.zip
 	URL_HASH MD5=49d5e2e5bab93ae1a4b56e916150544c
 	DOWNLOAD_DIR ${download_dir}
 	SOURCE_DIR ${CMAKE_BINARY_DIR}/icu-host-src
 	BINARY_DIR ${CMAKE_BINARY_DIR}/icu-host-build
-	CONFIGURE_COMMAND <SOURCE_DIR>/icu4c/source/configure
+	CONFIGURE_COMMAND env -u CC -u CXX -u AR -u RANLIB -u STRIP -u CFLAGS -u CXXFLAGS -u LDFLAGS
+		<SOURCE_DIR>/icu4c/source/configure
 		--enable-static --disable-shared
 		--disable-tests --disable-samples --disable-icuio --disable-extras
-	BUILD_COMMAND $(MAKE) -j4
+	BUILD_COMMAND env -u CC -u CXX -u AR -u RANLIB -u STRIP -u CFLAGS -u CXXFLAGS -u LDFLAGS
+		$(MAKE) -j4
 	INSTALL_COMMAND ""
 )
 
