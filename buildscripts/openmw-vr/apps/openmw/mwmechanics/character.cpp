@@ -36,6 +36,12 @@
 #include "../mwrender/animation.hpp"
 
 #include "../mwbase/environment.hpp"
+
+#ifdef USE_OPENXR
+#include "../mwvr/vrenvironment.hpp"
+#include "../mwvr/vrutil.hpp"
+#include "../mwvr/vrtracking.hpp"
+#endif
 #include "../mwbase/luamanager.hpp"
 #include "../mwbase/mechanicsmanager.hpp"
 #include "../mwbase/soundmanager.hpp"
@@ -1741,7 +1747,11 @@ namespace MWMechanics
             {
                 // TODO: this will only work for the player, and needs to be fixed if NPCs should ever use
                 // lockpicks/probes.
+#ifdef USE_OPENXR
+                MWWorld::Ptr target = MWVR::Util::getWeaponTarget().first;
+#else
                 MWWorld::Ptr target = world->getFacedObject();
+#endif
 
                 if (!target.isEmpty())
                 {

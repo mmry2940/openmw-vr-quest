@@ -85,6 +85,12 @@
 
 #include "profile.hpp"
 
+#ifdef USE_OPENXR
+#include "mwvr/vrinputmanager.hpp"
+#include "mwvr/vrgui.hpp"
+#include "mwvr/vrcamera.hpp"
+#endif
+
 namespace
 {
     void checkSDLError(int ret)
@@ -685,6 +691,9 @@ void OMW::Engine::createWindow()
     }
 
     mViewer->realize();
+#ifdef USE_OPENXR
+    initVr();
+#endif
     mGlMaxTextureImageUnits = identifyOp->getMaxTextureImageUnits();
 
     mViewer->getEventQueue()->getCurrentEventState()->setWindowRectangle(
@@ -821,8 +830,30 @@ void OMW::Engine::prepareEngine()
         Version::getOpenmwVersionDescription(), shadersSupported, mCfgMgr);
     mEnvironment.setWindowManager(*mWindowManager);
 
+#ifdef USE_OPENXR
+    mXrEnvironment.setGUIManager(new MWVR::VRGUIManager(mViewer, mResourceSystem.get(), rootNode));
+    mXrEnvironment.getViewer()->configureCallbacks();
+#endif
+
+#ifdef USE_OPENXR
+    {
+        const std::filesystem::path xrinputuserdefault = mCfgMgr.getUserConfigPath() / "xrcontrollersuggestions.xml";
+        const std::filesystem::path xrinputlocaldefault = mCfgMgr.getLocalPath() / "xrcontrollersuggestions.xml";
+        const std::filesystem::path xrinputglobaldefault = mCfgMgr.getGlobalPath() / "xrcontrollersuggestions.xml";
+        std::filesystem::path xrControllerSuggestions;
+        if (std::filesystem::exists(xrinputuserdefault))
+            xrControllerSuggestions = xrinputuserdefault;
+        else if (std::filesystem::exists(xrinputlocaldefault))
+            xrControllerSuggestions = xrinputlocaldefault;
+        else if (std::filesystem::exists(xrinputglobaldefault))
+            xrControllerSuggestions = xrinputglobaldefault;
+        mInputManager = std::make_unique<MWVR::VRInputManager>(mWindow, mViewer, mScreenCaptureHandler,
+            keybinderUser, keybinderUserExists, userGameControllerdb, gameControllerdb, mGrab, xrControllerSuggestions);
+    }
+#else
     mInputManager = std::make_unique<MWInput::InputManager>(mWindow, mViewer, mScreenCaptureHandler, keybinderUser,
         keybinderUserExists, userGameControllerdb, gameControllerdb, mGrab);
+#endif
     mEnvironment.setInputManager(*mInputManager);
 
     // Create sound system

@@ -45,7 +45,7 @@ namespace MWInput
     /**
      * @brief Class that provides a high-level API for game input
      */
-    class InputManager final : public MWBase::InputManager
+    class InputManager : public MWBase::InputManager
     {
     public:
         InputManager(SDL_Window* window, osg::ref_ptr<osgViewer::Viewer> viewer,
@@ -53,7 +53,7 @@ namespace MWInput
             bool userFileExists, const std::filesystem::path& userControllerBindingsFile,
             const std::filesystem::path& controllerBindingsFile, bool grab);
 
-        ~InputManager() final;
+        ~InputManager() override;
 
         /// Clear all savegame-specific data
         void clear() override;

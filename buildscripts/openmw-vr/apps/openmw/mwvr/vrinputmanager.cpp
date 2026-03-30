@@ -308,25 +308,23 @@ namespace MWVR
         SDL_Window* window,
         osg::ref_ptr<osgViewer::Viewer> viewer,
         osg::ref_ptr<osgViewer::ScreenCaptureHandler> screenCaptureHandler,
-        osgViewer::ScreenCaptureHandler::CaptureOperation* screenCaptureOperation,
-        const std::string& userFile,
+        const std::filesystem::path& userFile,
         bool userFileExists,
-        const std::string& userControllerBindingsFile,
-        const std::string& controllerBindingsFile,
+        const std::filesystem::path& userControllerBindingsFile,
+        const std::filesystem::path& controllerBindingsFile,
         bool grab,
-        const std::string& xrControllerSuggestionsFile)
+        const std::filesystem::path& xrControllerSuggestionsFile)
         : MWInput::InputManager(
             window,
             viewer,
             screenCaptureHandler,
-            screenCaptureOperation,
             userFile,
             userFileExists,
             userControllerBindingsFile,
             controllerBindingsFile,
             grab)
         , mXRInput(new OpenXRInput(mAxisDeadzone))
-        , mXrControllerSuggestionsFile(xrControllerSuggestionsFile)
+        , mXrControllerSuggestionsFile(xrControllerSuggestionsFile.string())
         , mHapticsEnabled{ Settings::Manager::getBool("haptics enabled", "VR") }
     {
         if (xrControllerSuggestionsFile.empty())

@@ -58,6 +58,14 @@
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/luamanager.hpp"
+
+#ifdef USE_OPENXR
+#include "../mwvr/vrenvironment.hpp"
+#include "../mwvr/vrinputmanager.hpp"
+#include "../mwvr/vrviewer.hpp"
+#include "../mwvr/vrsession.hpp"
+#include "../mwvr/vrtracking.hpp"
+#endif
 #include "../mwbase/mechanicsmanager.hpp"
 #include "../mwbase/scriptmanager.hpp"
 #include "../mwbase/soundmanager.hpp"
@@ -987,6 +995,10 @@ namespace MWWorld
         else
             mWorldScene->changeToInteriorCell(destinationCell->getNameId(), position, adjustPlayerPos, changeEvent);
         addContainerScripts(getPlayerPtr(), getPlayerPtr().getCell());
+#ifdef USE_OPENXR
+        auto* xrInput = MWVR::Environment::get().getInputManager();
+        if (xrInput) xrInput->requestRecenter(false);
+#endif
     }
 
     float World::getMaxActivationDistance() const

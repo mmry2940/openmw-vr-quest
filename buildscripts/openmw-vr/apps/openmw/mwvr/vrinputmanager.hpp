@@ -4,6 +4,8 @@
 #include "vrtypes.hpp"
 #include "vrinput.hpp"
 
+#include <filesystem>
+
 #include "../mwinput/inputmanagerimp.hpp"
 
 #include <vector>
@@ -31,11 +33,10 @@ namespace MWVR
             SDL_Window* window,
             osg::ref_ptr<osgViewer::Viewer> viewer,
             osg::ref_ptr<osgViewer::ScreenCaptureHandler> screenCaptureHandler,
-            osgViewer::ScreenCaptureHandler::CaptureOperation* screenCaptureOperation,
-            const std::string& userFile, bool userFileExists,
-            const std::string& userControllerBindingsFile,
-            const std::string& controllerBindingsFile, bool grab,
-            const std::string& xrControllerSuggestionsFile);
+            const std::filesystem::path& userFile, bool userFileExists,
+            const std::filesystem::path& userControllerBindingsFile,
+            const std::filesystem::path& controllerBindingsFile, bool grab,
+            const std::filesystem::path& xrControllerSuggestionsFile);
 
         virtual ~VRInputManager();
 

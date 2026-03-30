@@ -87,6 +87,14 @@ namespace Gui
     class FontLoader;
 }
 
+#ifdef USE_OPENXR
+namespace MWVR
+{
+    class VrMetaMenu;
+    class VirtualKeyboardManager;
+}
+#endif
+
 namespace MWGui
 {
     class HUD;
@@ -449,6 +457,10 @@ namespace MWGui
         DialogueWindow* mDialogueWindow;
         std::unique_ptr<DragAndDrop> mDragAndDrop;
         std::unique_ptr<ItemTransfer> mItemTransfer;
+#ifdef USE_OPENXR
+        MWVR::VrMetaMenu* mVrMetaMenu = nullptr;
+        std::unique_ptr<MWVR::VirtualKeyboardManager> mVirtualKeyboardManager;
+#endif
         InventoryWindow* mInventoryWindow;
         ScrollWindow* mScrollWindow;
         BookWindow* mBookWindow;
