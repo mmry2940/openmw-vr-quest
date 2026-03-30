@@ -268,7 +268,6 @@ set(USED_OSG_COMPONENTS
     )
 set(USED_OSG_PLUGINS
     osgdb_bmp
-    osgdb_dae
     osgdb_dds
     osgdb_freetype
     osgdb_jpeg
