@@ -57,16 +57,16 @@ namespace ESM4
             return header + ": code " + std::to_string(errorCode) + ", " + std::string(msg != nullptr ? msg : "(null)");
         }
 
-        std::u8string_view getStringsSuffix(LocalizedStringType type)
+        std::string_view getStringsSuffix(LocalizedStringType type)
         {
             switch (type)
             {
                 case LocalizedStringType::Strings:
-                    return u8".STRINGS";
+                    return ".STRINGS";
                 case LocalizedStringType::ILStrings:
-                    return u8".ILSTRINGS";
+                    return ".ILSTRINGS";
                 case LocalizedStringType::DLStrings:
-                    return u8".DLSTRINGS";
+                    return ".DLSTRINGS";
             }
 
             throw std::logic_error("Unsupported LocalizedStringType: " + std::to_string(static_cast<int>(type)));
@@ -304,19 +304,19 @@ namespace ESM4
         if ((mHeader.mFlags & Rec_ESM) == 0 || (mHeader.mFlags & Rec_Localized) == 0)
             return;
 
-        const std::u8string prefix = mCtx.filename.stem().filename().u8string();
+        const std::string prefix = mCtx.filename.stem().filename().string();
 
         buildLStringIndex(LocalizedStringType::Strings, prefix);
         buildLStringIndex(LocalizedStringType::ILStrings, prefix);
         buildLStringIndex(LocalizedStringType::DLStrings, prefix);
     }
 
-    void Reader::buildLStringIndex(LocalizedStringType stringType, const std::u8string& prefix)
+    void Reader::buildLStringIndex(LocalizedStringType stringType, const std::string& prefix)
     {
         static const std::filesystem::path strings("Strings");
-        const std::u8string language(u8"_En");
-        const std::u8string altLanguage(u8"_English");
-        const std::u8string suffix(getStringsSuffix(stringType));
+        const std::string language("_En");
+        const std::string altLanguage("_English");
+        const std::string suffix(getStringsSuffix(stringType));
         std::filesystem::path path = strings / (prefix + language + suffix);
         if (mVFS != nullptr)
         {

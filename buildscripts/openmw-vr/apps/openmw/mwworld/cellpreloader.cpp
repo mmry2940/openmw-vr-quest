@@ -39,14 +39,14 @@ namespace MWWorld
                 return (contained.mPosition - v.mPosition).length2() < squaredTolerance
                     && contained.mCellBounds == v.mCellBounds;
             };
-            return std::ranges::any_of(positions, predicate);
+            return std::any_of(positions.begin(), positions.end(), predicate);
         }
 
         bool contains(
             std::span<const PositionCellGrid> container, std::span<const PositionCellGrid> contained, float tolerance)
         {
             const auto predicate = [&](const PositionCellGrid& v) { return contains(container, v, tolerance); };
-            return std::ranges::all_of(contained, predicate);
+            return std::all_of(contained.begin(), contained.end(), predicate);
         }
     }
 

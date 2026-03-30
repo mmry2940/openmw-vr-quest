@@ -1,7 +1,7 @@
 #ifndef MWVR_REALISTICCOMBAT_H
 #define MWVR_REALISTICCOMBAT_H
 
-#include <components/esm/loadweap.hpp>
+#include <components/esm3/loadweap.hpp>
 
 #include "../mwbase/world.hpp"
 #include "../mwworld/ptr.hpp"
@@ -83,6 +83,9 @@ namespace MWVR {
 
         private:
             MWWorld::Ptr mPtr;
+            MWWorld::Ptr mAttackVictim;
+            osg::Vec3f mAttackHitPos{};
+            bool mAttackSuccess{ false };
             const float mMinVelocity;
             const float mMaxVelocity;
 

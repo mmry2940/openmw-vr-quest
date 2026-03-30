@@ -10,7 +10,6 @@
 
 #include <components/debug/debuglog.hpp>
 #include <components/sdlutil/sdlgraphicswindow.hpp>
-#include <components/misc/stringops.hpp>
 #include <components/misc/constants.hpp>
 
 #include <osg/Camera>
@@ -139,8 +138,11 @@ namespace MWVR
                     Log(Debug::Warning)
                         << "XR submit frame=" << frameMeta->mFrameNo
                         << " shouldRender=" << frameMeta->mShouldRender
-                        << " leftSwapchain=" << static_cast<const void*>(layerStack[(int)Side::LEFT_SIDE].subImage.swapchain)
-                        << " rightSwapchain=" << static_cast<const void*>(layerStack[(int)Side::RIGHT_SIDE].subImage.swapchain);
+                        << " leftSwapchain=0x" << std::hex
+                        << reinterpret_cast<std::uintptr_t>(layerStack[(int)Side::LEFT_SIDE].subImage.swapchain)
+                        << " rightSwapchain=0x"
+                        << reinterpret_cast<std::uintptr_t>(layerStack[(int)Side::RIGHT_SIDE].subImage.swapchain)
+                        << std::dec;
                     __android_log_print(
                         ANDROID_LOG_WARN,
                         "OpenMWXRDiag",

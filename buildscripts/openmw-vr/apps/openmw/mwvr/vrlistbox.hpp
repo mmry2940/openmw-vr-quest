@@ -5,15 +5,9 @@
 
 #include <MyGUI_Button.h>
 #include <MyGUI_ListBox.h>
-#include "components/widgets/virtualkeyboardmanager.hpp"
 
 #include <set>
 #include <memory>
-
-namespace Gui
-{
-    class VirtualKeyboardManager;
-}
 
 namespace MWVR
 {

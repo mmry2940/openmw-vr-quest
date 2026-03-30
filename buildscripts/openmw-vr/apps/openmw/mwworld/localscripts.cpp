@@ -1,5 +1,7 @@
 #include "localscripts.hpp"
 
+#include <algorithm>
+
 #include <components/debug/debuglog.hpp>
 #include <components/esm3/loadcont.hpp>
 #include <components/esm3/loadcrea.hpp>
@@ -180,5 +182,5 @@ void MWWorld::LocalScripts::remove(const Ptr& ptr)
 
 bool MWWorld::LocalScripts::isRunning(const ESM::RefId& scriptName, const Ptr& ptr) const
 {
-    return std::ranges::find(mScripts, std::pair(scriptName, ptr)) != mScripts.end();
+    return std::find(mScripts.begin(), mScripts.end(), std::pair(scriptName, ptr)) != mScripts.end();
 }

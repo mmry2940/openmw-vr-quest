@@ -4,8 +4,6 @@
 #include "vrenvironment.hpp"
 #include "vranimation.hpp"
 
-#include <components/sceneutil/visitor.hpp>
-
 #include <components/misc/constants.hpp>
 
 #include "../mwbase/environment.hpp"
@@ -25,8 +23,7 @@ namespace MWVR
     VRCamera::VRCamera(osg::Camera* camera)
         : MWRender::Camera(camera)
     {
-        mVanityAllowed = false;
-        mFirstPersonView = true;
+        setMode(MWRender::Camera::Mode::FirstPerson, true);
 
         auto vrTrackingManager = MWVR::Environment::get().getTrackingManager();
         vrTrackingManager->bind(this, "pcworld");
@@ -77,10 +74,7 @@ namespace MWVR
         float roll = 0.f;
         getEulerAngles(mHeadPose.orientation, yaw, pitch, roll);
 
-        if (!player.isDisabled() && mTrackingNode)
-        {
-            world->rotateObject(playerPtr, pitch, 0.f, yaw, MWBase::RotationFlag_none);
-        }
+        world->rotateObject(playerPtr, osg::Vec3f(pitch, 0.f, yaw), MWBase::RotationFlag_none);
     }
 
     void VRCamera::onTrackingUpdated(VRTrackingSource& source, DisplayTime predictedDisplayTime)
@@ -97,7 +91,6 @@ namespace MWVR
         if (mShouldRecenter)
         {
             recenter();
-            Camera::updateCamera(mCamera);
             auto* vrGuiManager = MWVR::Environment::get().getGUIManager();
             vrGuiManager->updateTracking();
         }
@@ -105,8 +98,6 @@ namespace MWVR
         {
             if (mShouldTrackPlayerCharacter && !MWBase::Environment::get().getWindowManager()->isGuiMode())
                 applyTracking();
-
-            Camera::updateCamera(mCamera);
         }
     }
 
@@ -117,7 +108,7 @@ namespace MWVR
 
     void VRCamera::updateCamera()
     {
-        Camera::updateCamera();
+        // Base Camera callback updates the render camera each frame.
     }
 
     void VRCamera::reset()
@@ -138,17 +129,17 @@ namespace MWVR
 
     void VRCamera::toggleViewMode(bool force)
     {
-        mFirstPersonView = true;
+        setMode(MWRender::Camera::Mode::FirstPerson, true);
     }
     bool VRCamera::toggleVanityMode(bool enable)
     {
         // Vanity mode makes no sense in VR
-        return Camera::toggleVanityMode(false);
+        return !enable;
     }
     void VRCamera::allowVanityMode(bool allow)
     {
-        // Vanity mode makes no sense in VR
-        mVanityAllowed = false;
+        // Vanity mode remains disabled for VR.
+        (void)allow;
     }
     void VRCamera::getPosition(osg::Vec3d& focal, osg::Vec3d& camera) const
     {
@@ -161,13 +152,7 @@ namespace MWVR
 
     void VRCamera::processViewChange()
     {
-        SceneUtil::FindByNameVisitor findRootVisitor("Player Root", osg::NodeVisitor::TRAVERSE_PARENTS);
-        mAnimation->getObjectRoot()->accept(findRootVisitor);
-        mTrackingNode = findRootVisitor.mFoundNode;
-
-        if (!mTrackingNode)
-            throw std::logic_error("Unable to find tracking node for VR camera");
-        mHeightScale = 1.f;
+        Camera::processViewChange();
     }
 
     void VRCamera::instantTransition()
@@ -181,7 +166,7 @@ namespace MWVR
         float pitch = 0.f;
         float roll = 0.f;
         getEulerAngles(mHeadPose.orientation, yaw, pitch, roll);
-        yaw = - mYaw - yaw;
+        yaw = -getYaw() - yaw;
         auto* tm = Environment::get().getTrackingManager();
         auto* ws = static_cast<VRTrackingToWorldBinding*>(tm->getSource("pcworld"));
         ws->setWorldOrientation(yaw, true);

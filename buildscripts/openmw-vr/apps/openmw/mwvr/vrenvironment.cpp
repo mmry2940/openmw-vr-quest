@@ -48,7 +48,7 @@ MWVR::Environment& MWVR::Environment::get()
 
 MWVR::VRInputManager* MWVR::Environment::getInputManager() const
 {
-    auto* inputManager = MWBase::Environment::get().getInputManager();
+    MWBase::InputManager* inputManager = MWBase::Environment::get().getInputManager();
     assert(inputManager);
     auto xrInputManager = dynamic_cast<MWVR::VRInputManager*>(inputManager);
     assert(xrInputManager);

@@ -89,14 +89,14 @@ namespace MWVR
             VRViewer* mViewer;
         };
 
-        class FinaldrawCallback : public Misc::StereoView::StereoDrawCallback
+        class FinaldrawCallback : public osg::Camera::DrawCallback
         {
         public:
             FinaldrawCallback(VRViewer* viewer)
                 : mViewer(viewer)
             {}
 
-            void operator()(osg::RenderInfo& info, Misc::StereoView::StereoDrawCallback::View view) const override;
+            void operator()(osg::RenderInfo& info) const override;
 
         private:
 

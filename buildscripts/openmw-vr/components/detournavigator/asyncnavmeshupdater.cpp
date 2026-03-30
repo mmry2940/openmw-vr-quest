@@ -19,7 +19,7 @@
 #include <boost/geometry.hpp>
 
 #include <algorithm>
-#include <format>
+#include <components/misc/format.hpp>
 #include <optional>
 #include <set>
 #include <tuple>
@@ -315,14 +315,13 @@ namespace DetourNavigator
         {
             if (mPushed.emplace(agentBounds, changedTile).second)
             {
-                const std::chrono::steady_clock::time_point processTime = [&] {
-                    if (changeType != ChangeType::update)
-                        return std::chrono::steady_clock::time_point();
+                std::chrono::steady_clock::time_point processTime;
+                if (changeType == ChangeType::update)
+                {
                     const auto lastUpdate = mLastUpdates.find(std::tie(agentBounds, changedTile));
-                    if (lastUpdate == mLastUpdates.end())
-                        return std::chrono::steady_clock::time_point();
-                    return lastUpdate->second + mSettings.get().mMinUpdateInterval;
-                }();
+                    if (lastUpdate != mLastUpdates.end())
+                        processTime = lastUpdate->second + mSettings.get().mMinUpdateInterval;
+                }
 
                 const JobIt it = mJobs.emplace(
                     mJobs.end(), agentBounds, navMeshCacheItem, worldspace, changedTile, changeType, processTime);

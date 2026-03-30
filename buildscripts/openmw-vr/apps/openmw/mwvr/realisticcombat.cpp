@@ -4,6 +4,7 @@
 #include "../mwbase/soundmanager.hpp"
 
 #include "../mwmechanics/weapontype.hpp"
+#include "../mwworld/inventorystore.hpp"
 
 #include <components/debug/debuglog.hpp>
 
@@ -125,9 +126,12 @@ namespace MWVR {
 
         void StateMachine::update(float dt, bool enabled)
         {
-            auto* world = MWBase::Environment::get().getWorld();
             auto& handPose = mTrackingInput.pose;
-            auto weaponType = world->getActiveWeaponType();
+            int weaponType = -1;
+            const auto& inventory = mPtr.getClass().getInventoryStore(mPtr);
+            const auto weapon = inventory.getSlot(MWWorld::InventoryStore::Slot_CarriedRight);
+            if (weapon != inventory.end() && weapon->getType() == ESM::Weapon::sRecordId)
+                weaponType = weapon->get<ESM::Weapon>()->mBase->mData.mType;
 
             enabled = enabled && isMeleeWeapon(weaponType);
             enabled = enabled && !!mTrackingInput.status;
@@ -321,14 +325,16 @@ namespace MWVR {
             // When velocity falls below minimum, transition to register the miss
             if (!canSwing())
                 return transition_swingingToImpact();
-            // Call hit with simulated=true to check for hit without actually causing an impact
-            if (mPtr.getClass().hit(mPtr, mStrength, mSwingType, true))
+            mAttackVictim = MWWorld::Ptr();
+            mAttackHitPos = osg::Vec3f();
+            mAttackSuccess = mPtr.getClass().evaluateHit(mPtr, mAttackVictim, mAttackHitPos);
+            if (mAttackSuccess)
                 return transition_swingingToImpact();
         }
 
         void StateMachine::transition_swingingToImpact()
         {
-            mPtr.getClass().hit(mPtr, mStrength, mSwingType, false);
+            mPtr.getClass().hit(mPtr, mStrength, mSwingType, mAttackVictim, mAttackHitPos, mAttackSuccess);
             transition(SwingState_Impact);
         }
 

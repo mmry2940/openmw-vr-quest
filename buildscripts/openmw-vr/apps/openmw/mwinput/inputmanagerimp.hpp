@@ -106,7 +106,7 @@ namespace MWInput
 
         bool controlsDisabled() override { return mControlsDisabled; }
 
-    private:
+    protected:
         bool mControlsDisabled;
 
         void saveBindings() override;

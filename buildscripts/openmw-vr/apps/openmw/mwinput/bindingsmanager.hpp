@@ -6,12 +6,13 @@
 #include <string>
 #include <vector>
 
+#include <extern/oics/ICSInputControlSystem.h>
+
 #include <components/sdlutil/events.hpp>
 
 namespace MWInput
 {
     class BindingsListener;
-    class InputControlSystem;
 
     class BindingsManager
     {
@@ -65,12 +66,14 @@ namespace MWInput
 
         void actionValueChanged(int action, float currentValue, float previousValue);
 
+        ICS::InputControlSystem& ics();
+
         void saveBindings();
 
     private:
         void setupSDLKeyMappings();
 
-        std::unique_ptr<InputControlSystem> mInputBinder;
+        std::unique_ptr<ICS::InputControlSystem> mInputBinder;
         std::unique_ptr<BindingsListener> mListener;
 
         std::filesystem::path mUserFile;

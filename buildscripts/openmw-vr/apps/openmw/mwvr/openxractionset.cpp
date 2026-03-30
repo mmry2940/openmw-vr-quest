@@ -8,7 +8,7 @@
 
 #include <openxr/openxr.h>
 
-#include <components/misc/stringops.hpp>
+#include <components/misc/strings/lower.hpp>
 
 #include <iostream>
 

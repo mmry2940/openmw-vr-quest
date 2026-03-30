@@ -541,7 +541,7 @@ namespace MWMechanics
     {
         const osg::Vec3f actorPos = actor.getRefData().getPosition().asVec3();
         const float squaredDistance = distance * distance;
-        return std::ranges::find_if(storage.mAllowedPositions, [&](const osg::Vec3& v) {
+        return std::find_if(storage.mAllowedPositions.begin(), storage.mAllowedPositions.end(), [&](const osg::Vec3& v) {
             return (actorPos - v).length2() < squaredDistance;
         }) != storage.mAllowedPositions.end();
     }

@@ -5,10 +5,6 @@
 #include "renderinginterface.hpp"
 #include "rendermode.hpp"
 
-#ifdef USE_OPENXR
-#include "../mwvr/vrpointer.hpp"
-#endif
-
 #include <components/settings/settings.hpp>
 #include <components/vfs/pathutil.hpp>
 
@@ -85,6 +81,11 @@ namespace MWWorld
 namespace Debug
 {
     struct DebugDrawer;
+}
+
+namespace MWVR
+{
+    class UserPointer;
 }
 
 namespace MWRender

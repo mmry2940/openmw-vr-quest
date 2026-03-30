@@ -7,6 +7,7 @@
 #include <osg/BlendFunc>
 #include <osg/Fog>
 #include <osg/LightModel>
+#include <osg/Material>
 
 #include <components/resource/resourcesystem.hpp>
 #include <components/resource/scenemanager.hpp>
@@ -30,7 +31,7 @@ namespace MWVR
         mPointerTransform = new osg::MatrixTransform();
         mPointerTransform->addChild(mPointerRescale);
         mPointerTransform->setName("Pointer Transform");
-        mPointerTransform->setNodeMask(MWRender::VisMask::Mask_Pointer);
+        mPointerTransform->setNodeMask(MWRender::VisMask::Mask_Effect);
 
         auto tm = MWVR::Environment::get().getTrackingManager();
         tm->bind(this, "pcworld");
@@ -88,7 +89,7 @@ namespace MWVR
         }
     }
 
-    const MWRender::RayResult& UserPointer::getPointerTarget() const
+    const MWRender::RenderingManager::RayResult& UserPointer::getPointerTarget() const
     {
         return mPointerTarget;
     }
@@ -100,7 +101,7 @@ namespace MWVR
 
     void UserPointer::updatePointerTarget()
     {
-        auto* world = MWBase::Environment::get().getWorld();
+        auto world = MWBase::Environment::get().getWorld();
         if (world)
         {
             mPointerRescale->setMatrix(osg::Matrix::scale(1, 1, 1));
@@ -189,7 +190,7 @@ namespace MWVR
         osg::ref_ptr<osg::LightModel> lightmodel = new osg::LightModel;
         lightmodel->setAmbientIntensity(osg::Vec4(1.0, 1.0, 1.0, 1.0));
         stateset->setAttributeAndModes(lightmodel, osg::StateAttribute::ON);
-        SceneUtil::ShadowManager::disableShadowsForStateSet(stateset);
+        SceneUtil::ShadowManager::instance().disableShadowsForStateSet(*stateset);
 
         osg::ref_ptr<osg::Material> material = new osg::Material;
         material->setColorMode(osg::Material::ColorMode::AMBIENT_AND_DIFFUSE);

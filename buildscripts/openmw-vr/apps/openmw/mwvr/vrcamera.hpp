@@ -21,35 +21,35 @@ namespace MWVR
     public:
 
         VRCamera(osg::Camera* camera);
-        ~VRCamera() override;
+        ~VRCamera();
 
         /// Update the view matrix of \a cam
-         void updateCamera(osg::Camera* cam) override;
+         void updateCamera(osg::Camera* cam);
 
         /// Update the view matrix of the current camera
-        void updateCamera() override;
+        void updateCamera();
 
         /// Reset to defaults
-        void reset() override;
+        void reset();
 
         /// Set where the camera is looking at. Uses Morrowind (euler) angles
         /// \param rot Rotation angles in radians
-        void rotateCamera(float pitch, float roll, float yaw, bool adjust) override;
+        void rotateCamera(float pitch, float roll, float yaw, bool adjust);
 
-        void toggleViewMode(bool force = false) override;
+        void toggleViewMode(bool force = false);
 
-        bool toggleVanityMode(bool enable) override;
-        void allowVanityMode(bool allow) override;
+        bool toggleVanityMode(bool enable);
+        void allowVanityMode(bool allow);
 
         /// Stores focal and camera world positions in passed arguments
-        void getPosition(osg::Vec3d& focal, osg::Vec3d& camera) const override;
+        void getPosition(osg::Vec3d& focal, osg::Vec3d& camera) const;
 
         /// Store camera orientation in passed arguments
-        void getOrientation(osg::Quat& orientation) const override;
+        void getOrientation(osg::Quat& orientation) const;
 
-        void processViewChange() override;
+        void processViewChange();
 
-        void instantTransition() override;
+        void instantTransition();
 
         osg::Quat stageRotation();
 
@@ -63,7 +63,7 @@ namespace MWVR
         void recenter();
         void applyTracking();
 
-        void onTrackingUpdated(VRTrackingSource& source, DisplayTime predictedDisplayTime) override;
+        void onTrackingUpdated(VRTrackingSource& source, DisplayTime predictedDisplayTime);
 
     private:
         Pose mHeadPose{};

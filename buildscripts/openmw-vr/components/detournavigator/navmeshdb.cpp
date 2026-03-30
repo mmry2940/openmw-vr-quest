@@ -10,7 +10,7 @@
 #include <sqlite3.h>
 
 #include <cstddef>
-#include <format>
+#include <components/misc/format.hpp>
 #include <string_view>
 #include <vector>
 

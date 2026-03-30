@@ -26,9 +26,10 @@ namespace DetourNavigator
      * @param checkpoints is a sequence of positions the path should go over if possible.
      * @return Status.
      */
+    template <typename OutputIterator>
     inline Status findPath(const Navigator& navigator, const AgentBounds& agentBounds, const osg::Vec3f& start,
         const osg::Vec3f& end, const Flags includeFlags, const AreaCosts& areaCosts, float endTolerance,
-        std::span<const osg::Vec3f> checkpoints, std::output_iterator<osg::Vec3f> auto out)
+        std::span<const osg::Vec3f> checkpoints, OutputIterator out)
     {
         const auto navMesh = navigator.getNavMesh(agentBounds);
         if (navMesh == nullptr)

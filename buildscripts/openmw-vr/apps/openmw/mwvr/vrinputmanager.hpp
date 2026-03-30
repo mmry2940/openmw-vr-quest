@@ -70,8 +70,8 @@ namespace MWVR
         void injectMousePress(int sdlButton, bool onPress);
         void injectChannelValue(MWInput::Actions action, float value);
 
-        void applyHapticsLeftHand(float intensity) override;
-        void applyHapticsRightHand(float intensity) override;
+        void applyHapticsLeftHand(float intensity);
+        void applyHapticsRightHand(float intensity);
         void processChangedSettings(const std::set< std::pair<std::string, std::string> >& changed) override;
 
         void throwDocumentError(TiXmlElement* element, std::string error);
@@ -88,6 +88,7 @@ namespace MWVR
         std::string mXrControllerSuggestionsFile;
         bool mActivationIndication{ false };
         bool mHapticsEnabled{ true };
+        bool mSneakToggled{ false };
 
         std::map<std::string, std::string> mInteractionProfileLocalNames;
     };

@@ -700,6 +700,11 @@ namespace MWInput
             manager->executeAction(action);
     }
 
+    ICS::InputControlSystem& BindingsManager::ics()
+    {
+        return *mInputBinder;
+    }
+
     void BindingsManager::saveBindings()
     {
         std::string newFileName;

@@ -1,7 +1,8 @@
 #include "technique.hpp"
 
+#include <algorithm>
 #include <array>
-#include <format>
+#include <components/misc/format.hpp>
 #include <string>
 #include <utility>
 
@@ -105,7 +106,7 @@ namespace Fx
     {
         clear();
 
-        if (std::ranges::count(mFilePath.value(), '/') > 1)
+        if (std::count(mFilePath.value().begin(), mFilePath.value().end(), '/') > 1)
         {
             Log(Debug::Error) << "Could not load technique, invalid location '" << mFilePath << "'";
 
