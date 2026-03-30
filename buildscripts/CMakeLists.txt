@@ -189,6 +189,13 @@ ExternalProject_Add(openal
 )
 
 string(REPLACE "." "_" BOOST_VERSION_UNDERSCORE ${BOOST_VERSION})
+# Generate a user-config.jam pointing the clang toolset at the NDK cross-compiler.
+# "toolset=clang-android" is broken in Boost 1.70+ because b2 parses "android"
+# as a numeric version tag and rejects it.  An explicit user-config with no
+# version tag avoids that problem.
+file(WRITE ${CMAKE_BINARY_DIR}/boost-user-config.jam
+"using clang : : ${host}-clang++ ;\n")
+
 ExternalProject_Add(boost
 	URL https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORE}.tar.bz2
 	https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/${BOOST_VERSION_UNDERSCORE}.tar.bz2
@@ -197,11 +204,19 @@ ExternalProject_Add(boost
 
 	BUILD_IN_SOURCE 1
 
-	CONFIGURE_COMMAND ${wrapper_command} <SOURCE_DIR>/bootstrap.sh
-	--prefix=${prefix}
+	# Bootstrap with native compiler so b2 itself builds for the host.
+	# The NDK env-vars (CC/CXX/...) are cleared since bootstrap.sh must use gcc.
+	CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env
+		--unset=CC --unset=CXX --unset=AR --unset=RANLIB --unset=STRIP
+		--unset=CFLAGS --unset=CXXFLAGS --unset=LDFLAGS
+		<SOURCE_DIR>/bootstrap.sh
+		--with-toolset=gcc
+		--prefix=${prefix}
 
 	BUILD_COMMAND ""
 
+	# wrapper_command puts NDK bin dir on PATH so ${host}-clang++ is found.
+	# toolset=clang matches the "using clang : :" entry in user-config.
 	INSTALL_COMMAND ${wrapper_command} ./b2
 	-j4
 	--with-filesystem
@@ -209,7 +224,8 @@ ExternalProject_Add(boost
 	--with-system
 	--with-iostreams
 	--ignore-site-config
-	toolset=clang-android
+	--user-config=${CMAKE_BINARY_DIR}/boost-user-config.jam
+	toolset=clang
 	architecture=${BOOST_ARCH}
 	address-model=${BOOST_ADDRESS_MODEL}
 	cflags=$ENV{CFLAGS}
