@@ -1,5 +1,7 @@
 #include "engine.hpp"
 
+#include "mwbase/environment.hpp"
+
 #include "mwvr/openxrmanager.hpp"
 #include "mwvr/vrsession.hpp"
 #include "mwvr/vrviewer.hpp"
@@ -15,6 +17,7 @@ void OMW::Engine::initVr()
     if (!mViewer)
         throw std::logic_error("mViewer must be initialized before calling initVr()");
 
+    mEnvironment.setVrMode(true);
     mXrEnvironment.setManager(new MWVR::OpenXRManager);
     mXrEnvironment.setSession(new MWVR::VRSession());
     mXrEnvironment.setViewer(new MWVR::VRViewer(mViewer));

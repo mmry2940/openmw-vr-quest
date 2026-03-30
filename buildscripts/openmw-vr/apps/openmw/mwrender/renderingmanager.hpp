@@ -344,7 +344,7 @@ namespace MWRender
         std::unique_ptr<Camera> mCamera;
         osg::ref_ptr<Debug::DebugDrawer> mDebugDraw;
 #ifdef USE_OPENXR
-        std::unique_ptr<MWVR::UserPointer> mUserPointer;
+        std::shared_ptr<MWVR::UserPointer> mUserPointer;
 #endif
 
         osg::ref_ptr<StateUpdater> mStateUpdater;

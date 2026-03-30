@@ -529,7 +529,7 @@ namespace MWRender
 
 #ifdef USE_OPENXR
         mCamera = std::make_unique<MWVR::VRCamera>(mViewer->getCamera());
-        mUserPointer = std::make_unique<MWVR::UserPointer>(rootNode.get());
+        mUserPointer = std::make_shared<MWVR::UserPointer>(rootNode.get());
 #else
         mCamera = std::make_unique<Camera>(mViewer->getCamera());
 #endif
@@ -1330,7 +1330,7 @@ namespace MWRender
     {
 #ifdef USE_OPENXR
         MWVR::Environment::get().setPlayerAnimation(new MWVR::VRAnimation(player,
-            player.getRefData().getBaseNode(), mResourceSystem, false, mUserPointer.get()));
+            player.getRefData().getBaseNode(), mResourceSystem, false, mUserPointer));
         mPlayerAnimation = MWVR::Environment::get().getPlayerAnimation();
 #else
         mPlayerAnimation = new NpcAnimation(player, player.getRefData().getBaseNode(), mResourceSystem, 0,
