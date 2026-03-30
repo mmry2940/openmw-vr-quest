@@ -441,11 +441,17 @@ ExternalProject_Add(icu_host
 	DOWNLOAD_DIR ${download_dir}
 	SOURCE_DIR ${CMAKE_BINARY_DIR}/icu-host-src
 	BINARY_DIR ${CMAKE_BINARY_DIR}/icu-host-build
-	CONFIGURE_COMMAND env -u CC -u CXX -u AR -u RANLIB -u STRIP -u CFLAGS -u CXXFLAGS -u LDFLAGS
+	CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env
+		--unset=CC --unset=CXX --unset=AR --unset=RANLIB --unset=STRIP
+		--unset=CFLAGS --unset=CXXFLAGS --unset=LDFLAGS
+		CC=/usr/bin/gcc CXX=/usr/bin/g++
 		<SOURCE_DIR>/icu4c/source/configure
 		--enable-static --disable-shared
 		--disable-tests --disable-samples --disable-icuio --disable-extras
-	BUILD_COMMAND env -u CC -u CXX -u AR -u RANLIB -u STRIP -u CFLAGS -u CXXFLAGS -u LDFLAGS
+	BUILD_COMMAND ${CMAKE_COMMAND} -E env
+		--unset=CC --unset=CXX --unset=AR --unset=RANLIB --unset=STRIP
+		--unset=CFLAGS --unset=CXXFLAGS --unset=LDFLAGS
+		CC=/usr/bin/gcc CXX=/usr/bin/g++
 		$(MAKE) -j4
 	INSTALL_COMMAND ""
 )
