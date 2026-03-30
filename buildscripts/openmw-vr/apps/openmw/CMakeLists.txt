@@ -3,6 +3,10 @@ set(OPENMW_SOURCES
     options.cpp
 )
 
+if (BUILD_OPENMW_VR OR USE_OPENXR)
+    list(APPEND OPENMW_SOURCES vrengine.cpp)
+endif()
+
 set(OPENMW_RESOURCES
     ${CMAKE_SOURCE_DIR}/files/windows/openmw.rc
     ${CMAKE_SOURCE_DIR}/files/windows/openmw.exe.manifest
@@ -115,6 +119,16 @@ add_openmw_dir (mwbase
     environment world scriptmanager dialoguemanager journal soundmanager mechanicsmanager
     inputmanager windowmanager statemanager luamanager
     )
+
+if (BUILD_OPENMW_VR OR USE_OPENXR)
+add_openmw_dir (mwvr
+    openxraction openxractionset openxrdebug openxrinput openxrmanager openxrmanagerimpl
+    openxrplatform openxrswapchain openxrswapchainimage openxrswapchainimpl openxrtracker
+    openxrtypeconversions realisticcombat
+    vranimation vrcamera vrenvironment vrframebuffer vrgui vrinput vrinputmanager vrlistbox
+    vrmetamenu vrpointer vrsession vrtracking vrtypes vrutil vrviewer vrvirtualkeyboard
+    )
+endif()
 
 # Main executable
 
@@ -259,4 +273,21 @@ endif()
 
 if (WIN32 AND BUILD_OPENMW)
     INSTALL(TARGETS openmw RUNTIME DESTINATION ".")
+endif()
+
+if (BUILD_OPENMW_VR OR USE_OPENXR)
+    set(BUILD_WITH_SYSTEM_JSONCPP off)
+    include(FetchContent)
+    FetchContent_Declare(
+        OpenXR
+        GIT_REPOSITORY https://github.com/KhronosGroup/OpenXR-SDK.git
+        GIT_TAG release-1.1.57
+    )
+    FetchContent_MakeAvailable(OpenXR)
+    target_link_libraries(openmw-lib openxr_loader)
+    target_compile_options(openmw-lib PUBLIC
+        -DUSE_OPENXR
+        -DXR_USE_GRAPHICS_API_OPENGL_ES
+        -DXR_USE_PLATFORM_ANDROID
+    )
 endif()
