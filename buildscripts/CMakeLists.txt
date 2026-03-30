@@ -44,6 +44,14 @@ set(GL4ES_HASH SHA256=b565e717c7d192e936bda25f3cb90ad8db398af56414ec08294b671657
 set(OSG_VERSION 3.6.5)
 set(OSG_HASH SHA256=aea196550f02974d6d09291c5d83b51ca6a03b3767e234a8c0e21322927d1e12)
 
+# https://www.sqlite.org/download.html
+set(SQLITE_VERSION 3390400)
+set(SQLITE_HASH SHA256=f31d445b48e67e284cf206717cc170ab63cbe4fd7f79a82793b772285e78fdbb)
+
+# https://luajit.org/download.html
+set(LUAJIT_VERSION 2.1.0-beta3)
+set(LUAJIT_HASH SHA256=409f7fe570d3c16558e594421c47bdd130238323c9d6fd6c83dedd2aaeb082a8)
+
 # https://github.com/lz4/lz4/releases
 set(LZ4_VERSION 1.9.3)
 set(LZ4_HASH SHA256=030644df4611007ff7dc962d981f390361e6c97a34e5cbc393ddfbe019ffe2c1)
@@ -447,6 +455,46 @@ ExternalProject_Add(osg
 	COMMAND $(MAKE) install
 )
 
+ExternalProject_Add(sqlite3
+	URL https://www.sqlite.org/2022/sqlite-autoconf-${SQLITE_VERSION}.tar.gz
+	URL_HASH ${SQLITE_HASH}
+	DOWNLOAD_DIR ${download_dir}
+
+	CONFIGURE_COMMAND ${wrapper_command} <SOURCE_DIR>/configure
+		${COMMON_AUTOCONF_FLAGS}
+		--disable-readline
+		--disable-dynamic-extensions
+
+	BUILD_COMMAND ${wrapper_command} $(MAKE)
+
+	INSTALL_COMMAND ${wrapper_command} $(MAKE) install
+)
+
+ExternalProject_Add(luajit
+	URL https://github.com/LuaJIT/LuaJIT/archive/refs/tags/v${LUAJIT_VERSION}.tar.gz
+	URL_HASH ${LUAJIT_HASH}
+	DOWNLOAD_DIR ${download_dir}
+
+	BUILD_IN_SOURCE 1
+	CONFIGURE_COMMAND ""
+
+	BUILD_COMMAND ${wrapper_command} make -j4
+		PREFIX=${prefix}
+		CROSS=${host}-
+		HOST_CC=gcc
+		CC=clang
+		TARGET_SYS=Linux
+		BUILDMODE=static
+
+	INSTALL_COMMAND ${wrapper_command} make install
+		PREFIX=${prefix}
+		CROSS=${host}-
+		HOST_CC=gcc
+		CC=clang
+		TARGET_SYS=Linux
+		BUILDMODE=static
+)
+
 # Build ICU 70.1 for the host (native Linux) so the cross-compile ICU build
 # inside OpenMW's extern/ can use the host tools (genrb, icupkg, etc.).
 # We explicitly unset NDK env vars (CC, CXX, AR, etc.) so autotools picks up
@@ -492,6 +540,10 @@ set(OPENMW_COMMON
 	-DOPENMW_USE_SYSTEM_YAML_CPP=OFF
 	-DBoost_USE_STATIC_LIBS=ON
 	-DBoost_USE_STATIC_RUNTIME=ON
+	-DLuaJit_INCLUDE_DIR=${prefix}/include/luajit-2.1
+	-DLuaJit_LIBRARY=${prefix}/lib/libluajit-5.1.a
+	-DSQLite3_INCLUDE_DIR=${prefix}/include
+	-DSQLite3_LIBRARY=${prefix}/lib/libsqlite3.a
 )
 
 set(OPENMW_PATCH
@@ -512,7 +564,7 @@ set(OPENMW_LOCAL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/openmw-vr)
 if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
 	message(STATUS "OpenMW source: local openmw-vr (${OPENMW_LOCAL_SOURCE_DIR})")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3
 
 		SOURCE_DIR ${OPENMW_LOCAL_SOURCE_DIR}
 		DOWNLOAD_COMMAND ""
@@ -537,7 +589,7 @@ elseif(USE_LOCAL_OPENMW_VR AND NOT ALLOW_OPENMW_UPSTREAM_FALLBACK)
 else()
 	message(STATUS "OpenMW source: upstream OpenMW ${OPENMW_VERSION}")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3
 
 		URL https://github.com/OpenMW/openmw/archive/${OPENMW_VERSION}.tar.gz
 		URL_HASH ${OPENMW_HASH}
