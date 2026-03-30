@@ -431,6 +431,21 @@ ExternalProject_Add(osg
 	COMMAND $(MAKE) install
 )
 
+# Build ICU 70.1 for the host (native Linux) so the cross-compile ICU build
+# inside OpenMW's extern/ can use the host tools (genrb, icupkg, etc.).
+ExternalProject_Add(icu_host
+	URL https://github.com/unicode-org/icu/archive/refs/tags/release-70-1.zip
+	URL_HASH MD5=49d5e2e5bab93ae1a4b56e916150544c
+	DOWNLOAD_DIR ${download_dir}
+	SOURCE_DIR ${CMAKE_BINARY_DIR}/icu-host-src
+	BINARY_DIR ${CMAKE_BINARY_DIR}/icu-host-build
+	CONFIGURE_COMMAND <SOURCE_DIR>/icu4c/source/configure
+		--enable-static --disable-shared
+		--disable-tests --disable-samples --disable-icuio --disable-extras
+	BUILD_COMMAND $(MAKE) -j4
+	INSTALL_COMMAND ""
+)
+
 set(OPENMW_COMMON
 	-DBUILD_BSATOOL=0
 	-DBUILD_NIFTEST=0
@@ -446,6 +461,9 @@ set(OPENMW_COMMON
 	-DOPENGL_ES=OFF
 	-DOSG_STATIC=TRUE
 	-DMyGUI_LIBRARY=${prefix}/lib/libMyGUIEngineStatic.a
+	-DOPENMW_USE_SYSTEM_ICU=OFF
+	-DOPENMW_ICU_HOST_BUILD_DIR=${CMAKE_BINARY_DIR}/icu-host-build
+	-DOPENMW_USE_SYSTEM_YAML_CPP=OFF
 )
 
 set(OPENMW_PATCH
@@ -466,7 +484,7 @@ set(OPENMW_LOCAL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/openmw-vr)
 if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
 	message(STATUS "OpenMW source: local openmw-vr (${OPENMW_LOCAL_SOURCE_DIR})")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host
 
 		SOURCE_DIR ${OPENMW_LOCAL_SOURCE_DIR}
 		DOWNLOAD_COMMAND ""
@@ -491,7 +509,7 @@ elseif(USE_LOCAL_OPENMW_VR AND NOT ALLOW_OPENMW_UPSTREAM_FALLBACK)
 else()
 	message(STATUS "OpenMW source: upstream OpenMW ${OPENMW_VERSION}")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host
 
 		URL https://github.com/OpenMW/openmw/archive/${OPENMW_VERSION}.tar.gz
 		URL_HASH ${OPENMW_HASH}
