@@ -4,76 +4,115 @@
 #include <string>
 #include <utility>
 
+#include <QMutexLocker>
 #include <QObject>
+
+#include <components/settings/settingvalue.hpp>
+
+#include "category.hpp"
 
 class QWidget;
 class QColor;
 class QMutex;
-
-namespace Settings
-{
-    class Manager;
-}
+class QGridLayout;
+class QLabel;
 
 namespace CSMPrefs
 {
-    class Category;
+    struct SettingWidgets
+    {
+        QLabel* mLabel;
+        QWidget* mInput;
+    };
 
     class Setting : public QObject
     {
-            Q_OBJECT
+        Q_OBJECT
 
-            Category *mParent;
-            Settings::Manager *mValues;
-            QMutex *mMutex;
-            std::string mKey;
-            std::string mLabel;
+        Category* mParent;
+        QMutex* mMutex;
+        std::string mKey;
+        QString mLabel;
+        Settings::Index& mIndex;
 
-        protected:
+    protected:
+        QMutex* getMutex();
 
-            Settings::Manager& getValues();
+        template <class T>
+        void resetValueImpl()
+        {
+            QMutexLocker lock(mMutex);
+            return mIndex.get<T>(mParent->getKey(), mKey).reset();
+        }
 
-            QMutex *getMutex();
+        template <class T>
+        T getValueImpl() const
+        {
+            QMutexLocker lock(mMutex);
+            return mIndex.get<T>(mParent->getKey(), mKey).get();
+        }
 
-        public:
+        template <class T>
+        void setValueImpl(const T& value)
+        {
+            QMutexLocker lock(mMutex);
+            return mIndex.get<T>(mParent->getKey(), mKey).set(value);
+        }
 
-            Setting (Category *parent, Settings::Manager *values, QMutex *mutex, const std::string& key, const std::string& label);
+    public:
+        explicit Setting(
+            Category* parent, QMutex* mutex, std::string_view key, const QString& label, Settings::Index& index);
 
-            virtual ~Setting();
+        ~Setting() override = default;
 
-            /// Return label, input widget.
-            ///
-            /// \note first can be a 0-pointer, which means that the label is part of the input
-            /// widget.
-            virtual std::pair<QWidget *, QWidget *> makeWidgets (QWidget *parent);
+        virtual SettingWidgets makeWidgets(QWidget* parent) = 0;
 
-            /// Updates the widget returned by makeWidgets() to the current setting.
-            ///
-            /// \note If make_widgets() has not been called yet then nothing happens.
-            virtual void updateWidget();
+        /// Updates the widget returned by makeWidgets() to the current setting.
+        ///
+        /// \note If make_widgets() has not been called yet then nothing happens.
+        virtual void updateWidget() = 0;
 
-            const Category *getParent() const;
+        virtual void reset() = 0;
 
-            const std::string& getKey() const;
+        const Category* getParent() const;
 
-            const std::string& getLabel() const;
+        const std::string& getKey() const;
 
-            int toInt() const;
+        const QString& getLabel() const { return mLabel; }
 
-            double toDouble() const;
+        int toInt() const { return getValueImpl<int>(); }
 
-            std::string toString() const;
+        double toDouble() const { return getValueImpl<double>(); }
 
-            bool isTrue() const;
+        std::string toString() const { return getValueImpl<std::string>(); }
 
-            QColor toColor() const;
+        bool isTrue() const { return getValueImpl<bool>(); }
+
+        QColor toColor() const;
+    };
+
+    template <class T>
+    class TypedSetting : public Setting
+    {
+    public:
+        using Setting::Setting;
+
+        void reset() final
+        {
+            resetValueImpl<T>();
+            updateWidget();
+        }
+
+        T getValue() const { return getValueImpl<T>(); }
+
+        void setValue(const T& value) { return setValueImpl(value); }
     };
 
     // note: fullKeys have the format categoryKey/settingKey
-    bool operator== (const Setting& setting, const std::string& fullKey);
-    bool operator== (const std::string& fullKey, const Setting& setting);
-    bool operator!= (const Setting& setting, const std::string& fullKey);
-    bool operator!= (const std::string& fullKey, const Setting& setting);
+    bool operator==(const Setting& setting, const std::string& fullKey);
+    bool operator==(const std::string& fullKey, const Setting& setting);
+    bool operator!=(const Setting& setting, const std::string& fullKey);
+    bool operator!=(const std::string& fullKey, const Setting& setting);
 }
 
 #endif

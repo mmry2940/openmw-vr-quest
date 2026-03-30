@@ -1,74 +1,82 @@
 #include "effect.hpp"
 
 #include "node.hpp"
+#include "texture.hpp"
 
 namespace Nif
 {
 
-void NiLight::read(NIFStream *nif)
-{
-    NiDynamicEffect::read(nif);
+    void NiDynamicEffect::read(NIFStream* nif)
+    {
+        NiAVObject::read(nif);
 
-    dimmer = nif->getFloat();
-    ambient = nif->getVector3();
-    diffuse = nif->getVector3();
-    specular = nif->getVector3();
-}
+        if (nif->getVersion() > NIFFile::VER_MW && nif->getVersion() < nif->generateVersion(10, 1, 0, 0))
+            return;
 
-void NiTextureEffect::read(NIFStream *nif)
-{
-    NiDynamicEffect::read(nif);
+        if (nif->getBethVersion() >= NIFFile::BethVersion::BETHVER_FO4)
+            return;
 
-    // Model Projection Matrix
-    nif->skip(3 * 3 * sizeof(float));
+        if (nif->getVersion() >= nif->generateVersion(10, 1, 0, 106))
+            nif->read(mSwitchState);
+        size_t numAffectedNodes = nif->get<uint32_t>();
+        nif->skip(numAffectedNodes * 4);
+    }
 
-    // Model Projection Transform
-    nif->skip(3 * sizeof(float));
+    void NiLight::read(NIFStream* nif)
+    {
+        NiDynamicEffect::read(nif);
 
-    // Texture Filtering
-    nif->skip(4);
+        nif->read(mDimmer);
+        nif->read(mAmbient);
+        nif->read(mDiffuse);
+        nif->read(mSpecular);
+    }
 
-    // Max anisotropy samples
-    if (nif->getVersion() >= NIFStream::generateVersion(20,5,0,4))
-        nif->skip(2);
+    void NiPointLight::read(NIFStream* nif)
+    {
+        NiLight::read(nif);
 
-    clamp = nif->getUInt();
+        nif->read(mConstantAttenuation);
+        nif->read(mLinearAttenuation);
+        nif->read(mQuadraticAttenuation);
+    }
 
-    textureType = (TextureType)nif->getUInt();
+    void NiSpotLight::read(NIFStream* nif)
+    {
+        NiPointLight::read(nif);
 
-    coordGenType = (CoordGenType)nif->getUInt();
+        nif->read(mOuterSpotAngle);
+        if (nif->getVersion() >= NIFStream::generateVersion(20, 2, 0, 5))
+            nif->read(mInnerSpotAngle);
+        nif->read(mExponent);
+    }
 
-    texture.read(nif);
+    void NiTextureEffect::read(NIFStream* nif)
+    {
+        NiDynamicEffect::read(nif);
 
-    nif->skip(1); // Use clipping plane
-    nif->skip(16); // Clipping plane dimensions vector
-    if (nif->getVersion() <= NIFStream::generateVersion(10,2,0,0))
-        nif->skip(4); // PS2-specific shorts
-    if (nif->getVersion() <= NIFStream::generateVersion(4,1,0,12))
-        nif->skip(2); // Unknown short
-}
+        nif->read(mProjectionRotation);
+        nif->read(mProjectionPosition);
+        nif->read(mFilterMode);
+        if (nif->getVersion() >= NIFStream::generateVersion(20, 5, 0, 4))
+            nif->read(mMaxAnisotropy);
+        nif->read(mClampMode);
+        mTextureType = static_cast<TextureType>(nif->get<uint32_t>());
+        mCoordGenType = static_cast<CoordGenType>(nif->get<uint32_t>());
+        mTexture.read(nif);
+        nif->read(mEnableClipPlane);
+        mClipPlane = osg::Plane(nif->get<osg::Vec4f>());
+        if (nif->getVersion() <= NIFStream::generateVersion(10, 2, 0, 0))
+            nif->skip(4); // PS2-specific shorts
+        if (nif->getVersion() <= NIFStream::generateVersion(4, 1, 0, 12))
+            nif->skip(2); // Unknown short
+    }
 
-void NiTextureEffect::post(NIFFile *nif)
-{
-    NiDynamicEffect::post(nif);
-    texture.post(nif);
-}
+    void NiTextureEffect::post(Reader& nif)
+    {
+        NiDynamicEffect::post(nif);
 
-void NiPointLight::read(NIFStream *nif)
-{
-    NiLight::read(nif);
-
-    constantAttenuation = nif->getFloat();
-    linearAttenuation = nif->getFloat();
-    quadraticAttenuation = nif->getFloat();
-}
-
-void NiSpotLight::read(NIFStream *nif)
-{
-    NiPointLight::read(nif);
-
-    cutoff = nif->getFloat();
-    exponent = nif->getFloat();
-}
+        mTexture.post(nif);
+    }
 
 }

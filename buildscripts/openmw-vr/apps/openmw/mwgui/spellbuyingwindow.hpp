@@ -1,9 +1,9 @@
 #ifndef MWGUI_SpellBuyingWINDOW_H
 #define MWGUI_SpellBuyingWINDOW_H
 
-#include "windowbase.hpp"
 #include "referenceinterface.hpp"
-
+#include "windowbase.hpp"
+#include <components/esm/refid.hpp>
 namespace ESM
 {
     struct Spell;
@@ -11,48 +11,54 @@ namespace ESM
 
 namespace MyGUI
 {
-  class Gui;
-  class Widget;
+    class Gui;
+    class Widget;
 }
 
 namespace MWGui
 {
     class SpellBuyingWindow : public ReferenceInterface, public WindowBase
     {
-        public:
-            SpellBuyingWindow();
+    public:
+        SpellBuyingWindow();
 
-            void setPtr(const MWWorld::Ptr& actor) override;
-            void setPtr(const MWWorld::Ptr& actor, int startOffset);
+        void setPtr(const MWWorld::Ptr& actor) override;
+        void setPtr(const MWWorld::Ptr& actor, int startOffset);
 
-            void onFrame(float dt) override { checkReferenceAvailable(); }
-            void clear() override { resetReference(); }
+        void onFrame(float dt) override { checkReferenceAvailable(); }
+        void clear() override { resetReference(); }
 
-            void onResChange(int, int) override { center(); }
+        void onResChange(int, int) override { center(); }
 
-        protected:
-            MyGUI::Button* mCancelButton;
-            MyGUI::TextBox* mPlayerGold;
+        std::string_view getWindowIdForLua() const override { return "SpellBuying"; }
 
-            MyGUI::ScrollView* mSpellsView;
+    protected:
+        MyGUI::Button* mCancelButton;
+        MyGUI::TextBox* mPlayerGold;
 
-            std::map<MyGUI::Widget*, std::string> mSpellsWidgetMap;
+        MyGUI::ScrollView* mSpellsView;
 
-            void onCancelButtonClicked(MyGUI::Widget* _sender);
-            void onSpellButtonClick(MyGUI::Widget* _sender);
-            void onMouseWheel(MyGUI::Widget* _sender, int _rel);
-            void addSpell(const ESM::Spell& spell);
-            void clearSpells();
-            int mCurrentY;
+        std::map<MyGUI::Widget*, ESM::RefId> mSpellsWidgetMap;
+        /// List of enabled/purchasable spells and their index in the full list.
+        std::vector<std::pair<MyGUI::Button*, size_t>> mSpellButtons;
 
-            void updateLabels();
+        void onCancelButtonClicked(MyGUI::Widget* sender);
+        void onSpellButtonClick(MyGUI::Widget* sender);
+        void onMouseWheel(MyGUI::Widget* sender, int rel);
+        void addSpell(const ESM::Spell& spell);
+        void clearSpells();
+        int mCurrentY;
 
-            void onReferenceUnavailable() override;
+        void updateLabels();
 
-            bool playerHasSpell (const std::string& id);
+        void onReferenceUnavailable() override;
 
-        private:
-            static bool sortSpells (const ESM::Spell* left, const ESM::Spell* right);
+        bool playerHasSpell(const ESM::RefId& id);
+
+    private:
+        static bool sortSpells(const ESM::Spell* left, const ESM::Spell* right);
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
+        size_t mControllerFocus = 0;
     };
 }
 

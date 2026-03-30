@@ -15,7 +15,8 @@ namespace SceneUtil
     class DebugDraw : public duDebugDraw
     {
     public:
-        DebugDraw(osg::Group& group, const osg::Vec3f& shift, float recastInvertedScaleFactor);
+        explicit DebugDraw(osg::Group& group, const osg::ref_ptr<osg::StateSet>& stateSet, const osg::Vec3f& shift,
+            float recastInvertedScaleFactor);
 
         void depthMask(bool state) override;
 
@@ -31,16 +32,16 @@ namespace SceneUtil
 
         void vertex(const float* pos, unsigned int color, const float* uv) override;
 
-        void vertex(const float x, const float y, const float z, unsigned int color,
-                const float u, const float v) override;
+        void vertex(
+            const float x, const float y, const float z, unsigned int color, const float u, const float v) override;
 
         void end() override;
 
     private:
         osg::Group& mGroup;
+        osg::ref_ptr<osg::StateSet> mStateSet;
         osg::Vec3f mShift;
         float mRecastInvertedScaleFactor;
-        bool mDepthMask;
         osg::PrimitiveSet::Mode mMode;
         float mSize;
         osg::ref_ptr<osg::Vec3Array> mVertices;
@@ -50,6 +51,8 @@ namespace SceneUtil
 
         void addColor(osg::Vec4f&& value);
     };
+
+    osg::ref_ptr<osg::StateSet> makeDetourGroupStateSet();
 }
 
 #endif

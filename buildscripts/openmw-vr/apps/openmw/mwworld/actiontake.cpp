@@ -1,9 +1,9 @@
 #include "actiontake.hpp"
 
 #include "../mwbase/environment.hpp"
-#include "../mwbase/world.hpp"
-#include "../mwbase/windowmanager.hpp"
 #include "../mwbase/mechanicsmanager.hpp"
+#include "../mwbase/windowmanager.hpp"
+#include "../mwbase/world.hpp"
 
 #include "../mwgui/inventorywindow.hpp"
 
@@ -12,9 +12,12 @@
 
 namespace MWWorld
 {
-    ActionTake::ActionTake (const MWWorld::Ptr& object) : Action (true, object) {}
+    ActionTake::ActionTake(const MWWorld::Ptr& object)
+        : Action(true, object)
+    {
+    }
 
-    void ActionTake::executeImp (const Ptr& actor)
+    void ActionTake::executeImp(const Ptr& actor)
     {
         // When in GUI mode, we should use drag and drop
         if (actor == MWBase::Environment::get().getWorld()->getPlayerPtr())
@@ -27,10 +30,13 @@ namespace MWWorld
             }
         }
 
-        MWBase::Environment::get().getMechanicsManager()->itemTaken(
-                    actor, getTarget(), MWWorld::Ptr(), getTarget().getRefData().getCount());
-        MWWorld::Ptr newitem = *actor.getClass().getContainerStore (actor).add (getTarget(), getTarget().getRefData().getCount(), actor);
-        MWBase::Environment::get().getWorld()->deleteObject (getTarget());
+        int count = getTarget().getCellRef().getCount();
+        if (getTarget().getClass().isGold(getTarget()))
+            count *= getTarget().getClass().getValue(getTarget());
+
+        MWBase::Environment::get().getMechanicsManager()->itemTaken(actor, getTarget(), MWWorld::Ptr(), count);
+        MWWorld::Ptr newitem = *actor.getClass().getContainerStore(actor).add(getTarget(), count);
+        MWBase::Environment::get().getWorld()->deleteObject(getTarget());
         setTarget(newitem);
     }
 }

@@ -5,42 +5,38 @@
 
 #include "../mwmechanics/actorutil.hpp"
 
-#include <components/compiler/locals.hpp>
-
-#include "inventorystore.hpp"
-#include "player.hpp"
 #include "class.hpp"
+#include "inventorystore.hpp"
 
 namespace MWWorld
 {
-    ActionEquip::ActionEquip (const MWWorld::Ptr& object, bool force)
-    : Action (false, object)
-    , mForce(force)
+    ActionEquip::ActionEquip(const MWWorld::Ptr& object, bool force)
+        : Action(false, object)
+        , mForce(force)
     {
     }
 
-    void ActionEquip::executeImp (const Ptr& actor)
+    void ActionEquip::executeImp(const Ptr& actor)
     {
         MWWorld::Ptr object = getTarget();
         MWWorld::InventoryStore& invStore = actor.getClass().getInventoryStore(actor);
 
-        if (object.getClass().hasItemHealth(object) && object.getCellRef().getCharge() == 0)
+        if (actor != MWMechanics::getPlayer())
         {
-            if (actor == MWMechanics::getPlayer())
-                MWBase::Environment::get().getWindowManager()->messageBox("#{sInventoryMessage1}");
-
-            return;
+            // player logic is handled in InventoryWindow::useItem
+            if (object.getClass().hasItemHealth(object) && object.getCellRef().getCharge() == 0)
+                return;
         }
 
         if (!mForce)
         {
-            std::pair <int, std::string> result = object.getClass().canBeEquipped (object, actor);
+            auto result = object.getClass().canBeEquipped(object, actor);
 
             // display error message if the player tried to equip something
             if (!result.second.empty() && actor == MWMechanics::getPlayer())
                 MWBase::Environment::get().getWindowManager()->messageBox(result.second);
 
-            switch(result.first)
+            switch (result.first)
             {
                 case 0:
                     return;
@@ -50,8 +46,8 @@ namespace MWWorld
         }
 
         // slots that this item can be equipped in
-        std::pair<std::vector<int>, bool> slots_ = getTarget().getClass().getEquipmentSlots(getTarget());
-        if (slots_.first.empty())
+        std::pair<std::vector<int>, bool> slots = getTarget().getClass().getEquipmentSlots(getTarget());
+        if (slots.first.empty())
             return;
 
         // retrieve ContainerStoreIterator to the item
@@ -65,15 +61,11 @@ namespace MWWorld
         }
 
         if (it == invStore.end())
-        {
-            std::stringstream error;
-            error << "ActionEquip can't find item " << object.getCellRef().getRefId();
-            throw std::runtime_error(error.str());
-        }
+            throw std::runtime_error("ActionEquip can't find item " + object.getCellRef().getRefId().toDebugString());
 
         // equip the item in the first free slot
-        std::vector<int>::const_iterator slot=slots_.first.begin();
-        for (;slot!=slots_.first.end(); ++slot)
+        std::vector<int>::const_iterator slot = slots.first.begin();
+        for (; slot != slots.first.end(); ++slot)
         {
             // if the item is equipped already, nothing to do
             if (invStore.getSlot(*slot) == it)
@@ -82,30 +74,30 @@ namespace MWWorld
             if (invStore.getSlot(*slot) == invStore.end())
             {
                 // slot is not occupied
-                invStore.equip(*slot, it, actor);
+                invStore.equip(*slot, it);
                 break;
             }
         }
 
         // all slots are occupied -> cycle
         // move all slots one towards begin(), then equip the item in the slot that is now free
-        if (slot == slots_.first.end())
+        if (slot == slots.first.end())
         {
             ContainerStoreIterator enchItem = invStore.getSelectedEnchantItem();
             bool reEquip = false;
-            for (slot = slots_.first.begin(); slot != slots_.first.end(); ++slot)
+            for (slot = slots.first.begin(); slot != slots.first.end(); ++slot)
             {
-                invStore.unequipSlot(*slot, actor, false);
-                if (slot + 1 != slots_.first.end())
+                invStore.unequipSlot(*slot, false);
+                if (slot + 1 != slots.first.end())
                 {
-                    invStore.equip(*slot, invStore.getSlot(*(slot + 1)), actor);
+                    invStore.equip(*slot, invStore.getSlot(*(slot + 1)));
                 }
                 else
                 {
-                    invStore.equip(*slot, it, actor);
+                    invStore.equip(*slot, it);
                 }
 
-                //Fix for issue of selected enchated item getting remmoved on cycle
+                // Fix for issue of selected enchated item getting remmoved on cycle
                 if (invStore.getSlot(*slot) == enchItem)
                 {
                     reEquip = true;

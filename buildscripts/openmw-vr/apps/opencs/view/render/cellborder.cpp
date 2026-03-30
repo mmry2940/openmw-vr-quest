@@ -1,11 +1,17 @@
 #include "cellborder.hpp"
 
+#include <osg/Array>
+#include <osg/GL>
+#include <osg/Geometry>
 #include <osg/Group>
 #include <osg/PositionAttitudeTransform>
-#include <osg/Geometry>
 #include <osg/PrimitiveSet>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
+#include <osg/Vec3f>
+#include <osg/Vec4f>
 
-#include <components/esm/loadland.hpp>
+#include <components/esm3/loadland.hpp>
 
 #include "mask.hpp"
 
@@ -19,12 +25,11 @@ const int CSVRender::CellBorder::CellSize = ESM::Land::REAL_SIZE;
 */
 const int CSVRender::CellBorder::VertexCount = (ESM::Land::LAND_SIZE * 4) - 4;
 
-
 CSVRender::CellBorder::CellBorder(osg::Group* cellNode, const CSMWorld::CellCoordinates& coords)
     : mParentNode(cellNode)
 {
     mBorderGeometry = new osg::Geometry();
-    
+
     mBaseNode = new osg::PositionAttitudeTransform();
     mBaseNode->setNodeMask(Mask_CellBorder);
     mBaseNode->setPosition(osg::Vec3f(coords.getX() * CellSize, coords.getY() * CellSize, 10));
@@ -42,9 +47,6 @@ void CSVRender::CellBorder::buildShape(const ESM::Land& esmLand)
 {
     const ESM::Land::LandData* landData = esmLand.getLandData(ESM::Land::DATA_VHGT);
 
-    if (!landData)
-        return;
-
     mBaseNode->removeChild(mBorderGeometry);
     mBorderGeometry = new osg::Geometry();
 
@@ -57,20 +59,40 @@ void CSVRender::CellBorder::buildShape(const ESM::Land& esmLand)
         Traverse the cell border counter-clockwise starting at the SW corner vertex (0, 0).
         Each loop starts at a corner vertex and ends right before the next corner vertex.
     */
-    for (; x < ESM::Land::LAND_SIZE - 1; ++x)
-        vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
+    if (landData)
+    {
+        for (; x < ESM::Land::LAND_SIZE - 1; ++x)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
 
-    x = ESM::Land::LAND_SIZE - 1;
-    for (; y < ESM::Land::LAND_SIZE - 1; ++y)
-        vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
+        x = ESM::Land::LAND_SIZE - 1;
+        for (; y < ESM::Land::LAND_SIZE - 1; ++y)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
 
-    y = ESM::Land::LAND_SIZE - 1;
-    for (; x > 0; --x)
-        vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
+        y = ESM::Land::LAND_SIZE - 1;
+        for (; x > 0; --x)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
 
-    x = 0;
-    for (; y > 0; --y)
-        vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
+        x = 0;
+        for (; y > 0; --y)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), landData->mHeights[landIndex(x, y)]));
+    }
+    else
+    {
+        for (; x < ESM::Land::LAND_SIZE - 1; ++x)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), ESM::Land::DEFAULT_HEIGHT));
+
+        x = ESM::Land::LAND_SIZE - 1;
+        for (; y < ESM::Land::LAND_SIZE - 1; ++y)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), ESM::Land::DEFAULT_HEIGHT));
+
+        y = ESM::Land::LAND_SIZE - 1;
+        for (; x > 0; --x)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), ESM::Land::DEFAULT_HEIGHT));
+
+        x = 0;
+        for (; y > 0; --y)
+            vertices->push_back(osg::Vec3f(scaleToWorld(x), scaleToWorld(y), ESM::Land::DEFAULT_HEIGHT));
+    }
 
     mBorderGeometry->setVertexArray(vertices);
 
@@ -79,8 +101,8 @@ void CSVRender::CellBorder::buildShape(const ESM::Land& esmLand)
 
     mBorderGeometry->setColorArray(colors, osg::Array::BIND_PER_PRIMITIVE_SET);
 
-    osg::ref_ptr<osg::DrawElementsUShort> primitives =
-        new osg::DrawElementsUShort(osg::PrimitiveSet::LINE_STRIP, VertexCount + 1);
+    osg::ref_ptr<osg::DrawElementsUShort> primitives
+        = new osg::DrawElementsUShort(osg::PrimitiveSet::LINE_STRIP, VertexCount + 1);
 
     // Assign one primitive to each vertex.
     for (size_t i = 0; i < VertexCount; ++i)

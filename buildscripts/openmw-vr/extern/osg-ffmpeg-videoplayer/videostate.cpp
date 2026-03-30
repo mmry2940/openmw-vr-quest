@@ -4,10 +4,12 @@
 #include <cassert>
 #include <cstddef>
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <chrono>
 
 #include <osg/Texture2D>
+#include <utility>
 
 #if defined(_MSC_VER)
     #pragma warning (push)
@@ -41,6 +43,7 @@ static FlushPacket flush_pkt;
 #include "videoplayer.hpp"
 #include "audiodecoder.hpp"
 #include "audiofactory.hpp"
+#include "libavformatdefines.hpp"
 
 namespace
 {
@@ -62,19 +65,19 @@ namespace
             av_frame_free(&frame);
         }
     };
-
-    template<class T>
-    struct AVFree
-    {
-        void operator()(T* frame) const
-        {
-            av_free(&frame);
-        }
-    };
 }
 
 namespace Video
 {
+
+struct PacketListFree
+{
+    void operator()(Video::PacketList* list) const
+    {
+        av_packet_free(&list->pkt);
+        av_free(&list);
+    }
+};
 
 VideoState::VideoState()
     : mAudioFactory(nullptr)
@@ -95,7 +98,7 @@ VideoState::VideoState()
 {
     mFlushPktData = flush_pkt.data;
 
-// This is not needed anymore above FFMpeg version 4.0
+// This is not needed any more above FFMpeg version 4.0
 #if LIBAVCODEC_VERSION_INT < 3805796
     av_register_all();
 #endif
@@ -114,25 +117,29 @@ void VideoState::setAudioFactory(MovieAudioFactory *factory)
 
 void PacketQueue::put(AVPacket *pkt)
 {
-    std::unique_ptr<AVPacketList, AVFree<AVPacketList>> pkt1(static_cast<AVPacketList*>(av_malloc(sizeof(AVPacketList))));
+    std::unique_ptr<PacketList, PacketListFree> pkt1(static_cast<PacketList*>(av_malloc(sizeof(PacketList))));
     if(!pkt1) throw std::bad_alloc();
 
+
     if(pkt == &flush_pkt)
-        pkt1->pkt = *pkt;
+        pkt1->pkt = pkt;
     else
-        av_packet_move_ref(&pkt1->pkt, pkt);
+    {
+        pkt1->pkt = av_packet_alloc();
+        av_packet_move_ref(pkt1->pkt, pkt);
+    }
 
     pkt1->next = nullptr;
 
     std::lock_guard<std::mutex> lock(this->mutex);
-    AVPacketList* ptr = pkt1.release();
+    PacketList* ptr = pkt1.release();
     if(!last_pkt)
         this->first_pkt = ptr;
     else
         this->last_pkt->next = ptr;
     this->last_pkt = ptr;
     this->nb_packets++;
-    this->size += ptr->pkt.size;
+    this->size += ptr->pkt->size;
     this->cond.notify_one();
 }
 
@@ -141,17 +148,17 @@ int PacketQueue::get(AVPacket *pkt, VideoState *is)
     std::unique_lock<std::mutex> lock(this->mutex);
     while(!is->mQuit)
     {
-        AVPacketList *pkt1 = this->first_pkt;
+        PacketList *pkt1 = this->first_pkt;
         if(pkt1)
         {
             this->first_pkt = pkt1->next;
             if(!this->first_pkt)
                 this->last_pkt = nullptr;
             this->nb_packets--;
-            this->size -= pkt1->pkt.size;
+            this->size -= pkt1->pkt->size;
 
             av_packet_unref(pkt);
-            av_packet_move_ref(pkt, &pkt1->pkt);
+            av_packet_move_ref(pkt, pkt1->pkt);
             av_free(pkt1);
 
             return 1;
@@ -173,14 +180,14 @@ void PacketQueue::flush()
 
 void PacketQueue::clear()
 {
-    AVPacketList *pkt, *pkt1;
+    PacketList *pkt, *pkt1;
 
     std::lock_guard<std::mutex> lock(this->mutex);
     for(pkt = this->first_pkt; pkt != nullptr; pkt = pkt1)
     {
         pkt1 = pkt->next;
-        if (pkt->pkt.data != flush_pkt.data)
-            av_packet_unref(&pkt->pkt);
+        if (pkt->pkt->data != flush_pkt.data)
+            av_packet_unref(pkt->pkt);
         av_freep(&pkt);
     }
     this->last_pkt = nullptr;
@@ -198,7 +205,7 @@ int VideoPicture::set_dimensions(int w, int h) {
   std::unique_ptr<AVFrame, VideoPicture::AVFrameDeleter> frame{
       av_frame_alloc()};
   if (frame == nullptr) {
-    std::cerr << "av_frame_alloc failed" << std::endl;
+    OSG_FATAL << "av_frame_alloc failed" << std::endl;
     return -1;
   }
 
@@ -208,7 +215,7 @@ int VideoPicture::set_dimensions(int w, int h) {
   frame->height = h;
   if (av_image_alloc(frame->data, frame->linesize, frame->width, frame->height,
                      kPixFmt, 1) < 0) {
-    std::cerr << "av_image_alloc failed" << std::endl;
+    OSG_FATAL << "av_image_alloc failed" << std::endl;
     return -1;
   }
 
@@ -229,15 +236,25 @@ int VideoState::istream_read(void *user_data, uint8_t *buf, int buf_size)
         std::istream& stream = *static_cast<VideoState*>(user_data)->stream;
         stream.clear();
         stream.read((char*)buf, buf_size);
-        return stream.gcount();
+        if (stream.bad())
+            return AVERROR_UNKNOWN;
+        auto count = stream.gcount();
+        // avio_alloc_context says we mustn't return 0 for stream protocols
+        if (!count)
+            return AVERROR_EOF;
+        return count;
     }
     catch (std::exception& )
     {
-        return 0;
+        return AVERROR_UNKNOWN;
     }
 }
 
+#if OPENMW_FFMPEG_CONST_WRITEPACKET
+int VideoState::istream_write(void *, const unsigned char *, int)
+#else
 int VideoState::istream_write(void *, uint8_t *, int)
+#endif
 {
     throw std::runtime_error("can't write to read-only stream");
 }
@@ -304,7 +321,7 @@ void VideoState::video_refresh()
         VideoPicture* vp = &this->pictq[this->pictq_rindex];
         this->video_display(vp);
 
-        this->pictq_rindex = (pictq_rindex+1) % VIDEO_PICTURE_ARRAY_SIZE;
+        this->pictq_rindex = (this->pictq_rindex+1) % this->pictq.size();
         this->frame_last_pts = vp->pts;
         this->pictq_size--;
         this->pictq_cond.notify_one();
@@ -320,13 +337,13 @@ void VideoState::video_refresh()
         int i=0;
         for (; i<this->pictq_size-1; ++i)
         {
-            if (this->pictq[pictq_rindex].pts + threshold <= this->get_master_clock())
-                this->pictq_rindex = (this->pictq_rindex+1) % VIDEO_PICTURE_ARRAY_SIZE; // not enough time to show this picture
+            if (this->pictq[this->pictq_rindex].pts + threshold <= this->get_master_clock())
+                this->pictq_rindex = (this->pictq_rindex+1) % this->pictq.size(); // not enough time to show this picture
             else
                 break;
         }
 
-        assert (this->pictq_rindex < VIDEO_PICTURE_ARRAY_SIZE);
+        assert (this->pictq_rindex < this->pictq.size());
         VideoPicture* vp = &this->pictq[this->pictq_rindex];
 
         this->video_display(vp);
@@ -336,7 +353,7 @@ void VideoState::video_refresh()
         this->pictq_size -= i;
         // update queue for next picture
         this->pictq_size--;
-        this->pictq_rindex = (this->pictq_rindex+1) % VIDEO_PICTURE_ARRAY_SIZE;
+        this->pictq_rindex = (this->pictq_rindex+1) % this->pictq.size();
         this->pictq_cond.notify_one();
     }
 }
@@ -386,7 +403,7 @@ int VideoState::queue_picture(const AVFrame &pFrame, double pts)
               0, this->video_ctx->height, vp->rgbaFrame->data, vp->rgbaFrame->linesize);
 
     // now we inform our display thread that we have a pic ready
-    this->pictq_windex = (this->pictq_windex+1) % VIDEO_PICTURE_ARRAY_SIZE;
+    this->pictq_windex = (this->pictq_windex+1) % this->pictq.size();
     this->pictq_size++;
 
     return 0;
@@ -415,7 +432,7 @@ double VideoState::synchronize_video(const AVFrame &src_frame, double pts)
 class VideoThread
 {
 public:
-    VideoThread(VideoState* self)
+    explicit VideoThread(VideoState* self)
         : mVideoState(self)
         , mThread([this]
         {
@@ -425,7 +442,7 @@ public:
             }
             catch(std::exception& e)
             {
-                std::cerr << "An error occurred playing the video: " << e.what () << std::endl;
+                OSG_FATAL << "An error occurred playing the video: " << e.what() << std::endl;
             }
         })
     {
@@ -439,9 +456,8 @@ public:
     void run()
     {
         VideoState* self = mVideoState;
-        AVPacket packetData;
-        av_init_packet(&packetData);
-        std::unique_ptr<AVPacket, AVPacketUnref> packet(&packetData);
+        AVPacket* packetData = av_packet_alloc();
+        std::unique_ptr<AVPacket, AVPacketUnref> packet(packetData);
         std::unique_ptr<AVFrame, AVFrameFree> pFrame{av_frame_alloc()};
 
         while(self->videoq.get(packet.get(), self) >= 0)
@@ -491,7 +507,7 @@ private:
 class ParseThread
 {
 public:
-    ParseThread(VideoState* self)
+    explicit ParseThread(VideoState* self)
         : mVideoState(self)
         , mThread([this] { run(); })
     {
@@ -507,9 +523,8 @@ public:
         VideoState* self = mVideoState;
 
         AVFormatContext *pFormatCtx = self->format_ctx;
-        AVPacket packetData;
-        av_init_packet(&packetData);
-        std::unique_ptr<AVPacket, AVPacketUnref> packet(&packetData);
+        AVPacket* packetData = av_packet_alloc();
+        std::unique_ptr<AVPacket, AVPacketUnref> packet(packetData);
 
         try
         {
@@ -524,7 +539,7 @@ public:
                     uint64_t seek_target = self->mSeekPos;
                     int streamIndex = -1;
 
-                    int videoStreamIndex = -1;;
+                    int videoStreamIndex = -1;
                     int audioStreamIndex = -1;
                     if (self->video_st)
                         videoStreamIndex = self->video_st - self->format_ctx->streams;
@@ -552,9 +567,9 @@ public:
                     {
 // In the FFMpeg 4.0 a "filename" field was replaced by "url"
 #if LIBAVCODEC_VERSION_INT < 3805796
-                        std::cerr << "Error seeking " << self->format_ctx->filename << std::endl;
+                        OSG_FATAL << "Error seeking " << self->format_ctx->filename << std::endl;
 #else
-                        std::cerr << "Error seeking " << self->format_ctx->url << std::endl;
+                        OSG_FATAL << "Error seeking " << self->format_ctx->url << std::endl;
 #endif
                     }
                     else
@@ -594,8 +609,17 @@ public:
 
                 if(av_read_frame(pFormatCtx, packet.get()) < 0)
                 {
-                    if (self->audioq.nb_packets == 0 && self->videoq.nb_packets == 0 && self->pictq_size == 0)
-                        self->mVideoEnded = true;
+                    if (self->audioq.nb_packets == 0 && self->videoq.nb_packets == 0)
+                    {
+                        self->pictq_mutex.lock();
+                        bool videoEnded = self->pictq_size == 0;
+                        self->pictq_mutex.unlock();
+                        if (videoEnded)
+                            self->mVideoEnded = true;
+                        else
+                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                    }
+
                     continue;
                 }
                 else
@@ -611,7 +635,7 @@ public:
             }
         }
         catch(std::exception& e) {
-            std::cerr << "An error occurred playing the video: " << e.what () << std::endl;
+            OSG_FATAL << "An error occurred playing the video: " << e.what() << std::endl;
         }
 
         self->mQuit = true;
@@ -632,13 +656,11 @@ bool VideoState::update()
 
 int VideoState::stream_open(int stream_index, AVFormatContext *pFormatCtx)
 {
-    const AVCodec *codec;
-
     if(stream_index < 0 || stream_index >= static_cast<int>(pFormatCtx->nb_streams))
         return -1;
 
     // Get a pointer to the codec context for the video stream
-    codec = avcodec_find_decoder(pFormatCtx->streams[stream_index]->codecpar->codec_id);
+    const AVCodec *codec = avcodec_find_decoder(pFormatCtx->streams[stream_index]->codecpar->codec_id);
     if(!codec)
     {
         fprintf(stderr, "Unsupported codec!\n");
@@ -654,7 +676,7 @@ int VideoState::stream_open(int stream_index, AVFormatContext *pFormatCtx)
         this->audio_ctx = avcodec_alloc_context3(codec);
         avcodec_parameters_to_context(this->audio_ctx, pFormatCtx->streams[stream_index]->codecpar);
 
-// This is not needed anymore above FFMpeg version 4.0
+// This is not needed any more above FFMpeg version 4.0
 #if LIBAVCODEC_VERSION_INT < 3805796
         av_codec_set_pkt_timebase(this->audio_ctx, pFormatCtx->streams[stream_index]->time_base);
 #endif
@@ -667,16 +689,16 @@ int VideoState::stream_open(int stream_index, AVFormatContext *pFormatCtx)
 
         if (!mAudioFactory)
         {
-            std::cerr << "No audio factory registered, can not play audio stream" << std::endl;
+            OSG_FATAL << "No audio factory registered, can not play audio stream" << std::endl;
             avcodec_free_context(&this->audio_ctx);
             this->audio_st = nullptr;
             return -1;
         }
 
         mAudioDecoder = mAudioFactory->createDecoder(this);
-        if (!mAudioDecoder.get())
+        if (!mAudioDecoder)
         {
-            std::cerr << "Failed to create audio decoder, can not play audio stream" << std::endl;
+            OSG_FATAL << "Failed to create audio decoder, can not play audio stream" << std::endl;
             avcodec_free_context(&this->audio_ctx);
             this->audio_st = nullptr;
             return -1;
@@ -691,7 +713,7 @@ int VideoState::stream_open(int stream_index, AVFormatContext *pFormatCtx)
         this->video_ctx = avcodec_alloc_context3(codec);
         avcodec_parameters_to_context(this->video_ctx, pFormatCtx->streams[stream_index]->codecpar);
 
-// This is not needed anymore above FFMpeg version 4.0
+// This is not needed any more above FFMpeg version 4.0
 #if LIBAVCODEC_VERSION_INT < 3805796
         av_codec_set_pkt_timebase(this->video_ctx, pFormatCtx->streams[stream_index]->time_base);
 #endif
@@ -702,7 +724,7 @@ int VideoState::stream_open(int stream_index, AVFormatContext *pFormatCtx)
             return -1;
         }
 
-        this->video_thread.reset(new VideoThread(this));
+        this->video_thread = std::make_unique<VideoThread>(this);
         break;
 
     default:
@@ -712,7 +734,7 @@ int VideoState::stream_open(int stream_index, AVFormatContext *pFormatCtx)
     return 0;
 }
 
-void VideoState::init(std::shared_ptr<std::istream> inputstream, const std::string &name)
+void VideoState::init(std::unique_ptr<std::istream>&& inputstream, const std::string &name)
 {
     int video_index = -1;
     int audio_index = -1;
@@ -721,8 +743,8 @@ void VideoState::init(std::shared_ptr<std::istream> inputstream, const std::stri
     this->av_sync_type = AV_SYNC_DEFAULT;
     this->mQuit = false;
 
-    this->stream = inputstream;
-    if(!this->stream.get())
+    this->stream = std::move(inputstream);
+    if(!this->stream)
         throw std::runtime_error("Failed to open video resource");
 
     AVIOContext *ioCtx = avio_alloc_context(nullptr, 0, 0, this, istream_read, istream_write, istream_seek);
@@ -789,7 +811,7 @@ void VideoState::init(std::shared_ptr<std::istream> inputstream, const std::stri
     }
 
 
-    this->parse_thread.reset(new ParseThread(this));
+    this->parse_thread = std::make_unique<ParseThread>(this);
 }
 
 void VideoState::deinit()
@@ -801,11 +823,11 @@ void VideoState::deinit()
 
     mAudioDecoder.reset();
 
-    if (this->parse_thread.get())
+    if (this->parse_thread)
     {
         this->parse_thread.reset();
     }
-    if (this->video_thread.get())
+    if (this->video_thread)
     {
         this->video_thread.reset();
     }
@@ -850,9 +872,9 @@ void VideoState::deinit()
         mTexture = nullptr;
     }
 
-    // Dellocate RGBA frame queue.
-    for (std::size_t i = 0; i < VIDEO_PICTURE_ARRAY_SIZE; ++i)
-        this->pictq[i].rgbaFrame = nullptr;
+    // Deallocate RGBA frame queue.
+    for (auto & i : this->pictq)
+        i.rgbaFrame = nullptr;
 
 }
 
@@ -870,14 +892,14 @@ double VideoState::get_master_clock()
     return this->get_external_clock();
 }
 
-double VideoState::get_video_clock()
+double VideoState::get_video_clock() const
 {
     return this->frame_last_pts;
 }
 
 double VideoState::get_audio_clock()
 {
-    if (!mAudioDecoder.get())
+    if (!mAudioDecoder)
         return 0.0;
     return mAudioDecoder->getAudioClock();
 }
@@ -896,7 +918,7 @@ void VideoState::seekTo(double time)
     mSeekRequested = true;
 }
 
-double VideoState::getDuration()
+double VideoState::getDuration() const
 {
     return this->format_ctx->duration / 1000000.0;
 }

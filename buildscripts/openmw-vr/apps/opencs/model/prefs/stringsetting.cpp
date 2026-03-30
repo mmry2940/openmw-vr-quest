@@ -1,54 +1,57 @@
 
 #include "stringsetting.hpp"
 
+#include <QLabel>
 #include <QLineEdit>
 #include <QMutexLocker>
 
 #include <components/settings/settings.hpp>
 
+#include <apps/opencs/model/prefs/setting.hpp>
+
 #include "category.hpp"
 #include "state.hpp"
 
-CSMPrefs::StringSetting::StringSetting (Category *parent, Settings::Manager *values,
-  QMutex *mutex, const std::string& key, const std::string& label, std::string default_)
-: Setting (parent, values, mutex, key, label),  mDefault (default_), mWidget(nullptr)
-{}
+CSMPrefs::StringSetting::StringSetting(
+    Category* parent, QMutex* mutex, std::string_view key, const QString& label, Settings::Index& index)
+    : TypedSetting(parent, mutex, key, label, index)
+    , mWidget(nullptr)
+{
+}
 
-CSMPrefs::StringSetting& CSMPrefs::StringSetting::setTooltip (const std::string& tooltip)
+CSMPrefs::StringSetting& CSMPrefs::StringSetting::setTooltip(const std::string& tooltip)
 {
     mTooltip = tooltip;
     return *this;
 }
 
-std::pair<QWidget *, QWidget *> CSMPrefs::StringSetting::makeWidgets (QWidget *parent)
+CSMPrefs::SettingWidgets CSMPrefs::StringSetting::makeWidgets(QWidget* parent)
 {
-    mWidget = new QLineEdit (QString::fromUtf8 (mDefault.c_str()), parent);
+    QLabel* label = new QLabel(getLabel(), parent);
+
+    mWidget = new QLineEdit(QString::fromStdString(getValue()), parent);
+    mWidget->setMinimumWidth(300);
 
     if (!mTooltip.empty())
     {
-        QString tooltip = QString::fromUtf8 (mTooltip.c_str());
-        mWidget->setToolTip (tooltip);
+        QString tooltip = QString::fromUtf8(mTooltip.c_str());
+        label->setToolTip(tooltip);
+        mWidget->setToolTip(tooltip);
     }
 
-    connect (mWidget, SIGNAL (textChanged (QString)), this, SLOT (textChanged (QString)));
+    connect(mWidget, &QLineEdit::textChanged, this, &StringSetting::textChanged);
 
-    return std::make_pair (static_cast<QWidget *> (nullptr), mWidget);
+    return SettingWidgets{ .mLabel = label, .mInput = mWidget };
 }
 
 void CSMPrefs::StringSetting::updateWidget()
 {
     if (mWidget)
-    {
-        mWidget->setText(QString::fromStdString(getValues().getString(getKey(), getParent()->getKey())));
-    }
+        mWidget->setText(QString::fromStdString(getValue()));
 }
 
-void CSMPrefs::StringSetting::textChanged (const QString& text)
+void CSMPrefs::StringSetting::textChanged(const QString& text)
 {
-    {
-        QMutexLocker lock (getMutex());
-        getValues().setString (getKey(), getParent()->getKey(), text.toStdString());
-    }
-
-    getParent()->getState()->update (*this);
+    setValue(text.toStdString());
+    getParent()->getState()->update(*this);
 }

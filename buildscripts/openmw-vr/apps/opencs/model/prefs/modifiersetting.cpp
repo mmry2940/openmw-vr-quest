@@ -5,29 +5,36 @@
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPushButton>
-#include <QWidget>
 
-#include "state.hpp"
+#include <components/settings/settings.hpp>
+
+#include <apps/opencs/model/prefs/category.hpp>
+#include <apps/opencs/model/prefs/setting.hpp>
+
 #include "shortcutmanager.hpp"
+#include "state.hpp"
+
+class QObject;
+class QWidget;
 
 namespace CSMPrefs
 {
-    ModifierSetting::ModifierSetting(Category* parent, Settings::Manager* values, QMutex* mutex, const std::string& key,
-        const std::string& label)
-        : Setting(parent, values, mutex, key, label)
+    ModifierSetting::ModifierSetting(
+        Category* parent, QMutex* mutex, std::string_view key, const QString& label, Settings::Index& index)
+        : TypedSetting(parent, mutex, key, label, index)
         , mButton(nullptr)
         , mEditorActive(false)
     {
     }
 
-    std::pair<QWidget*, QWidget*> ModifierSetting::makeWidgets(QWidget* parent)
+    SettingWidgets ModifierSetting::makeWidgets(QWidget* parent)
     {
         int modifier = 0;
         State::get().getShortcutManager().getModifier(getKey(), modifier);
 
         QString text = QString::fromUtf8(State::get().getShortcutManager().convertToString(modifier).c_str());
 
-        QLabel* label = new QLabel(QString::fromUtf8(getLabel().c_str()), parent);
+        QLabel* label = new QLabel(getLabel(), parent);
         QPushButton* widget = new QPushButton(text, parent);
 
         widget->setCheckable(true);
@@ -38,16 +45,16 @@ namespace CSMPrefs
 
         mButton = widget;
 
-        connect(widget, SIGNAL(toggled(bool)), this, SLOT(buttonToggled(bool)));
+        connect(widget, &QPushButton::toggled, this, &ModifierSetting::buttonToggled);
 
-        return std::make_pair(label, widget);
+        return SettingWidgets{ .mLabel = label, .mInput = widget };
     }
 
     void ModifierSetting::updateWidget()
     {
         if (mButton)
         {
-            std::string shortcut = getValues().getString(getKey(), getParent()->getKey());
+            const std::string& shortcut = getValue();
 
             int modifier;
             State::get().getShortcutManager().convertFromString(shortcut, modifier);
@@ -88,12 +95,9 @@ namespace CSMPrefs
     bool ModifierSetting::handleEvent(QObject* target, int mod, int value)
     {
         // For potential future exceptions
-        const int Blacklist[] =
-        {
-            0
-        };
+        const int blacklist[] = { 0 };
 
-        const size_t BlacklistSize = sizeof(Blacklist) / sizeof(int);
+        const size_t blacklistSize = std::size(blacklist);
 
         if (!mEditorActive)
         {
@@ -110,12 +114,11 @@ namespace CSMPrefs
         }
 
         // Handle blacklist
-        for (size_t i = 0; i < BlacklistSize; ++i)
+        for (size_t i = 0; i < blacklistSize; ++i)
         {
-            if (value == Blacklist[i])
+            if (value == blacklist[i])
                 return true;
         }
-
 
         // Update modifier
         int modifier = value;
@@ -129,15 +132,7 @@ namespace CSMPrefs
     void ModifierSetting::storeValue(int modifier)
     {
         State::get().getShortcutManager().setModifier(getKey(), modifier);
-
-        // Convert to string and assign
-        std::string value = State::get().getShortcutManager().convertToString(modifier);
-
-        {
-            QMutexLocker lock(getMutex());
-            getValues().setString(getKey(), getParent()->getKey(), value);
-        }
-
+        setValue(State::get().getShortcutManager().convertToString(modifier));
         getParent()->getState()->update(*this);
     }
 

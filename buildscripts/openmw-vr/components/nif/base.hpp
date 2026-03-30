@@ -1,73 +1,68 @@
-///This file holds the main classes of NIF Records used by everything else.
+/// This file holds the main classes of NIF Records used by everything else.
 #ifndef OPENMW_COMPONENTS_NIF_BASE_HPP
 #define OPENMW_COMPONENTS_NIF_BASE_HPP
 
-#include "record.hpp"
-#include "niffile.hpp"
 #include "recordptr.hpp"
-#include "nifstream.hpp"
-#include "nifkey.hpp"
 
 namespace Nif
 {
-// An extra data record. All the extra data connected to an object form a linked list.
-struct Extra : public Record
-{
-    std::string name;
-    ExtraPtr next; // Next extra data record in the list
+    struct File;
+    struct Record;
+    struct Stream;
 
-    void read(NIFStream *nif) override
+    // An extra data record. All the extra data connected to an object form a linked list.
+    struct Extra : public Record
     {
-        if (nif->getVersion() >= NIFStream::generateVersion(10,0,1,0))
-            name = nif->getString();
-        else if (nif->getVersion() <= NIFStream::generateVersion(4,2,2,0))
+        std::string mName;
+        ExtraPtr mNext; // Next extra data record in the list
+        uint32_t mRecordSize{ 0u };
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override { mNext.post(nif); }
+    };
+
+    struct NiTimeController : public Record
+    {
+        enum Flags
         {
-            next.read(nif);
-            nif->getUInt(); // Size of the record
-        }
-    }
+            Flag_Active = 0x8
+        };
 
-    void post(NIFFile *nif) override { next.post(nif); }
-};
+        enum ExtrapolationMode
+        {
+            Cycle = 0,
+            Reverse = 2,
+            Constant = 4,
+            Mask = 6
+        };
 
-struct Controller : public Record
-{
-    ControllerPtr next;
-    int flags;
-    float frequency, phase;
-    float timeStart, timeStop;
-    NamedPtr target;
+        NiTimeControllerPtr mNext;
+        uint16_t mFlags;
+        float mFrequency, mPhase;
+        float mTimeStart, mTimeStop;
+        NiObjectNETPtr mTarget;
 
-    void read(NIFStream *nif) override;
-    void post(NIFFile *nif) override;
-};
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
 
-/// Has name, extra-data and controller
-struct Named : public Record
-{
-    std::string name;
-    ExtraPtr extra;
-    ExtraList extralist;
-    ControllerPtr controller;
+        bool isActive() const { return mFlags & Flag_Active; }
+        ExtrapolationMode extrapolationMode() const { return static_cast<ExtrapolationMode>(mFlags & Mask); }
+    };
 
-    void read(NIFStream *nif) override
+    /// Abstract object that has a name, extra data and controllers
+    struct NiObjectNET : public Record
     {
-        name = nif->getString();
-        if (nif->getVersion() < NIFStream::generateVersion(10,0,1,0))
-            extra.read(nif);
-        else
-            extralist.read(nif);
-        controller.read(nif);
-    }
+        std::string mName;
+        ExtraPtr mExtra;
+        ExtraList mExtraList;
+        NiTimeControllerPtr mController;
 
-    void post(NIFFile *nif) override
-    {
-        extra.post(nif);
-        extralist.post(nif);
-        controller.post(nif);
-    }
-};
-using NiSequenceStreamHelper = Named;
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
 
-} // Namespace
+        // Collect extra records attached to the object
+        ExtraList getExtraList() const;
+    };
+
+}
 #endif

@@ -1,22 +1,11 @@
 #include "importplayer.hpp"
 
-#include <components/esm/esmreader.hpp>
+#include <components/esm3/esmreader.hpp>
 
 namespace ESSImport
 {
 
-    void REFR::load(ESM::ESMReader &esm)
-    {
-        esm.getHNT(mRefNum.mIndex, "FRMR");
-
-        mRefID = esm.getHNString("NAME");
-
-        mActorData.load(esm);
-
-        esm.getHNOT(mPos, "DATA", 24);
-    }
-
-    void PCDT::load(ESM::ESMReader &esm)
+    void PCDT::load(ESM::ESMReader& esm)
     {
         while (esm.isNextSub("DNAM"))
         {
@@ -30,7 +19,12 @@ namespace ESSImport
             mMNAM = esm.getHString();
         }
 
-        esm.getHNT(mPNAM, "PNAM");
+        esm.getHNT("PNAM", mPNAM.mPlayerFlags, mPNAM.mLevelProgress, mPNAM.mSkillProgress, mPNAM.mSkillIncreases,
+            mPNAM.mTelekinesisRangeBonus, mPNAM.mVisionBonus, mPNAM.mDetectKeyMagnitude,
+            mPNAM.mDetectEnchantmentMagnitude, mPNAM.mDetectAnimalMagnitude, mPNAM.mMarkLocation.mX,
+            mPNAM.mMarkLocation.mY, mPNAM.mMarkLocation.mZ, mPNAM.mMarkLocation.mRotZ, mPNAM.mMarkLocation.mCellX,
+            mPNAM.mMarkLocation.mCellY, mPNAM.mUnknown3, mPNAM.mVerticalRotation.mData, mPNAM.mSpecIncreases,
+            mPNAM.mUnknown4);
 
         if (esm.isNextSub("SNAM"))
             esm.skipHSub();
@@ -61,12 +55,7 @@ namespace ESSImport
         if (esm.isNextSub("NAM3"))
             esm.skipHSub();
 
-        mHasENAM = false;
-        if (esm.isNextSub("ENAM"))
-        {
-            mHasENAM = true;
-            esm.getHT(mENAM);
-        }
+        mHasENAM = esm.getHNOT("ENAM", mENAM.mCellX, mENAM.mCellY);
 
         if (esm.isNextSub("LNAM"))
             esm.skipHSub();
@@ -74,16 +63,12 @@ namespace ESSImport
         while (esm.isNextSub("FNAM"))
         {
             FNAM fnam;
-            esm.getHT(fnam);
+            esm.getHT(
+                fnam.mRank, fnam.mUnknown1, fnam.mReputation, fnam.mFlags, fnam.mUnknown2, fnam.mFactionName.mData);
             mFactions.push_back(fnam);
         }
 
-        mHasAADT = false;
-        if (esm.isNextSub("AADT")) // Attack animation data?
-        {
-            mHasAADT = true;
-            esm.getHT(mAADT);
-        }
+        mHasAADT = esm.getHNOT("AADT", mAADT.animGroupIndex, mAADT.mUnknown5); // Attack animation data?
 
         if (esm.isNextSub("KNAM"))
             esm.skipHSub(); // assigned Quick Keys, I think

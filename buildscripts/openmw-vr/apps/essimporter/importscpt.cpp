@@ -1,15 +1,14 @@
 #include "importscpt.hpp"
 
-#include <components/esm/esmreader.hpp>
-
-
+#include <components/esm3/esmreader.hpp>
 
 namespace ESSImport
 {
 
-    void SCPT::load(ESM::ESMReader &esm)
+    void SCPT::load(ESM::ESMReader& esm)
     {
-        esm.getHNT(mSCHD, "SCHD");
+        esm.getHNT("SCHD", mSCHD.mName.mData, mSCHD.mNumShorts, mSCHD.mNumLongs, mSCHD.mNumFloats,
+            mSCHD.mScriptDataSize, mSCHD.mStringTableSize);
 
         mSCRI.load(esm);
 

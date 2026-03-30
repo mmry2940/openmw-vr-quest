@@ -1,9 +1,9 @@
 #ifndef MWGUI_MESSAGE_BOX_H
 #define MWGUI_MESSAGE_BOX_H
 
-#include "windowbase.hpp"
+#include <memory>
 
-#undef MessageBox
+#include "windowbase.hpp"
 
 namespace MyGUI
 {
@@ -19,84 +19,104 @@ namespace MWGui
     class MessageBox;
     class MessageBoxManager
     {
-        public:
-            MessageBoxManager (float timePerChar);
-            ~MessageBoxManager ();
-            void onFrame (float frameDuration);
-            void createMessageBox (const std::string& message, bool stat = false);
-            void removeStaticMessageBox ();
-            bool createInteractiveMessageBox (const std::string& message, const std::vector<std::string>& buttons);
-            bool isInteractiveMessageBox ();
+    public:
+        MessageBoxManager(float timePerChar);
+        ~MessageBoxManager();
+        void onFrame(float frameDuration);
+        void createMessageBox(std::string_view message, bool stat = false);
+        void removeStaticMessageBox();
+        bool createInteractiveMessageBox(std::string_view message, const std::vector<std::string>& buttons,
+            bool immediate = false, int defaultFocus = -1);
+        bool isInteractiveMessageBox();
 
-            int getMessagesCount();
+        std::size_t getMessagesCount();
 
-            const InteractiveMessageBox* getInteractiveMessageBox() const { return mInterMessageBoxe; }
+        const InteractiveMessageBox* getInteractiveMessageBox() const { return mInterMessageBoxe.get(); }
 
-            /// Remove all message boxes
-            void clear();
+        /// Remove all message boxes
+        void clear();
 
-            bool removeMessageBox (MessageBox *msgbox);
+        bool removeMessageBox(MessageBox* msgbox);
 
-            /// @param reset Reset the pressed button to -1 after reading it.
-            int readPressedButton (bool reset=true);
+        /// @param reset Reset the pressed button to -1 after reading it.
+        int readPressedButton(bool reset = true);
 
-            typedef MyGUI::delegates::CMultiDelegate1<int> EventHandle_Int;
+        void resetInteractiveMessageBox();
 
-            // Note: this delegate unassigns itself after it was fired, i.e. works once.
-            EventHandle_Int eventButtonPressed;
+        void setLastButtonPressed(int index);
 
-            void onButtonPressed(int button) { eventButtonPressed(button); eventButtonPressed.clear(); }
+        typedef MyGUI::delegates::MultiDelegate<int> EventHandle_Int;
 
-        private:
-            std::vector<MessageBox*> mMessageBoxes;
-            InteractiveMessageBox* mInterMessageBoxe;
-            MessageBox* mStaticMessageBox;
-            float mMessageBoxSpeed;
-            int mLastButtonPressed;
+        // Note: this delegate unassigns itself after it was fired, i.e. works once.
+        EventHandle_Int eventButtonPressed;
+
+        void onButtonPressed(int button)
+        {
+            eventButtonPressed(button);
+            eventButtonPressed.clear();
+        }
+
+        void setVisible(bool value);
+
+        const std::vector<std::unique_ptr<MessageBox>>& getActiveMessageBoxes() const;
+
+    private:
+        std::vector<std::unique_ptr<MessageBox>> mMessageBoxes;
+        std::unique_ptr<InteractiveMessageBox> mInterMessageBoxe;
+        MessageBox* mStaticMessageBox;
+        float mMessageBoxSpeed;
+        int mLastButtonPressed;
+        bool mVisible = true;
     };
 
     class MessageBox : public Layout
     {
-        public:
-            MessageBox (MessageBoxManager& parMessageBoxManager, const std::string& message);
-            ~MessageBox();
-            void setMessage (const std::string& message);
-            int getHeight ();
-            void update (int height);
+    public:
+        MessageBox(MessageBoxManager& parMessageBoxManager, std::string_view message);
+        const std::string& getMessage() { return mMessage; }
+        int getHeight();
+        void update(int height);
+        void setVisible(bool value);
 
-            float mCurrentTime;
-            float mMaxTime;
+        float mCurrentTime;
+        float mMaxTime;
 
-        protected:
-            MessageBoxManager& mMessageBoxManager;
-            const std::string& mMessage;
-            MyGUI::EditBox* mMessageWidget;
-            int mBottomPadding;
-            int mNextBoxPadding;
+    protected:
+        MessageBoxManager& mMessageBoxManager;
+        std::string mMessage;
+        MyGUI::EditBox* mMessageWidget;
+        int mBottomPadding;
+        int mNextBoxPadding;
     };
 
     class InteractiveMessageBox : public WindowModal
     {
-        public:
-            InteractiveMessageBox (MessageBoxManager& parMessageBoxManager, const std::string& message, const std::vector<std::string>& buttons);
-            void mousePressed (MyGUI::Widget* _widget);
-            int readPressedButton ();
+    public:
+        InteractiveMessageBox(MessageBoxManager& parMessageBoxManager, const std::string& message,
+            const std::vector<std::string>& buttons, bool immediate, size_t defaultFocus);
+        void mousePressed(MyGUI::Widget* widget);
+        int readPressedButton();
 
-            MyGUI::Widget* getDefaultKeyFocus() override;
+        MyGUI::Widget* getDefaultKeyFocus() override;
 
-            bool exit() override { return false; }
+        bool exit() override { return false; }
 
-            bool mMarkedToDelete;
+        bool mMarkedToDelete;
 
-        private:
-            void buttonActivated (MyGUI::Widget* _widget);
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
 
-            MessageBoxManager& mMessageBoxManager;
-            MyGUI::EditBox* mMessageWidget;
-            MyGUI::Widget* mButtonsWidget;
-            std::vector<MyGUI::Button*> mButtons;
+    private:
+        void buttonActivated(MyGUI::Widget* widget);
 
-            int mButtonPressed;
+        MessageBoxManager& mMessageBoxManager;
+        MyGUI::EditBox* mMessageWidget;
+        MyGUI::Widget* mButtonsWidget;
+        std::vector<MyGUI::Button*> mButtons;
+
+        int mButtonPressed;
+        size_t mDefaultFocus;
+        bool mImmediate;
+        size_t mControllerFocus = 0;
     };
 
 }

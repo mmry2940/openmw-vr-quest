@@ -11,10 +11,10 @@ namespace MWGui
         TextInputDialog();
 
         std::string getTextInput() const;
-        void setTextInput(const std::string &text);
+        void setTextInput(const std::string& text);
 
         void setNextButtonShow(bool shown);
-        void setTextLabel(const std::string &label);
+        void setTextLabel(std::string_view label);
         void onOpen() override;
 
         bool exit() override { return false; }
@@ -25,8 +25,9 @@ namespace MWGui
         EventHandle_WindowBase eventDone;
 
     protected:
-        void onOkClicked(MyGUI::Widget* _sender);
-        void onTextAccepted(MyGUI::Edit* _sender);
+        void onOkClicked(MyGUI::Widget* sender);
+        void onTextAccepted(MyGUI::EditBox* sender);
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
 
     private:
         MyGUI::EditBox* mTextEdit;

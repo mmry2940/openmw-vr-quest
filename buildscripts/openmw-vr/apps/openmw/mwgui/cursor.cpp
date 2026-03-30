@@ -1,13 +1,12 @@
 #include "cursor.hpp"
 
-#include <MyGUI_PointerManager.h>
-#include <MyGUI_InputManager.h>
-#include <MyGUI_RotatingSkin.h>
 #include <MyGUI_Gui.h>
+#include <MyGUI_InputManager.h>
+#include <MyGUI_PointerManager.h>
+#include <MyGUI_RotatingSkin.h>
 
 namespace MWGui
 {
-
 
     ResourceImageSetPointerFix::ResourceImageSetPointerFix()
         : mImageSet(nullptr)
@@ -15,19 +14,17 @@ namespace MWGui
     {
     }
 
-    ResourceImageSetPointerFix::~ResourceImageSetPointerFix()
-    {
-    }
+    ResourceImageSetPointerFix::~ResourceImageSetPointerFix() {}
 
-    void ResourceImageSetPointerFix::deserialization(MyGUI::xml::ElementPtr _node, MyGUI::Version _version)
+    void ResourceImageSetPointerFix::deserialization(MyGUI::xml::ElementPtr node, MyGUI::Version version)
     {
-        Base::deserialization(_node, _version);
+        Base::deserialization(node, version);
 
-        MyGUI::xml::ElementEnumerator info = _node->getElementEnumerator();
+        MyGUI::xml::ElementEnumerator info = node->getElementEnumerator();
         while (info.next("Property"))
         {
-            const std::string& key = info->findAttribute("key");
-            const std::string& value = info->findAttribute("value");
+            auto key = info->findAttribute("key");
+            auto value = info->findAttribute("value");
 
             if (key == "Point")
                 mPoint = MyGUI::IntPoint::parse(value);
@@ -45,18 +42,18 @@ namespace MWGui
         return mRotation;
     }
 
-    void ResourceImageSetPointerFix::setImage(MyGUI::ImageBox* _image)
+    void ResourceImageSetPointerFix::setImage(MyGUI::ImageBox* image)
     {
         if (mImageSet != nullptr)
-            _image->setItemResourceInfo(mImageSet->getIndexInfo(0, 0));
+            image->setItemResourceInfo(mImageSet->getIndexInfo(0, 0));
     }
 
-    void ResourceImageSetPointerFix::setPosition(MyGUI::ImageBox* _image, const MyGUI::IntPoint& _point)
+    void ResourceImageSetPointerFix::setPosition(MyGUI::ImageBox* image, const MyGUI::IntPoint& point)
     {
-        _image->setCoord(_point.left - mPoint.left, _point.top - mPoint.top, mSize.width, mSize.height);
+        image->setCoord(point.left - mPoint.left, point.top - mPoint.top, mSize.width, mSize.height);
     }
 
-    MyGUI::ResourceImageSetPtr ResourceImageSetPointerFix:: getImageSet()
+    MyGUI::ResourceImageSetPtr ResourceImageSetPointerFix::getImageSet()
     {
         return mImageSet;
     }

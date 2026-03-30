@@ -1,11 +1,12 @@
 #ifndef CSV_RENDER_COMMANDS_HPP
 #define CSV_RENDER_COMMANDS_HPP
 
+#include <QPointer>
 #include <QUndoCommand>
 
 namespace CSVRender
 {
-    class TerrainSelection;
+    class WorldspaceWidget;
 
     /*
         Current solution to force a redrawing of the terrain-selection grid
@@ -21,14 +22,17 @@ namespace CSVRender
     */
     class DrawTerrainSelectionCommand : public QUndoCommand
     {
+
     private:
-        TerrainSelection& mTerrainSelection;
+        QPointer<WorldspaceWidget> mWorldspaceWidget;
 
     public:
-        DrawTerrainSelectionCommand(TerrainSelection& terrainSelection, QUndoCommand* parent = nullptr);
+        DrawTerrainSelectionCommand(WorldspaceWidget* worldspaceWidget, QUndoCommand* parent = nullptr);
 
         void redo() override;
         void undo() override;
+
+        void tryUpdate();
     };
 }
 

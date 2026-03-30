@@ -1,82 +1,94 @@
 #include "filesystemarchive.hpp"
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
+
+#include "pathutil.hpp"
 
 #include <components/debug/debuglog.hpp>
+#include <components/files/constrainedfilestream.hpp>
+#include <components/files/conversion.hpp>
 
 namespace VFS
 {
 
-    FileSystemArchive::FileSystemArchive(const std::string &path)
-        : mBuiltIndex(false)
-        , mPath(path)
+    FileSystemArchive::FileSystemArchive(const std::filesystem::path& path)
+        : mPath(path)
     {
+        const auto str = mPath.u8string();
+        std::size_t prefix = str.size();
 
-    }
+        if (prefix > 0 && str[prefix - 1] != '\\' && str[prefix - 1] != '/')
+            ++prefix;
 
-    void FileSystemArchive::listResources(std::map<std::string, File *> &out, char (*normalize_function)(char))
-    {
-        if (!mBuiltIndex)
+        std::filesystem::recursive_directory_iterator iterator(mPath);
+
+        for (auto it = std::filesystem::begin(iterator), end = std::filesystem::end(iterator); it != end;)
         {
-            typedef boost::filesystem::recursive_directory_iterator directory_iterator;
+            const std::filesystem::directory_entry& entry = *it;
 
-            directory_iterator end;
-
-            size_t prefix = mPath.size ();
-
-            if (mPath.size () > 0 && mPath [prefix - 1] != '\\' && mPath [prefix - 1] != '/')
-                ++prefix;
-
-            for (directory_iterator i (mPath); i != end; ++i)
+            if (!entry.is_directory())
             {
-                if(boost::filesystem::is_directory (*i))
-                    continue;
+                const std::filesystem::path& filePath = entry.path();
+                const std::string proper = Files::pathToUnicodeString(filePath);
+                VFS::Path::Normalized searchable(std::string_view{ proper }.substr(prefix));
+                FileSystemArchiveFile file(filePath);
 
-                std::string proper = i->path ().string ();
-
-                FileSystemArchiveFile file(proper);
-
-                std::string searchable;
-
-                std::transform(proper.begin() + prefix, proper.end(), std::back_inserter(searchable), normalize_function);
-
-                const auto inserted = mIndex.insert(std::make_pair(searchable, file));
+                const auto inserted = mIndex.emplace(std::move(searchable), std::move(file));
                 if (!inserted.second)
-                    Log(Debug::Warning) << "Warning: found duplicate file for '" << proper << "', please check your file system for two files with the same name in different cases.";
-                else
-                    out[inserted.first->first] = &inserted.first->second;
+                    Log(Debug::Warning)
+                        << "Found duplicate file for '" << proper
+                        << "', please check your file system for two files with the same name in different cases.";
             }
-            mBuiltIndex = true;
-        }
-        else
-        {
-            for (index::iterator it = mIndex.begin(); it != mIndex.end(); ++it)
-            {
-                out[it->first] = &it->second;
-            }
+
+            // Exception thrown by the operator++ may not contain the context of the error like what exact path caused
+            // the problem which makes it hard to understand what's going on when iteration happens over a directory
+            // with thousands of files and subdirectories.
+            const std::filesystem::path prevPath = entry.path();
+            std::error_code ec;
+            it.increment(ec);
+            if (ec != std::error_code())
+                throw std::runtime_error("Failed to recursively iterate over \"" + Files::pathToUnicodeString(mPath)
+                    + "\" when incrementing to the next item from \"" + Files::pathToUnicodeString(prevPath)
+                    + "\": " + ec.message());
         }
     }
 
-    bool FileSystemArchive::contains(const std::string& file, char (*normalize_function)(char)) const
+    void FileSystemArchive::listResources(FileMap& out)
+    {
+        for (auto& [k, v] : mIndex)
+            out[k] = &v;
+    }
+
+    bool FileSystemArchive::contains(Path::NormalizedView file) const
     {
         return mIndex.find(file) != mIndex.end();
     }
 
     std::string FileSystemArchive::getDescription() const
     {
-        return std::string{"DIR: "} + mPath;
+        return "DIR: " + Files::pathToUnicodeString(mPath);
     }
 
     // ----------------------------------------------------------------------------------
 
-    FileSystemArchiveFile::FileSystemArchiveFile(const std::string &path)
+    FileSystemArchiveFile::FileSystemArchiveFile(const std::filesystem::path& path)
         : mPath(path)
     {
     }
 
     Files::IStreamPtr FileSystemArchiveFile::open()
     {
-        return Files::openConstrainedFileStream(mPath.c_str());
+        return Files::openConstrainedFileStream(mPath);
+    }
+
+    std::filesystem::file_time_type FileSystemArchiveFile::getLastModified() const
+    {
+        return std::filesystem::last_write_time(mPath);
+    }
+
+    std::string FileSystemArchiveFile::getStem() const
+    {
+        return Files::pathToUnicodeString(mPath.stem());
     }
 
 }

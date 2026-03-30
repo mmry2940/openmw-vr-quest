@@ -18,36 +18,36 @@ namespace Gui
         }
     }
 
-    void SharedStateButton::shareStateWith(ButtonGroup shared)
+    void SharedStateButton::shareStateWith(const ButtonGroup& shared)
     {
         mSharedWith = shared;
     }
 
-    void SharedStateButton::onMouseButtonPressed(int _left, int _top, MyGUI::MouseButton _id)
+    void SharedStateButton::onMouseButtonPressed(int left, int top, MyGUI::MouseButton id)
     {
         mIsMousePressed = true;
-        Base::onMouseButtonPressed(_left, _top, _id);
+        Base::onMouseButtonPressed(left, top, id);
         updateButtonState();
     }
 
-    void SharedStateButton::onMouseButtonReleased(int _left, int _top, MyGUI::MouseButton _id)
+    void SharedStateButton::onMouseButtonReleased(int left, int top, MyGUI::MouseButton id)
     {
         mIsMousePressed = false;
-        Base::onMouseButtonReleased(_left, _top, _id);
+        Base::onMouseButtonReleased(left, top, id);
         updateButtonState();
     }
 
-    void SharedStateButton::onMouseSetFocus(MyGUI::Widget *_old)
+    void SharedStateButton::onMouseSetFocus(MyGUI::Widget* oldWidget)
     {
         mIsMouseFocus = true;
-        Base::onMouseSetFocus(_old);
+        Base::onMouseSetFocus(oldWidget);
         updateButtonState();
     }
 
-    void SharedStateButton::onMouseLostFocus(MyGUI::Widget *_new)
+    void SharedStateButton::onMouseLostFocus(MyGUI::Widget* newWidget)
     {
         mIsMouseFocus = false;
-        Base::onMouseLostFocus(_new);
+        Base::onMouseLostFocus(newWidget);
         updateButtonState();
     }
 
@@ -57,9 +57,9 @@ namespace Gui
         updateButtonState();
     }
 
-    void SharedStateButton::setStateSelected(bool _value)
+    void SharedStateButton::setStateSelected(bool value)
     {
-        Base::setStateSelected(_value);
+        Base::setStateSelected(value);
         updateButtonState();
 
         for (ButtonGroup::iterator it = mSharedWith.begin(); it != mSharedWith.end(); ++it)
@@ -68,14 +68,14 @@ namespace Gui
         }
     }
 
-    bool SharedStateButton::_setState(const std::string &_value)
+    bool SharedStateButton::_setState(const std::string& value)
     {
-        bool ret = _setWidgetState(_value);
+        bool ret = _setWidgetState(value);
         if (ret)
         {
             for (ButtonGroup::iterator it = mSharedWith.begin(); it != mSharedWith.end(); ++it)
             {
-                (*it)->_setWidgetState(_value);
+                (*it)->_setWidgetState(value);
             }
         }
         return ret;
@@ -116,7 +116,7 @@ namespace Gui
         }
     }
 
-    void SharedStateButton::createButtonGroup(ButtonGroup group)
+    void SharedStateButton::createButtonGroup(ButtonGroup& group)
     {
         for (ButtonGroup::iterator it = group.begin(); it != group.end(); ++it)
         {

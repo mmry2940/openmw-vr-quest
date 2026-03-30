@@ -15,8 +15,8 @@ namespace Gui
     public:
         MWList();
 
-        typedef MyGUI::delegates::CMultiDelegate2<const std::string&, int> EventHandle_StringInt;
-        typedef MyGUI::delegates::CMultiDelegate1<MyGUI::Widget*> EventHandle_Widget;
+        typedef MyGUI::delegates::MultiDelegate<const std::string&, int> EventHandle_StringInt;
+        typedef MyGUI::delegates::MultiDelegate<MyGUI::Widget*> EventHandle_Widget;
 
         /**
          * Event: Item selected with the mouse.
@@ -30,40 +30,53 @@ namespace Gui
          */
         EventHandle_Widget eventWidgetSelected;
 
-
         /**
          * Call after the size of the list changed, or items were inserted/removed
          */
         void adjustSize();
 
-        void addItem(const std::string& name);
+        void sort();
+        void addItem(std::string_view name, int verticalPadding = 0);
         void addSeparator(); ///< add a seperator between the current and the next item.
         void removeItem(const std::string& name);
-        unsigned int getItemCount();
-        std::string getItemNameAt(unsigned int at); ///< \attention if there are separators, this method will return "" at the place where the separator is
+        size_t getItemCount();
+        const std::string& getItemNameAt(size_t at); ///< \attention if there are separators, this method will return ""
+                                                     ///< at the place where the separator is
         void clear();
 
-        MyGUI::Button* getItemWidget(const std::string& name);
+        MyGUI::Button* getItemWidget(std::string_view name);
         ///< get widget for an item name, useful to set up tooltip
 
         void scrollToTop();
+        void setViewOffset(int offset);
 
-        void setPropertyOverride(const std::string& _key, const std::string& _value) override;
+        void setPropertyOverride(std::string_view key, std::string_view value) override;
 
     protected:
         void initialiseOverride() override;
 
         void redraw(bool scrollbarShown = false);
 
-        void onMouseWheelMoved(MyGUI::Widget* _sender, int _rel);
-        void onItemSelected(MyGUI::Widget* _sender);
+        void onMouseWheelMoved(MyGUI::Widget* sender, int rel);
+        void onItemSelected(MyGUI::Widget* sender);
 
     private:
         MyGUI::ScrollView* mScrollView;
         MyGUI::Widget* mClient;
         std::string mListItemSkin;
 
-        std::vector<std::string> mItems;
+        struct ListItemData
+        {
+            std::string mName;
+            int mVPadding;
+
+            ListItemData(std::string_view name, int verticalPadding)
+                : mName(name)
+                , mVPadding(verticalPadding)
+            {
+            }
+        };
+        std::vector<ListItemData> mItems;
 
         int mItemHeight; // height of all items
     };

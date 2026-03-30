@@ -1,44 +1,47 @@
 #ifndef CSM_PREFS_CATEGORY_H
 #define CSM_PREFS_CATEGORY_H
 
+#include <algorithm>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace CSMPrefs
 {
     class State;
     class Setting;
+    class Subcategory;
 
     class Category
     {
-        public:
+    public:
+        typedef std::vector<Setting*> Container;
+        typedef Container::iterator Iterator;
 
-            typedef std::vector<Setting *> Container;
-            typedef Container::iterator Iterator;
+    private:
+        State* mParent;
+        std::string mKey;
+        Container mSettings;
+        std::unordered_map<std::string, Setting*> mIndex;
 
-        private:
+    public:
+        Category(State* parent, const std::string& key);
 
-            State *mParent;
-            std::string mKey;
-            Container mSettings;
+        const std::string& getKey() const;
 
-        public:
+        State* getState() const;
 
-            Category (State *parent, const std::string& key);
+        void addSetting(Setting* setting);
 
-            const std::string& getKey() const;
+        void addSubcategory(Subcategory* setting);
 
-            State *getState() const;
+        Iterator begin();
 
-            void addSetting (Setting *setting);
+        Iterator end();
 
-            Iterator begin();
+        Setting& operator[](const std::string& key);
 
-            Iterator end();
-
-            Setting& operator[] (const std::string& key);
-
-            void update();
+        void update();
     };
 }
 

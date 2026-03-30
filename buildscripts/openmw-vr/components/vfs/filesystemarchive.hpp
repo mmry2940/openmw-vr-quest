@@ -2,6 +2,10 @@
 #define OPENMW_COMPONENTS_RESOURCE_FILESYSTEMARCHIVE_H
 
 #include "archive.hpp"
+#include "file.hpp"
+
+#include <filesystem>
+#include <string>
 
 namespace VFS
 {
@@ -9,33 +13,32 @@ namespace VFS
     class FileSystemArchiveFile : public File
     {
     public:
-        FileSystemArchiveFile(const std::string& path);
+        FileSystemArchiveFile(const std::filesystem::path& path);
 
         Files::IStreamPtr open() override;
 
-    private:
-        std::string mPath;
+        std::filesystem::file_time_type getLastModified() const override;
 
+        std::string getStem() const override;
+
+    private:
+        std::filesystem::path mPath;
     };
 
     class FileSystemArchive : public Archive
     {
     public:
-        FileSystemArchive(const std::string& path);
+        FileSystemArchive(const std::filesystem::path& path);
 
-        void listResources(std::map<std::string, File*>& out, char (*normalize_function) (char)) override;
+        void listResources(FileMap& out) override;
 
-        bool contains(const std::string& file, char (*normalize_function) (char)) const override;
+        bool contains(Path::NormalizedView file) const override;
 
         std::string getDescription() const override;
 
     private:
-        typedef std::map <std::string, FileSystemArchiveFile> index;
-        index mIndex;
-
-        bool mBuiltIndex;
-        std::string mPath;
-
+        std::map<VFS::Path::Normalized, FileSystemArchiveFile, std::less<>> mIndex;
+        std::filesystem::path mPath;
     };
 
 }

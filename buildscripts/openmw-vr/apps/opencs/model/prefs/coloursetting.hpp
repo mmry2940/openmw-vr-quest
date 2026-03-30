@@ -5,6 +5,14 @@
 
 #include <QColor>
 
+#include <string>
+#include <string_view>
+#include <utility>
+
+class QMutex;
+class QObject;
+class QWidget;
+
 namespace CSVWidget
 {
     class ColorEditor;
@@ -12,30 +20,29 @@ namespace CSVWidget
 
 namespace CSMPrefs
 {
-    class ColourSetting : public Setting
+    class Category;
+
+    class ColourSetting final : public TypedSetting<std::string>
     {
-            Q_OBJECT
+        Q_OBJECT
 
-            std::string mTooltip;
-            QColor mDefault;
-            CSVWidget::ColorEditor* mWidget;
+        std::string mTooltip;
+        CSVWidget::ColorEditor* mWidget;
 
-        public:
+    public:
+        explicit ColourSetting(
+            Category* parent, QMutex* mutex, std::string_view key, const QString& label, Settings::Index& index);
 
-            ColourSetting (Category *parent, Settings::Manager *values,
-                QMutex *mutex, const std::string& key, const std::string& label,
-                QColor default_);
+        ColourSetting& setTooltip(const std::string& tooltip);
 
-            ColourSetting& setTooltip (const std::string& tooltip);
+        /// Return label, input widget.
+        SettingWidgets makeWidgets(QWidget* parent) override;
 
-            /// Return label, input widget.
-            std::pair<QWidget *, QWidget *> makeWidgets (QWidget *parent) override;
+        void updateWidget() override;
 
-            void updateWidget() override;
+    private slots:
 
-        private slots:
-
-            void valueChanged();
+        void valueChanged();
     };
 }
 

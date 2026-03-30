@@ -1,14 +1,17 @@
 #ifndef GAME_SCRIPT_GLOBALSCRIPTS_H
 #define GAME_SCRIPT_GLOBALSCRIPTS_H
 
-#include <boost/variant/variant.hpp>
-
-#include <string>
+#include <cstdint>
 #include <map>
 #include <memory>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 #include <utility>
+#include <variant>
 
-#include <stdint.h>
+#include <components/esm/refid.hpp>
+#include <components/misc/algorithm.hpp>
 
 #include "locals.hpp"
 
@@ -18,7 +21,8 @@ namespace ESM
 {
     class ESMWriter;
     class ESMReader;
-    struct RefNum;
+    struct FormId;
+    using RefNum = FormId;
 }
 
 namespace Loading
@@ -37,7 +41,7 @@ namespace MWScript
     {
         bool mRunning;
         Locals mLocals;
-        boost::variant<MWWorld::Ptr, std::pair<ESM::RefNum, std::string> > mTarget; // Used to start targeted script
+        std::variant<MWWorld::Ptr, std::pair<ESM::RefNum, ESM::RefId>> mTarget; // Used to start targeted script
 
         GlobalScriptDesc();
 
@@ -45,49 +49,50 @@ namespace MWScript
 
         MWWorld::Ptr getPtr(); // Resolves mTarget to a Ptr and caches the (potentially empty) result
 
-        std::string getId() const; // Returns the target's ID -- if any
+        ESM::RefId getId() const; // Returns the target's ID -- if any
     };
 
     class GlobalScripts
     {
-            const MWWorld::ESMStore& mStore;
-            std::map<std::string, std::shared_ptr<GlobalScriptDesc> > mScripts;
+        const MWWorld::ESMStore& mStore;
+        std::unordered_map<ESM::RefId, std::shared_ptr<GlobalScriptDesc>> mScripts;
 
-        public:
+    public:
+        GlobalScripts(const MWWorld::ESMStore& store);
 
-            GlobalScripts (const MWWorld::ESMStore& store);
+        void addScript(const ESM::RefId& name, const MWWorld::Ptr& target = MWWorld::Ptr());
 
-            void addScript (const std::string& name, const MWWorld::Ptr& target = MWWorld::Ptr());
+        void removeScript(const ESM::RefId& name);
 
-            void removeScript (const std::string& name);
+        const std::unordered_map<ESM::RefId, std::shared_ptr<GlobalScriptDesc>>& getScripts() const { return mScripts; }
 
-            bool isRunning (const std::string& name) const;
+        bool isRunning(const ESM::RefId& name) const;
 
-            void run();
-            ///< run all active global scripts
+        void run();
+        ///< run all active global scripts
 
-            void clear();
+        void clear();
 
-            void addStartup();
-            ///< Add startup script
+        void addStartup();
+        ///< Add startup script
 
-            int countSavedGameRecords() const;
+        int countSavedGameRecords() const;
 
-            void write (ESM::ESMWriter& writer, Loading::Listener& progress) const;
+        void write(ESM::ESMWriter& writer, Loading::Listener& progress) const;
 
-            bool readRecord (ESM::ESMReader& reader, uint32_t type, const std::map<int, int>& contentFileMap);
-            ///< Records for variables that do not exist are dropped silently.
-            ///
-            /// \return Known type?
+        bool readRecord(ESM::ESMReader& reader, uint32_t type);
+        ///< Records for variables that do not exist are dropped silently.
+        ///
+        /// \return Known type?
 
-            Locals& getLocals (const std::string& name);
-            ///< If the script \a name has not been added as a global script yet, it is added
-            /// automatically, but is not set to running state.
+        Locals& getLocals(const ESM::RefId& name);
+        ///< If the script \a name has not been added as a global script yet, it is added
+        /// automatically, but is not set to running state.
 
-            const Locals* getLocalsIfPresent (const std::string& name) const;
+        const GlobalScriptDesc* getScriptIfPresent(const ESM::RefId& name) const;
 
-            void updatePtrs(const MWWorld::Ptr& base, const MWWorld::Ptr& updated);
-            ///< Update the Ptrs stored in mTarget. Should be called after the reference has been moved to a new cell.
+        void updatePtrs(const MWWorld::Ptr& base, const MWWorld::Ptr& updated);
+        ///< Update the Ptrs stored in mTarget. Should be called after the reference has been moved to a new cell.
     };
 }
 

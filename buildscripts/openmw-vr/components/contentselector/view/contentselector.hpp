@@ -1,12 +1,21 @@
 #ifndef CONTENTSELECTOR_HPP
 #define CONTENTSELECTOR_HPP
 
-#include <QDialog>
+#include <memory>
 
-#include "ui_contentselector.h"
+#include <QComboBox>
+#include <QDialog>
+#include <QMenu>
+#include <QToolButton>
+
 #include <components/contentselector/model/contentmodel.hpp>
 
 class QSortFilterProxyModel;
+
+namespace Ui
+{
+    class ContentSelector;
+}
 
 namespace ContentSelectorView
 {
@@ -14,59 +23,58 @@ namespace ContentSelectorView
     {
         Q_OBJECT
 
-        QMenu *mContextMenu;
+        QMenu* mContextMenu;
 
     protected:
-
-        ContentSelectorModel::ContentModel *mContentModel;
-        QSortFilterProxyModel *mAddonProxyModel;
+        ContentSelectorModel::ContentModel* mContentModel;
+        QSortFilterProxyModel* mAddonProxyModel;
 
     public:
+        explicit ContentSelector(QWidget* parent = nullptr, bool showOMWScripts = false);
 
-        explicit ContentSelector(QWidget *parent = nullptr);
+        ~ContentSelector() override;
 
         QString currentFile() const;
 
-        void addFiles(const QString &path);
+        void addFiles(const QString& path, bool newfiles = false);
+        void sortFiles();
+        bool containsDataFiles(const QString& path);
         void clearFiles();
-        void setProfileContent (const QStringList &fileList);
+        void setNonUserContent(const QStringList& fileList);
+        void setProfileContent(const QStringList& fileList);
 
         void clearCheckStates();
-        void setEncoding (const QString &encoding);
-        void setContentList(const QStringList &list);
+        void setEncoding(const QString& encoding);
+        void setContentList(const QStringList& list);
 
         ContentSelectorModel::ContentFileList selectedFiles() const;
 
-        void setGameFile (const QString &filename = QString(""));
+        void setGameFile(const QString& filename = QString(""));
 
-        bool isGamefileSelected() const
-            { return ui.gameFileView->currentIndex() != -1; }
+        bool isGamefileSelected() const;
 
-        QWidget *uiWidget() const
-            { return ui.contentGroupBox; }
-            
-        QToolButton *refreshButton() const  
-            { return ui.refreshButton; }        
+        QWidget* uiWidget() const;
 
-        QLineEdit *searchFilter() const
-            { return ui.searchFilter; }
+        QComboBox* languageBox() const;
 
+        QToolButton* refreshButton() const;
 
-   private:
+        QLineEdit* searchFilter() const;
 
-        Ui::ContentSelector ui;
+    private:
+        std::unique_ptr<Ui::ContentSelector> ui;
 
-        void buildContentModel();
+        void buildContentModel(bool showOMWScripts);
         void buildGameFileView();
         void buildAddonView();
         void buildContextMenu();
         void setGameFileSelected(int index, bool selected);
-        void setCheckStateForMultiSelectedItems(bool checked);
+        void setCheckStateForMultiSelectedItems(Qt::CheckState checkState);
 
     signals:
-        void signalCurrentGamefileIndexChanged (int);
+        void signalCurrentGamefileIndexChanged(int);
 
-        void signalAddonDataChanged (const QModelIndex& topleft, const QModelIndex& bottomright);
+        void signalAddonDataChanged(const QModelIndex& topleft, const QModelIndex& bottomright);
         void signalSelectedFilesChanged(QStringList selectedFiles);
 
     private slots:
@@ -78,6 +86,7 @@ namespace ContentSelectorView
         void slotUncheckMultiSelectedItems();
         void slotCopySelectedItemsPaths();
         void slotSearchFilterTextChanged(const QString& newText);
+        void slotRowsMoved();
     };
 }
 

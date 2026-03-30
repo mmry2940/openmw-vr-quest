@@ -16,27 +16,30 @@ namespace MWRender
     class TerrainStorage : public ESMTerrain::Storage
     {
     public:
-
-        TerrainStorage(Resource::ResourceSystem* resourceSystem, const std::string& normalMapPattern = "", const std::string& normalHeightMapPattern = "", bool autoUseNormalMaps = false, const std::string& specularMapPattern = "", bool autoUseSpecularMaps = false);
+        TerrainStorage(Resource::ResourceSystem* resourceSystem, std::string_view normalMapPattern = {},
+            std::string_view normalHeightMapPattern = {}, bool autoUseNormalMaps = false,
+            std::string_view specularMapPattern = {}, bool autoUseSpecularMaps = false);
         ~TerrainStorage();
 
-        osg::ref_ptr<const ESMTerrain::LandObject> getLand (int cellX, int cellY) override;
-        const ESM::LandTexture* getLandTexture(int index, short plugin) override;
+        osg::ref_ptr<const ESMTerrain::LandObject> getLand(ESM::ExteriorCellLocation cellLocation) override;
+        const std::string* getLandTexture(std::uint16_t index, int plugin) override;
 
-        bool hasData(int cellX, int cellY) override;
+        const ESM4::LandTexture* getEsm4LandTexture(ESM::RefId ltexId) const override;
+        const ESM4::TextureSet* getEsm4TextureSet(ESM::RefId txstId) const override;
+
+        bool hasData(ESM::ExteriorCellLocation cellLocation) override;
 
         /// Get bounds of the whole terrain in cell units
-        void getBounds(float& minX, float& maxX, float& minY, float& maxY) override;
+        void getBounds(float& minX, float& maxX, float& minY, float& maxY, ESM::RefId worldspace) override;
 
         LandManager* getLandManager() const;
 
     private:
-       std::unique_ptr<LandManager> mLandManager;
+        std::unique_ptr<LandManager> mLandManager;
 
-       Resource::ResourceSystem* mResourceSystem;
+        Resource::ResourceSystem* mResourceSystem;
     };
 
 }
-
 
 #endif

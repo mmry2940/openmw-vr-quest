@@ -4,16 +4,27 @@
 #include <osg/Geometry>
 #include <osg/Matrixf>
 
+#include <string_view>
+
 namespace SceneUtil
 {
     class Skeleton;
     class Bone;
 
+    // TODO: This class has a lot of issues.
+    // - We require too many workarounds to ensure safety.
+    // - mSourceGeometry should be const, but can not be const because of a use case in shadervisitor.cpp.
+    // - We create useless mGeometry clones in template RigGeometries.
+    // - We do not support compileGLObjects.
+    // - We duplicate some code in MorphGeometry.
+
     /// @brief Mesh skinning implementation.
     /// @note A RigGeometry may be attached directly to a Skeleton, or somewhere below a Skeleton.
-    /// Note though that the RigGeometry ignores any transforms below the Skeleton, so the attachment point is not that important.
-    /// @note The internal Geometry used for rendering is double buffered, this allows updates to be done in a thread safe way while
-    /// not compromising rendering performance. This is crucial when using osg's default threading model of DrawThreadPerContext.
+    /// Note though that the RigGeometry ignores any transforms below the Skeleton, so the attachment point is not that
+    /// important.
+    /// @note The internal Geometry used for rendering is double buffered, this allows updates to be done in a thread
+    /// safe way while not compromising rendering performance. This is crucial when using osg's default threading model
+    /// of DrawThreadPerContext.
     class RigGeometry : public osg::Drawable
     {
     public:
@@ -22,32 +33,41 @@ namespace SceneUtil
 
         META_Object(SceneUtil, RigGeometry)
 
-        // Currently empty as this is difficult to implement. Technically we would need to compile both internal geometries in separate frames but this method is only called once. Alternatively we could compile just the static parts of the model.
+        // Currently empty as this is difficult to implement. Technically we would need to compile both internal
+        // geometries in separate frames but this method is only called once. Alternatively we could compile just the
+        // static parts of the model.
         void compileGLObjects(osg::RenderInfo& renderInfo) const override {}
 
-        struct BoneInfluence
+        struct BoneInfo
         {
-            osg::Matrixf mInvBindMatrix;
+            std::string mName;
             osg::BoundingSpheref mBoundSphere;
-            // <vertex index, weight>
-            std::vector<std::pair<unsigned short, float>> mWeights;
+            osg::Matrixf mInvBindMatrix;
         };
 
-        struct InfluenceMap : public osg::Referenced
-        {
-            std::vector<std::pair<std::string, BoneInfluence>> mData;
-        };
+        using VertexWeight = std::pair<unsigned short, float>;
+        using VertexWeights = std::vector<VertexWeight>;
+        using BoneWeight = std::pair<size_t, float>;
+        using BoneWeights = std::vector<BoneWeight>;
 
-        void setInfluenceMap(osg::ref_ptr<InfluenceMap> influenceMap);
+        void setBoneInfo(std::vector<BoneInfo>&& bones);
+        // Convert influences in vertex and weight list per bone format
+        void setInfluences(const std::vector<VertexWeights>& influences);
+        // Convert influences in bone and weight list per vertex format
+        void setInfluences(const std::vector<BoneWeights>& influences);
 
         /// Initialize this geometry from the source geometry.
         /// @note The source geometry will not be modified.
         void setSourceGeometry(osg::ref_ptr<osg::Geometry> sourceGeom);
 
+        void setTransform(osg::Matrixf&& transform);
+
+        void setRootBone(std::string_view name);
+
         osg::ref_ptr<osg::Geometry> getSourceGeometry() const;
 
-        void accept(osg::NodeVisitor &nv) override;
-        bool supports(const osg::PrimitiveFunctor&) const override{ return true; }
+        void accept(osg::NodeVisitor& nv) override;
+        bool supports(const osg::PrimitiveFunctor&) const override { return true; }
         void accept(osg::PrimitiveFunctor&) const override;
 
         struct CopyBoundingBoxCallback : osg::Drawable::ComputeBoundingBoxCallback
@@ -73,39 +93,27 @@ namespace SceneUtil
 
         osg::ref_ptr<osg::Geometry> mSourceGeometry;
         osg::ref_ptr<const osg::Vec4Array> mSourceTangents;
-        Skeleton* mSkeleton;
+        Skeleton* mSkeleton{ nullptr };
 
-        osg::ref_ptr<osg::RefMatrix> mGeomToSkelMatrix;
+        osg::ref_ptr<osg::RefMatrix> mSkinToSkelMatrix;
 
-        osg::ref_ptr<InfluenceMap> mInfluenceMap;
-
-        typedef std::pair<std::string, osg::Matrixf> BoneBindMatrixPair;
-
-        typedef std::pair<BoneBindMatrixPair, float> BoneWeight;
-
-        typedef std::vector<unsigned short> VertexList;
-
-        typedef std::map<std::vector<BoneWeight>, VertexList> Bone2VertexMap;
-
-        struct Bone2VertexVector : public osg::Referenced
+        using VertexList = std::vector<unsigned short>;
+        struct InfluenceData : public osg::Referenced
         {
-            std::vector<std::pair<std::vector<BoneWeight>, VertexList>> mData;
+            std::vector<BoneInfo> mBones;
+            std::vector<std::pair<BoneWeights, VertexList>> mInfluences;
+            osg::Matrixf mTransform;
+            std::string mRootBone;
         };
-        osg::ref_ptr<Bone2VertexVector> mBone2VertexVector;
+        osg::ref_ptr<InfluenceData> mData;
+        std::vector<Bone*> mNodes;
 
-        struct BoneSphereVector : public osg::Referenced
-        {
-            std::vector<std::pair<std::string, osg::BoundingSpheref>> mData;
-        };
-        osg::ref_ptr<BoneSphereVector> mBoneSphereVector;
-        std::vector<Bone*> mBoneNodesVector;
-
-        unsigned int mLastFrameNumber;
-        bool mBoundsFirstFrame;
+        unsigned int mLastFrameNumber{ 0 };
+        bool mBoundsFirstFrame{ true };
 
         bool initFromParentSkeleton(osg::NodeVisitor* nv);
 
-        void updateGeomToSkelMatrix(const osg::NodePath& nodePath);
+        void updateSkinToSkelMatrix(const osg::NodePath& nodePath);
     };
 
 }

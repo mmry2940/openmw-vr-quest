@@ -1,13 +1,20 @@
 #include "birth.hpp"
 
-#include <MyGUI_ListBox.h>
-#include <MyGUI_ImageBox.h>
 #include <MyGUI_Gui.h>
+#include <MyGUI_ImageBox.h>
+#include <MyGUI_ListBox.h>
 #include <MyGUI_ScrollView.h>
+#include <MyGUI_UString.h>
+
+#include <components/esm3/loadbsgn.hpp>
+#include <components/esm3/loadspel.hpp>
+#include <components/misc/resourcehelpers.hpp>
+#include <components/resource/resourcesystem.hpp>
+#include <components/settings/values.hpp>
 
 #include "../mwbase/environment.hpp"
-#include "../mwbase/world.hpp"
 #include "../mwbase/windowmanager.hpp"
+#include "../mwbase/world.hpp"
 
 #include "../mwworld/esmstore.hpp"
 #include "../mwworld/player.hpp"
@@ -17,9 +24,10 @@
 namespace
 {
 
-    bool sortBirthSigns(const std::pair<std::string, const ESM::BirthSign*>& left, const std::pair<std::string, const ESM::BirthSign*>& right)
+    bool sortBirthSigns(const std::pair<ESM::RefId, const ESM::BirthSign*>& left,
+        const std::pair<ESM::RefId, const ESM::BirthSign*>& right)
     {
-        return left.second->mName.compare (right.second->mName) < 0;
+        return left.second->mName.compare(right.second->mName) < 0;
     }
 
 }
@@ -28,7 +36,7 @@ namespace MWGui
 {
 
     BirthDialog::BirthDialog()
-      : WindowModal("openmw_chargen_birth.layout")
+        : WindowModal("openmw_chargen_birth.layout")
     {
         // Centre dialog
         center();
@@ -42,14 +50,20 @@ namespace MWGui
         mBirthList->eventListSelectAccept += MyGUI::newDelegate(this, &BirthDialog::onAccept);
         mBirthList->eventListChangePosition += MyGUI::newDelegate(this, &BirthDialog::onSelectBirth);
 
-        MyGUI::Button* backButton;
-        getWidget(backButton, "BackButton");
-        backButton->eventMouseButtonClick += MyGUI::newDelegate(this, &BirthDialog::onBackClicked);
+        getWidget(mBackButton, "BackButton");
+        mBackButton->eventMouseButtonClick += MyGUI::newDelegate(this, &BirthDialog::onBackClicked);
 
-        MyGUI::Button* okButton;
-        getWidget(okButton, "OKButton");
-        okButton->setCaption(MWBase::Environment::get().getWindowManager()->getGameSettingString("sOK", ""));
-        okButton->eventMouseButtonClick += MyGUI::newDelegate(this, &BirthDialog::onOkClicked);
+        getWidget(mOkButton, "OKButton");
+        mOkButton->setCaption(
+            MyGUI::UString(MWBase::Environment::get().getWindowManager()->getGameSettingString("sOK", {})));
+        mOkButton->eventMouseButtonClick += MyGUI::newDelegate(this, &BirthDialog::onOkClicked);
+
+        if (Settings::gui().mControllerMenus)
+        {
+            mControllerButtons.mLStick = "#{Interface:Mouse}";
+            mControllerButtons.mA = "#{Interface:Select}";
+            mControllerButtons.mB = "#{Interface:Back}";
+        }
 
         updateBirths();
         updateSpells();
@@ -61,9 +75,20 @@ namespace MWGui
         getWidget(okButton, "OKButton");
 
         if (shown)
-            okButton->setCaption(MWBase::Environment::get().getWindowManager()->getGameSettingString("sNext", ""));
+        {
+            okButton->setCaption(
+                MyGUI::UString(MWBase::Environment::get().getWindowManager()->getGameSettingString("sNext", {})));
+            mControllerButtons.mX = "#{Interface:Next}";
+        }
+        else if (Settings::gui().mControllerMenus)
+        {
+            okButton->setCaption(
+                MyGUI::UString(MWBase::Environment::get().getWindowManager()->getGameSettingString("sDone", {})));
+            mControllerButtons.mX = "#{Interface:Done}";
+        }
         else
-            okButton->setCaption(MWBase::Environment::get().getWindowManager()->getGameSettingString("sOK", ""));
+            okButton->setCaption(
+                MyGUI::UString(MWBase::Environment::get().getWindowManager()->getGameSettingString("sOK", {})));
     }
 
     void BirthDialog::onOpen()
@@ -74,21 +99,20 @@ namespace MWGui
         MWBase::Environment::get().getWindowManager()->setKeyFocusWidget(mBirthList);
 
         // Show the current birthsign by default
-        const std::string &signId =
-            MWBase::Environment::get().getWorld()->getPlayer().getBirthSign();
+        const auto& signId = MWBase::Environment::get().getWorld()->getPlayer().getBirthSign();
 
         if (!signId.empty())
             setBirthId(signId);
     }
 
-    void BirthDialog::setBirthId(const std::string &birthId)
+    void BirthDialog::setBirthId(const ESM::RefId& birthId)
     {
         mCurrentBirthId = birthId;
         mBirthList->setIndexSelected(MyGUI::ITEM_NONE);
         size_t count = mBirthList->getItemCount();
         for (size_t i = 0; i < count; ++i)
         {
-            if (Misc::StringUtils::ciEqual(*mBirthList->getItemDataAt<std::string>(i), birthId))
+            if (*mBirthList->getItemDataAt<ESM::RefId>(i) == birthId)
             {
                 mBirthList->setIndexSelected(i);
                 break;
@@ -100,36 +124,36 @@ namespace MWGui
 
     // widget controls
 
-    void BirthDialog::onOkClicked(MyGUI::Widget* _sender)
+    void BirthDialog::onOkClicked(MyGUI::Widget* /*sender*/)
     {
-        if(mBirthList->getIndexSelected() == MyGUI::ITEM_NONE)
+        if (mBirthList->getIndexSelected() == MyGUI::ITEM_NONE)
             return;
         eventDone(this);
     }
 
-    void BirthDialog::onAccept(MyGUI::ListBox *_sender, size_t _index)
+    void BirthDialog::onAccept(MyGUI::ListBox* sender, size_t index)
     {
-        onSelectBirth(_sender, _index);
-        if(mBirthList->getIndexSelected() == MyGUI::ITEM_NONE)
+        onSelectBirth(sender, index);
+        if (mBirthList->getIndexSelected() == MyGUI::ITEM_NONE)
             return;
         eventDone(this);
     }
 
-    void BirthDialog::onBackClicked(MyGUI::Widget* _sender)
+    void BirthDialog::onBackClicked(MyGUI::Widget* /*sender*/)
     {
         eventBack();
     }
 
-    void BirthDialog::onSelectBirth(MyGUI::ListBox* _sender, size_t _index)
+    void BirthDialog::onSelectBirth(MyGUI::ListBox* /*sender*/, size_t index)
     {
-        if (_index == MyGUI::ITEM_NONE)
+        if (index == MyGUI::ITEM_NONE)
             return;
 
-        const std::string *birthId = mBirthList->getItemDataAt<std::string>(_index);
-        if (Misc::StringUtils::ciEqual(mCurrentBirthId, *birthId))
+        const ESM::RefId& birthId = *mBirthList->getItemDataAt<ESM::RefId>(index);
+        if (mCurrentBirthId == birthId)
             return;
 
-        mCurrentBirthId = *birthId;
+        mCurrentBirthId = birthId;
         updateSpells();
     }
 
@@ -139,11 +163,10 @@ namespace MWGui
     {
         mBirthList->removeAllItems();
 
-        const MWWorld::Store<ESM::BirthSign> &signs =
-            MWBase::Environment::get().getWorld()->getStore().get<ESM::BirthSign>();
+        const MWWorld::Store<ESM::BirthSign>& signs = MWBase::Environment::get().getESMStore()->get<ESM::BirthSign>();
 
         // sort by name
-        std::vector < std::pair<std::string, const ESM::BirthSign*> > birthSigns;
+        std::vector<std::pair<ESM::RefId, const ESM::BirthSign*>> birthSigns;
 
         for (const ESM::BirthSign& sign : signs)
         {
@@ -160,7 +183,7 @@ namespace MWGui
                 mBirthList->setIndexSelected(index);
                 mCurrentBirthId = birthsignPair.first;
             }
-            else if (Misc::StringUtils::ciEqual(birthsignPair.first, mCurrentBirthId))
+            else if (birthsignPair.first == mCurrentBirthId)
             {
                 mBirthList->setIndexSelected(index);
             }
@@ -181,25 +204,24 @@ namespace MWGui
             return;
 
         Widgets::MWSpellPtr spellWidget;
-        const int lineHeight = 18;
-        MyGUI::IntCoord coord(0, 0, mSpellArea->getWidth(), 18);
+        const int lineHeight = Settings::gui().mFontSize + 2;
+        MyGUI::IntCoord coord(0, 0, mSpellArea->getWidth(), lineHeight);
 
-        const MWWorld::ESMStore &store =
-            MWBase::Environment::get().getWorld()->getStore();
+        const MWWorld::ESMStore& store = *MWBase::Environment::get().getESMStore();
 
-        const ESM::BirthSign *birth =
-            store.get<ESM::BirthSign>().find(mCurrentBirthId);
+        const ESM::BirthSign* birth = store.get<ESM::BirthSign>().find(mCurrentBirthId);
 
-        mBirthImage->setImageTexture(MWBase::Environment::get().getWindowManager()->correctTexturePath(birth->mTexture));
+        mBirthImage->setImageTexture(Misc::ResourceHelpers::correctTexturePath(
+            birth->mTexture, MWBase::Environment::get().getResourceSystem()->getVFS()));
 
-        std::vector<std::string> abilities, powers, spells;
+        std::vector<ESM::RefId> abilities, powers, spells;
 
-        std::vector<std::string>::const_iterator it = birth->mPowers.mList.begin();
-        std::vector<std::string>::const_iterator end = birth->mPowers.mList.end();
+        std::vector<ESM::RefId>::const_iterator it = birth->mPowers.mList.begin();
+        std::vector<ESM::RefId>::const_iterator end = birth->mPowers.mList.end();
         for (; it != end; ++it)
         {
-            const std::string &spellId = *it;
-            const ESM::Spell *spell = store.get<ESM::Spell>().search(spellId);
+            const ESM::RefId& spellId = *it;
+            const ESM::Spell* spell = store.get<ESM::Spell>().search(spellId);
             if (!spell)
                 continue; // Skip spells which cannot be found
             ESM::Spell::SpellType type = static_cast<ESM::Spell::SpellType>(spell->mData.mType);
@@ -216,38 +238,39 @@ namespace MWGui
 
         int i = 0;
 
-        struct {
-            const std::vector<std::string> &spells;
-            const char *label;
-        }
-        categories[3] = {
-            {abilities, "sBirthsignmenu1"},
-            {powers,    "sPowers"},
-            {spells,    "sBirthsignmenu2"}
-        };
+        struct
+        {
+            const std::vector<ESM::RefId>& spells;
+            std::string_view label;
+        } categories[3] = { { abilities, "sBirthsignmenu1" }, { powers, "sPowers" }, { spells, "sBirthsignmenu2" } };
 
-        for (int category = 0; category < 3; ++category)
+        for (size_t category = 0; category < 3; ++category)
         {
             if (!categories[category].spells.empty())
             {
-                MyGUI::TextBox* label = mSpellArea->createWidget<MyGUI::TextBox>("SandBrightText", coord, MyGUI::Align::Default, std::string("Label"));
-                label->setCaption(MWBase::Environment::get().getWindowManager()->getGameSettingString(categories[category].label, ""));
+                MyGUI::TextBox* label
+                    = mSpellArea->createWidget<MyGUI::TextBox>("SandBrightText", coord, MyGUI::Align::Default, "Label");
+                label->setCaption(MyGUI::UString(MWBase::Environment::get().getWindowManager()->getGameSettingString(
+                    categories[category].label, {})));
                 mSpellItems.push_back(label);
                 coord.top += lineHeight;
 
                 end = categories[category].spells.end();
                 for (it = categories[category].spells.begin(); it != end; ++it)
                 {
-                    const std::string &spellId = *it;
-                    spellWidget = mSpellArea->createWidget<Widgets::MWSpell>("MW_StatName", coord, MyGUI::Align::Default, std::string("Spell") + MyGUI::utility::toString(i));
+                    const ESM::RefId& spellId = *it;
+                    spellWidget = mSpellArea->createWidget<Widgets::MWSpell>(
+                        "MW_StatName", coord, MyGUI::Align::Default, "Spell" + MyGUI::utility::toString(i));
                     spellWidget->setSpellId(spellId);
 
                     mSpellItems.push_back(spellWidget);
                     coord.top += lineHeight;
 
                     MyGUI::IntCoord spellCoord = coord;
-                    spellCoord.height = 24; // TODO: This should be fetched from the skin somehow, or perhaps a widget in the layout as a template?
-                    spellWidget->createEffectWidgets(mSpellItems, mSpellArea, spellCoord, (category == 0) ? Widgets::MWEffectList::EF_Constant : 0);
+                    spellCoord.height = 24; // TODO: This should be fetched from the skin somehow, or perhaps a widget
+                                            // in the layout as a template?
+                    spellWidget->createEffectWidgets(
+                        mSpellItems, mSpellArea, spellCoord, (category == 0) ? Widgets::MWEffectList::EF_Constant : 0);
                     coord.top = spellCoord.top;
 
                     ++i;
@@ -255,10 +278,37 @@ namespace MWGui
             }
         }
 
-        // Canvas size must be expressed with VScroll disabled, otherwise MyGUI would expand the scroll area when the scrollbar is hidden
+        // Canvas size must be expressed with VScroll disabled, otherwise MyGUI would expand the scroll area when the
+        // scrollbar is hidden
         mSpellArea->setVisibleVScroll(false);
         mSpellArea->setCanvasSize(MyGUI::IntSize(mSpellArea->getWidth(), std::max(mSpellArea->getHeight(), coord.top)));
         mSpellArea->setVisibleVScroll(true);
         mSpellArea->setViewOffset(MyGUI::IntPoint(0, 0));
+    }
+
+    bool BirthDialog::onControllerButtonEvent(const SDL_ControllerButtonEvent& arg)
+    {
+        if (arg.button == SDL_CONTROLLER_BUTTON_B)
+        {
+            onBackClicked(mBackButton);
+        }
+        else if (arg.button == SDL_CONTROLLER_BUTTON_X)
+        {
+            onOkClicked(mOkButton);
+        }
+        else if (arg.button == SDL_CONTROLLER_BUTTON_DPAD_UP)
+        {
+            MWBase::WindowManager* winMgr = MWBase::Environment::get().getWindowManager();
+            winMgr->setKeyFocusWidget(mBirthList);
+            winMgr->injectKeyPress(MyGUI::KeyCode::ArrowUp, 0, false);
+        }
+        else if (arg.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN)
+        {
+            MWBase::WindowManager* winMgr = MWBase::Environment::get().getWindowManager();
+            winMgr->setKeyFocusWidget(mBirthList);
+            winMgr->injectKeyPress(MyGUI::KeyCode::ArrowDown, 0, false);
+        }
+
+        return true;
     }
 }

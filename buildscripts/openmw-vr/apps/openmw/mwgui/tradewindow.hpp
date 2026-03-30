@@ -1,10 +1,10 @@
 #ifndef MWGUI_TRADEWINDOW_H
 #define MWGUI_TRADEWINDOW_H
 
-#include "../mwmechanics/trading.hpp"
-
 #include "referenceinterface.hpp"
 #include "windowbase.hpp"
+
+#include "../mwworld/containerstore.hpp"
 
 namespace Gui
 {
@@ -22,96 +22,114 @@ namespace MWGui
     class SortFilterItemModel;
     class TradeItemModel;
 
-    class TradeWindow : public WindowBase, public ReferenceInterface
+    class TradeWindow : public WindowBase, public ReferenceInterface, public MWWorld::ContainerStoreListener
     {
-        public:
-            TradeWindow();
+    public:
+        TradeWindow();
 
-            void setPtr(const MWWorld::Ptr& actor) override;
+        void setPtr(const MWWorld::Ptr& actor) override;
 
-            void onClose() override;
-            void onFrame(float dt) override;
-            void clear() override { resetReference(); }
+        void onClose() override;
+        void onFrame(float dt) override;
+        void clear() override { resetReference(); }
 
-            void borrowItem (int index, size_t count);
-            void returnItem (int index, size_t count);
+        bool exit() override;
 
-            int getMerchantServices();
+        void resetReference() override;
 
-            bool exit() override;
+        void onDeleteCustomData(const MWWorld::Ptr& ptr) override;
 
-            void resetReference() override;
+        void updateItemView();
 
-            typedef MyGUI::delegates::CMultiDelegate0 EventHandle_TradeDone;
-            EventHandle_TradeDone eventTradeDone;
+        void itemAdded(const MWWorld::ConstPtr& item, int count) override;
+        void itemRemoved(const MWWorld::ConstPtr& item, int count) override;
 
-        private:
-            ItemView* mItemView;
-            SortFilterItemModel* mSortModel;
-            TradeItemModel* mTradeModel;
-            MWMechanics::Trading mTrading;
+        typedef MyGUI::delegates::MultiDelegate<> EventHandle_TradeDone;
+        EventHandle_TradeDone eventTradeDone;
 
-            static const float sBalanceChangeInitialPause; // in seconds
-            static const float sBalanceChangeInterval; // in seconds
+        std::string_view getWindowIdForLua() const override { return "Trade"; }
 
-            MyGUI::Button* mFilterAll;
-            MyGUI::Button* mFilterWeapon;
-            MyGUI::Button* mFilterApparel;
-            MyGUI::Button* mFilterMagic;
-            MyGUI::Button* mFilterMisc;
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
+        void setActiveControllerWindow(bool active) override;
 
-            MyGUI::EditBox* mFilterEdit;
+    private:
+        friend class InventoryWindow;
 
-            MyGUI::Button* mIncreaseButton;
-            MyGUI::Button* mDecreaseButton;
-            MyGUI::TextBox* mTotalBalanceLabel;
-            Gui::NumericEditBox* mTotalBalance;
+        ItemView* mItemView;
+        SortFilterItemModel* mSortModel;
+        TradeItemModel* mTradeModel;
 
-            MyGUI::Widget* mBottomPane;
+        static const float sBalanceChangeInitialPause; // in seconds
+        static const float sBalanceChangeInterval; // in seconds
 
-            MyGUI::Button* mMaxSaleButton;
-            MyGUI::Button* mCancelButton;
-            MyGUI::Button* mOfferButton;
-            MyGUI::TextBox* mPlayerGold;
-            MyGUI::TextBox* mMerchantGold;
+        MyGUI::Button* mFilterAll;
+        MyGUI::Button* mFilterWeapon;
+        MyGUI::Button* mFilterApparel;
+        MyGUI::Button* mFilterMagic;
+        MyGUI::Button* mFilterMisc;
 
-            int mItemToSell;
+        MyGUI::EditBox* mFilterEdit;
 
-            int mCurrentBalance;
-            int mCurrentMerchantOffer;
+        MyGUI::Button* mIncreaseButton;
+        MyGUI::Button* mDecreaseButton;
+        MyGUI::TextBox* mTotalBalanceLabel;
+        Gui::NumericEditBox* mTotalBalance;
 
-            void sellToNpc(const MWWorld::Ptr& item, int count, bool boughtItem); ///< only used for adjusting the gold balance
-            void buyFromNpc(const MWWorld::Ptr& item, int count, bool soldItem); ///< only used for adjusting the gold balance
+        MyGUI::Widget* mBottomPane;
 
-            void updateOffer();
+        MyGUI::Button* mMaxSaleButton;
+        MyGUI::Button* mCancelButton;
+        MyGUI::Button* mOfferButton;
+        MyGUI::TextBox* mPlayerGold;
+        MyGUI::TextBox* mMerchantGold;
 
-            void onItemSelected (int index);
-            void sellItem (MyGUI::Widget* sender, int count);
+        int mItemToSell;
 
-            void onFilterChanged(MyGUI::Widget* _sender);
-            void onNameFilterChanged(MyGUI::EditBox* _sender);
-            void onOfferButtonClicked(MyGUI::Widget* _sender);
-            void onAccept(MyGUI::EditBox* sender);
-            void onCancelButtonClicked(MyGUI::Widget* _sender);
-            void onMaxSaleButtonClicked(MyGUI::Widget* _sender);
-            void onIncreaseButtonPressed(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id);
-            void onDecreaseButtonPressed(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id);
-            void onBalanceButtonReleased(MyGUI::Widget* _sender, int _left, int _top, MyGUI::MouseButton _id);
-            void onBalanceValueChanged(int value);
-            void onRepeatClick(MyGUI::Widget* widget, MyGUI::ControllerItem* controller);
+        int mCurrentBalance;
+        int mCurrentMerchantOffer;
 
-            void addRepeatController(MyGUI::Widget* widget);
+        bool mUpdateNextFrame;
 
-            void onIncreaseButtonTriggered();
-            void onDecreaseButtonTriggered();
+        void sellToNpc(
+            const MWWorld::Ptr& item, int count, bool boughtItem); ///< only used for adjusting the gold balance
+        void buyFromNpc(
+            const MWWorld::Ptr& item, int count, bool soldItem); ///< only used for adjusting the gold balance
 
-            void addOrRemoveGold(int gold, const MWWorld::Ptr& actor);
+        void updateOffer();
 
-            void updateLabels();
+        void onItemSelected(int index);
+        void sellItem(MyGUI::Widget* sender, std::size_t count);
 
-            void onReferenceUnavailable() override;
+        void borrowItem(int index, size_t count);
+        void returnItem(int index, size_t count);
 
-            int getMerchantGold();
+        int getMerchantServices();
+
+        void onFilterChanged(MyGUI::Widget* sender);
+        void onNameFilterChanged(MyGUI::EditBox* sender);
+        void onOfferButtonClicked(MyGUI::Widget* sender);
+        void onAccept(MyGUI::EditBox* sender);
+        void onCancelButtonClicked(MyGUI::Widget* sender);
+        void onMaxSaleButtonClicked(MyGUI::Widget* sender);
+        void onIncreaseButtonPressed(MyGUI::Widget* sender, int left, int top, MyGUI::MouseButton id);
+        void onDecreaseButtonPressed(MyGUI::Widget* sender, int left, int top, MyGUI::MouseButton id);
+        void onBalanceButtonReleased(MyGUI::Widget* sender, int left, int top, MyGUI::MouseButton id);
+        void onBalanceValueChanged(int value);
+        void onRepeatClick(MyGUI::Widget* widget, MyGUI::ControllerItem* controller);
+        void onOfferSubmitted(MyGUI::Widget* sender, size_t offerAmount);
+
+        void addRepeatController(MyGUI::Widget* widget);
+
+        void onIncreaseButtonTriggered();
+        void onDecreaseButtonTriggered();
+
+        void addOrRemoveGold(int gold, const MWWorld::Ptr& actor);
+
+        void updateLabels();
+
+        void onReferenceUnavailable() override;
+
+        int getMerchantGold();
     };
 }
 

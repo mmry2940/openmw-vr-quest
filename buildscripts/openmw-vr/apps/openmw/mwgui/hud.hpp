@@ -1,7 +1,10 @@
 #ifndef OPENMW_GAME_MWGUI_HUD_H
 #define OPENMW_GAME_MWGUI_HUD_H
 
+#include <memory>
+
 #include "mapwindow.hpp"
+#include "spellicons.hpp"
 #include "statswatcher.hpp"
 
 namespace MWWorld
@@ -12,7 +15,6 @@ namespace MWWorld
 namespace MWGui
 {
     class DragAndDrop;
-    class SpellIcons;
     class ItemWidget;
     class SpellWidget;
 
@@ -21,7 +23,7 @@ namespace MWGui
     public:
         HUD(CustomMarkerCollection& customMarkers, DragAndDrop* dragAndDrop, MWRender::LocalMap* localMapRender);
         virtual ~HUD();
-        void setValue (const std::string& id, const MWMechanics::DynamicStat<float>& value) override;
+        void setValue(std::string_view id, const MWMechanics::DynamicStat<float>& value) override;
 
         /// Set time left for the player to start drowning
         /// @param time time left to start drowning
@@ -37,7 +39,7 @@ namespace MWGui
         void setEffectVisible(bool visible);
         void setMinimapVisible(bool visible);
 
-        void setSelectedSpell(const std::string& spellId, int successChancePercent);
+        void setSelectedSpell(const ESM::RefId& spellId, int successChancePercent);
         void setSelectedEnchantItem(const MWWorld::Ptr& item, int chargePercent);
         const MWWorld::Ptr& getSelectedEnchantItem();
         void setSelectedWeapon(const MWWorld::Ptr& item, int durabilityPercent);
@@ -56,16 +58,17 @@ namespace MWGui
         MyGUI::Widget* getEffectBox() { return mEffectBox; }
 
         void setEnemy(const MWWorld::Ptr& enemy);
-        void resetEnemy();
 
         void clear() override;
+
+        void dropDraggedItem(float mouseX, float mouseY);
 
     private:
         MyGUI::ProgressBar *mHealth, *mMagicka, *mStamina, *mEnemyHealth, *mDrowning;
         MyGUI::Widget* mHealthFrame;
         MyGUI::Widget *mWeapBox, *mSpellBox, *mSneakBox;
-        ItemWidget *mWeapImage;
-        SpellWidget *mSpellImage;
+        ItemWidget* mWeapImage;
+        SpellWidget* mSpellImage;
         MyGUI::ProgressBar *mWeapStatus, *mSpellStatus;
         MyGUI::Widget *mEffectBox, *mMinimapBox;
         MyGUI::Button* mMinimapButton;
@@ -73,14 +76,12 @@ namespace MWGui
         MyGUI::ImageBox* mCrosshair;
         MyGUI::TextBox* mCellNameBox;
         MyGUI::TextBox* mWeaponSpellBox;
-        MyGUI::Widget *mDrowningFrame, *mDrowningFlash;
+        MyGUI::Widget *mDrowningBar, *mDrowningFrame, *mDrowningFlash;
 
         // bottom left elements
         int mHealthManaStaminaBaseLeft, mWeapBoxBaseLeft, mSpellBoxBaseLeft, mSneakBoxBaseLeft;
         // bottom right elements
         int mMinimapBoxBaseRight, mEffectBoxBaseRight;
-        // initial size
-        MyGUI::IntSize mMainWidgetBaseSize;
 
         DragAndDrop* mDragAndDrop;
 
@@ -97,21 +98,21 @@ namespace MWGui
 
         bool mWorldMouseOver;
 
-        SpellIcons* mSpellIcons;
+        std::unique_ptr<SpellIcons> mSpellIcons;
 
         int mEnemyActorId;
         float mEnemyHealthTimer;
 
-        bool  mIsDrowning;
+        bool mIsDrowning;
         float mDrowningFlashTheta;
 
-        void onWorldClicked(MyGUI::Widget* _sender);
-        void onWorldMouseOver(MyGUI::Widget* _sender, int x, int y);
-        void onWorldMouseLostFocus(MyGUI::Widget* _sender, MyGUI::Widget* _new);
-        void onHMSClicked(MyGUI::Widget* _sender);
-        void onWeaponClicked(MyGUI::Widget* _sender);
-        void onMagicClicked(MyGUI::Widget* _sender);
-        void onMapClicked(MyGUI::Widget* _sender);
+        void onWorldClicked(MyGUI::Widget* sender);
+        void onWorldMouseOver(MyGUI::Widget* sender, int x, int y);
+        void onWorldMouseLostFocus(MyGUI::Widget* sender, MyGUI::Widget* newWidget);
+        void onHMSClicked(MyGUI::Widget* sender);
+        void onWeaponClicked(MyGUI::Widget* sender);
+        void onMagicClicked(MyGUI::Widget* sender);
+        void onMapClicked(MyGUI::Widget* sender);
 
         // LocalMapBase
         void customMarkerCreated(MyGUI::Widget* marker) override;

@@ -1,5 +1,7 @@
 #include "statesetupdater.hpp"
 
+#include <components/stereo/stereomanager.hpp>
+
 #include <osg/Node>
 #include <osg/NodeVisitor>
 #include <osgUtil/CullVisitor>
@@ -23,7 +25,9 @@ namespace SceneUtil
         {
             for (int i = 0; i < 2; ++i)
             {
-                mStateSetsUpdate[i] = new osg::StateSet(*node->getOrCreateStateSet(), osg::CopyOp::SHALLOW_COPY); // Using SHALLOW_COPY for StateAttributes, if users want to modify it is their responsibility to set a non-shared one first in setDefaults
+                mStateSetsUpdate[i] = new osg::StateSet(*node->getOrCreateStateSet(),
+                    osg::CopyOp::SHALLOW_COPY); // Using SHALLOW_COPY for StateAttributes, if users want to modify it is
+                                                // their responsibility to set a non-shared one first in setDefaults
                 setDefaults(mStateSetsUpdate[i]);
             }
         }
@@ -33,11 +37,21 @@ namespace SceneUtil
         node->setStateSet(stateset);
         traverse(node, nv);
     }
-    
+
     void StateSetUpdater::applyCull(osg::Node* node, osgUtil::CullVisitor* cv)
     {
         auto stateset = getCvDependentStateset(cv);
         apply(stateset, cv);
+
+        if (Stereo::getStereo())
+        {
+            auto& sm = Stereo::Manager::instance();
+            if (sm.getEye(cv) == Stereo::Eye::Left)
+                applyLeft(stateset, cv);
+            if (sm.getEye(cv) == Stereo::Eye::Right)
+                applyRight(stateset, cv);
+        }
+
         cv->pushStateSet(stateset);
         traverse(node, cv);
         cv->popStateSet();
@@ -63,37 +77,33 @@ namespace SceneUtil
         mStateSetsCull.clear();
     }
 
-    StateSetUpdater::StateSetUpdater()
-    {
-    }
+    StateSetUpdater::StateSetUpdater() {}
 
-    StateSetUpdater::StateSetUpdater(const StateSetUpdater &copy, const osg::CopyOp &copyop)
-        : osg::NodeCallback(copy, copyop)
+    StateSetUpdater::StateSetUpdater(const StateSetUpdater& copy, const osg::CopyOp& copyop)
+        : SceneUtil::NodeCallback<StateSetUpdater>(copy, copyop)
     {
     }
 
     // ----------------------------------------------------------------------------------
 
-    void CompositeStateSetUpdater::apply(osg::StateSet *stateset, osg::NodeVisitor *nv)
+    void CompositeStateSetUpdater::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
     {
-        for (unsigned int i=0; i<mCtrls.size(); ++i)
+        for (unsigned int i = 0; i < mCtrls.size(); ++i)
             mCtrls[i]->apply(stateset, nv);
     }
 
-    void CompositeStateSetUpdater::setDefaults(osg::StateSet *stateset)
+    void CompositeStateSetUpdater::setDefaults(osg::StateSet* stateset)
     {
-        for (unsigned int i=0; i<mCtrls.size(); ++i)
+        for (unsigned int i = 0; i < mCtrls.size(); ++i)
             mCtrls[i]->setDefaults(stateset);
     }
 
-    CompositeStateSetUpdater::CompositeStateSetUpdater()
-    {
-    }
+    CompositeStateSetUpdater::CompositeStateSetUpdater() {}
 
-    CompositeStateSetUpdater::CompositeStateSetUpdater(const CompositeStateSetUpdater &copy, const osg::CopyOp &copyop)
+    CompositeStateSetUpdater::CompositeStateSetUpdater(const CompositeStateSetUpdater& copy, const osg::CopyOp& copyop)
         : StateSetUpdater(copy, copyop)
     {
-        for (unsigned int i=0; i<copy.mCtrls.size(); ++i)
+        for (unsigned int i = 0; i < copy.mCtrls.size(); ++i)
             mCtrls.emplace_back(osg::clone(copy.mCtrls[i].get(), copyop));
     }
 
@@ -107,7 +117,7 @@ namespace SceneUtil
         return mCtrls[i];
     }
 
-    void CompositeStateSetUpdater::addController(StateSetUpdater *ctrl)
+    void CompositeStateSetUpdater::addController(StateSetUpdater* ctrl)
     {
         mCtrls.emplace_back(ctrl);
     }

@@ -1,426 +1,530 @@
 #ifndef OPENMW_COMPONENTS_NIF_NODE_HPP
 #define OPENMW_COMPONENTS_NIF_NODE_HPP
 
-#include "controlled.hpp"
-#include "extra.hpp"
-#include "data.hpp"
-#include "property.hpp"
-#include "niftypes.hpp"
-#include "controller.hpp"
+#include <array>
+#include <unordered_map>
+
+#include <osg/Plane>
+
 #include "base.hpp"
 
-#include <components/misc/stringops.hpp>
+class btCollisionShape;
 
 namespace Nif
 {
 
-struct NiNode;
+    struct NiNode;
 
-struct NiBoundingVolume
-{
-    enum Type
+    struct BoundingVolume
     {
-        SPHERE_BV = 0,
-        BOX_BV = 1,
-        CAPSULE_BV = 2,
-        LOZENGE_BV = 3,
-        UNION_BV = 4,
-        HALFSPACE_BV = 5
-    };
-
-    struct NiSphereBV
-    {
-        osg::Vec3f center;
-        float radius{0.f};
-    };
-
-    struct NiBoxBV
-    {
-        osg::Vec3f center;
-        Matrix3 axis;
-        osg::Vec3f extents;
-    };
-
-    struct NiCapsuleBV
-    {
-        osg::Vec3f center, axis;
-        float extent{0.f}, radius{0.f};
-    };
-
-    struct NiLozengeBV
-    {
-        float radius{0.f}, extent0{0.f}, extent1{0.f};
-        osg::Vec3f center, axis0, axis1;
-    };
-
-    struct NiHalfSpaceBV
-    {
-        osg::Vec3f center, normal;
-    };
-
-    unsigned int type;
-    NiSphereBV sphere;
-    NiBoxBV box;
-    NiCapsuleBV capsule;
-    NiLozengeBV lozenge;
-    std::vector<NiBoundingVolume> children;
-    NiHalfSpaceBV plane;
-    void read(NIFStream* nif)
-    {
-        type = nif->getUInt();
-        switch (type)
+        enum Type : uint32_t
         {
-            case SPHERE_BV:
-            {
-                sphere.center = nif->getVector3();
-                sphere.radius = nif->getFloat();
-                break;
-            }
-            case BOX_BV:
-            {
-                box.center = nif->getVector3();
-                box.axis = nif->getMatrix3();
-                box.extents = nif->getVector3();
-                break;
-            }
-            case CAPSULE_BV:
-            {
-                capsule.center = nif->getVector3();
-                capsule.axis = nif->getVector3();
-                capsule.extent = nif->getFloat();
-                capsule.radius = nif->getFloat();
-                break;
-            }
-            case LOZENGE_BV:
-            {
-                lozenge.radius = nif->getFloat();
-                lozenge.extent0 = nif->getFloat();
-                lozenge.extent1 = nif->getFloat();
-                lozenge.center = nif->getVector3();
-                lozenge.axis0 = nif->getVector3();
-                lozenge.axis1 = nif->getVector3();
-                break;
-            }
-            case UNION_BV:
-            {
-                unsigned int numChildren = nif->getUInt();
-                if (numChildren == 0)
-                    break;
-                children.resize(numChildren);
-                for (NiBoundingVolume& child : children)
-                    child.read(nif);
-                break;
-            }
-            case HALFSPACE_BV:
-            {
-                plane.center = nif->getVector3();
-                plane.normal = nif->getVector3();
-                break;
-            }
-            default:
-            {
-                std::stringstream error;
-                error << "Unhandled NiBoundingVolume type: " << type;
-                nif->file->fail(error.str());
-            }
-        }
-    }
-};
+            BASE_BV = 0xFFFFFFFF,
+            SPHERE_BV = 0,
+            BOX_BV = 1,
+            CAPSULE_BV = 2,
+            LOZENGE_BV = 3,
+            UNION_BV = 4,
+            HALFSPACE_BV = 5
+        };
 
-/** A Node is an object that's part of the main NIF tree. It has
-    parent node (unless it's the root), and transformation (location
-    and rotation) relative to it's parent.
- */
-struct Node : public Named
-{
-    // Node flags. Interpretation depends somewhat on the type of node.
-    unsigned int flags;
-    Transformation trafo;
-    osg::Vec3f velocity; // Unused? Might be a run-time game state
-    PropertyList props;
-
-    // Bounding box info
-    bool hasBounds{false};
-    NiBoundingVolume bounds;
-
-    void read(NIFStream *nif) override
-    {
-        Named::read(nif);
-
-        flags = nif->getBethVersion() <= 26 ? nif->getUShort() : nif->getUInt();
-        trafo = nif->getTrafo();
-        if (nif->getVersion() <= NIFStream::generateVersion(4,2,2,0))
-            velocity = nif->getVector3();
-        if (nif->getBethVersion() <= NIFFile::BethVersion::BETHVER_FO3)
-            props.read(nif);
-
-        if (nif->getVersion() <= NIFStream::generateVersion(4,2,2,0))
-            hasBounds = nif->getBoolean();
-        if (hasBounds)
-            bounds.read(nif);
-        // Reference to the collision object in Gamebryo files.
-        if (nif->getVersion() >= NIFStream::generateVersion(10,0,1,0))
-            nif->skip(4);
-
-        parent = nullptr;
-
-        isBone = false;
-    }
-
-    void post(NIFFile *nif) override
-    {
-        Named::post(nif);
-        props.post(nif);
-    }
-
-    // Parent node, or nullptr for the root node. As far as I'm aware, only
-    // NiNodes (or types derived from NiNodes) can be parents.
-    NiNode *parent;
-
-    bool isBone{false};
-
-    void setBone()
-    {
-        isBone = true;
-    }
-};
-
-struct NiNode : Node
-{
-    NodeList children;
-    NodeList effects;
-
-    enum Flags {
-        Flag_Hidden = 0x0001,
-        Flag_MeshCollision = 0x0002,
-        Flag_BBoxCollision = 0x0004,
-        Flag_ActiveCollision = 0x0020
-    };
-    enum BSAnimFlags {
-        AnimFlag_AutoPlay = 0x0020
-    };
-    enum BSParticleFlags {
-        ParticleFlag_AutoPlay = 0x0020,
-        ParticleFlag_LocalSpace = 0x0080
-    };
-    enum ControllerFlags {
-        ControllerFlag_Active = 0x8
-    };
-
-    void read(NIFStream *nif) override
-    {
-        Node::read(nif);
-        children.read(nif);
-        if (nif->getBethVersion() < NIFFile::BethVersion::BETHVER_FO4)
-            effects.read(nif);
-
-        // Discard transformations for the root node, otherwise some meshes
-        // occasionally get wrong orientation. Only for NiNode-s for now, but
-        // can be expanded if needed.
-        if (0 == recIndex && !Misc::StringUtils::ciEqual(name, "bip01"))
+        struct NiBoxBV
         {
-            static_cast<Nif::Node*>(this)->trafo = Nif::Transformation::getIdentity();
-        }
-    }
+            osg::Vec3f mCenter;
+            Matrix3 mAxes;
+            osg::Vec3f mExtents;
+        };
 
-    void post(NIFFile *nif) override
-    {
-        Node::post(nif);
-        children.post(nif);
-        effects.post(nif);
-
-        for(size_t i = 0;i < children.length();i++)
+        struct NiCapsuleBV
         {
-            // Why would a unique list of children contain empty refs?
-            if(!children[i].empty())
-                children[i]->parent = this;
-        }
-    }
-};
+            osg::Vec3f mCenter, mAxis;
+            float mExtent{ 0.f }, mRadius{ 0.f };
+        };
 
-struct NiGeometry : Node
-{
-    /* Possible flags:
-        0x40 - mesh has no vertex normals ?
-
-        Only flags included in 0x47 (ie. 0x01, 0x02, 0x04 and 0x40) have
-        been observed so far.
-    */
-
-    struct MaterialData
-    {
-        std::vector<std::string> names;
-        std::vector<int> extra;
-        unsigned int active{0};
-        bool needsUpdate{false};
-        void read(NIFStream *nif)
+        struct NiLozengeBV
         {
-            if (nif->getVersion() <= NIFStream::generateVersion(10,0,1,0))
-                return;
-            unsigned int num = 0;
-            if (nif->getVersion() <= NIFStream::generateVersion(20,1,0,3))
-                num = nif->getBoolean(); // Has Shader
-            else if (nif->getVersion() >= NIFStream::generateVersion(20,2,0,5))
-                num = nif->getUInt();
-            if (num)
-            {
-                nif->getStrings(names, num);
-                nif->getInts(extra, num);
-            }
-            if (nif->getVersion() >= NIFStream::generateVersion(20,2,0,5))
-                active = nif->getUInt();
-            if (nif->getVersion() >= NIFFile::NIFVersion::VER_BGS)
-                needsUpdate = nif->getBoolean();
+            float mRadius{ 0.f }, mExtent0{ 0.f }, mExtent1{ 0.f };
+            osg::Vec3f mCenter, mAxis0, mAxis1;
+        };
+
+        struct NiHalfSpaceBV
+        {
+            osg::Plane mPlane;
+            osg::Vec3f mOrigin;
+        };
+
+        uint32_t mType{ BASE_BV };
+        osg::BoundingSpheref mSphere;
+        NiBoxBV mBox;
+        NiCapsuleBV mCapsule;
+        NiLozengeBV mLozenge;
+        std::vector<BoundingVolume> mChildren;
+        NiHalfSpaceBV mHalfSpace;
+
+        void read(NIFStream* nif);
+    };
+
+    struct NiSequenceStreamHelper : NiObjectNET
+    {
+    };
+
+    // NiAVObject is an object that is a part of the main NIF tree. It has
+    // a parent node (unless it's the root) and transformation relative to its parent.
+    struct NiAVObject : NiObjectNET
+    {
+        enum Flags
+        {
+            Flag_Hidden = 0x0001,
+            Flag_MeshCollision = 0x0002,
+            Flag_BBoxCollision = 0x0004,
+            Flag_ActiveCollision = 0x0020
+        };
+
+        // Node flags. Interpretation depends on the record type.
+        uint32_t mFlags;
+        NiTransform mTransform;
+        osg::Vec3f mVelocity;
+        NiPropertyList mProperties;
+        BoundingVolume mBounds;
+        NiCollisionObjectPtr mCollision;
+        // Parent nodes for the node. Only types derived from NiNode can be parents.
+        std::vector<NiNode*> mParents;
+        bool mIsBone{ false };
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+
+        void setBone();
+        bool isHidden() const { return mFlags & Flag_Hidden; }
+        bool hasMeshCollision() const { return mFlags & Flag_MeshCollision; }
+        bool hasBBoxCollision() const { return mFlags & Flag_BBoxCollision; }
+        bool collisionActive() const { return mFlags & Flag_ActiveCollision; }
+    };
+
+    struct NiNode : NiAVObject
+    {
+        enum BSAnimFlags
+        {
+            AnimFlag_AutoPlay = 0x0020
+        };
+
+        enum BSParticleFlags
+        {
+            ParticleFlag_AutoPlay = 0x0020,
+            ParticleFlag_LocalSpace = 0x0080
+        };
+
+        NiAVObjectList mChildren;
+        NiAVObjectList mEffects;
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+    };
+
+    struct NiGeometry : NiAVObject
+    {
+        /* Possible flags:
+            0x40 - mesh has no vertex normals ?
+
+            Only flags included in 0x47 (ie. 0x01, 0x02, 0x04 and 0x40) have
+            been observed so far.
+        */
+
+        struct MaterialData
+        {
+            std::vector<std::string> mNames;
+            std::vector<int> mExtra;
+            int32_t mActive{ -1 };
+            bool mNeedsUpdate{ false };
+
+            void read(NIFStream* nif);
+        };
+
+        NiGeometryDataPtr mData;
+        NiSkinInstancePtr mSkin;
+        MaterialData mMaterial;
+        BSShaderPropertyPtr mShaderProperty;
+        NiAlphaPropertyPtr mAlphaProperty;
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+
+        virtual std::unique_ptr<btCollisionShape> getCollisionShape() const
+        {
+            throw std::runtime_error("NiGeometry::getCollisionShape() called on base class");
         }
     };
 
-    NiGeometryDataPtr data;
-    NiSkinInstancePtr skin;
-    MaterialData material;
-    BSShaderPropertyPtr shaderprop;
-    NiAlphaPropertyPtr alphaprop;
-
-    void read(NIFStream *nif) override
+    // Abstract triangle-based geometry
+    struct NiTriBasedGeom : NiGeometry
     {
-        Node::read(nif);
-        data.read(nif);
-        skin.read(nif);
-        material.read(nif);
-        if (nif->getVersion() == NIFFile::NIFVersion::VER_BGS && nif->getBethVersion() > NIFFile::BethVersion::BETHVER_FO3)
+    };
+
+    struct NiTriShape : NiTriBasedGeom
+    {
+        std::unique_ptr<btCollisionShape> getCollisionShape() const override;
+    };
+
+    struct BSSegmentedTriShape : NiTriShape
+    {
+        struct SegmentData
         {
-            shaderprop.read(nif);
-            alphaprop.read(nif);
-        }
-    }
+            uint8_t mFlags;
+            uint32_t mStartIndex;
+            uint32_t mNumTriangles;
 
-    void post(NIFFile *nif) override
+            void read(NIFStream* nif);
+        };
+
+        std::vector<SegmentData> mSegments;
+
+        void read(NIFStream* nif);
+    };
+
+    struct NiTriStrips : NiTriBasedGeom
     {
-        Node::post(nif);
-        data.post(nif);
-        skin.post(nif);
-        shaderprop.post(nif);
-        alphaprop.post(nif);
-        if (recType != RC_NiParticles && !skin.empty())
-            nif->setUseSkinning(true);
-    }
-};
+        std::unique_ptr<btCollisionShape> getCollisionShape() const override;
+    };
 
-struct NiTriShape : NiGeometry {};
-struct BSLODTriShape : NiTriShape
-{
-    unsigned int lod0, lod1, lod2;
-    void read(NIFStream *nif) override
+    struct NiLines : NiTriBasedGeom
     {
-        NiTriShape::read(nif);
-        lod0 = nif->getUInt();
-        lod1 = nif->getUInt();
-        lod2 = nif->getUInt();
-    }
-};
-struct NiTriStrips : NiGeometry {};
-struct NiLines : NiGeometry {};
-struct NiParticles : NiGeometry { };
+        std::unique_ptr<btCollisionShape> getCollisionShape() const override;
+    };
 
-struct NiCamera : Node
-{
-    struct Camera
+    struct NiParticles : NiGeometry
     {
-        unsigned short cameraFlags{0};
+        std::unique_ptr<btCollisionShape> getCollisionShape() const override;
+    };
 
-        // Camera frustrum
-        float left, right, top, bottom, nearDist, farDist;
+    struct BSLODTriShape : NiTriShape
+    {
+        std::array<uint32_t, 3> mLOD;
+        void read(NIFStream* nif) override;
+    };
 
+    struct NiCamera : NiAVObject
+    {
+        uint16_t mCameraFlags{ 0 };
+        // Camera frustum
+        float mLeft, mRight, mTop, mBottom, mNearDist, mFarDist;
+        bool mOrthographic{ false };
         // Viewport
-        float vleft, vright, vtop, vbottom;
+        float mVLeft, mVRight, mVTop, mVBottom;
+        float mLODAdjust;
+        NiAVObjectPtr mScene;
 
-        // Level of detail modifier
-        float LOD;
-
-        // Orthographic projection usage flag
-        bool orthographic{false};
-
-        void read(NIFStream *nif)
-        {
-            if (nif->getVersion() >= NIFStream::generateVersion(10,1,0,0))
-                cameraFlags = nif->getUShort();
-            left = nif->getFloat();
-            right = nif->getFloat();
-            top = nif->getFloat();
-            bottom = nif->getFloat();
-            nearDist = nif->getFloat();
-            farDist = nif->getFloat();
-            if (nif->getVersion() >= NIFStream::generateVersion(10,1,0,0))
-                orthographic = nif->getBoolean();
-            vleft = nif->getFloat();
-            vright = nif->getFloat();
-            vtop = nif->getFloat();
-            vbottom = nif->getFloat();
-
-            LOD = nif->getFloat();
-        }
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
     };
-    Camera cam;
 
-    void read(NIFStream *nif) override
+    // A node used as the base to switch between child nodes, such as for LOD levels.
+    struct NiSwitchNode : NiNode
     {
-        Node::read(nif);
+        uint16_t mSwitchFlags;
+        uint32_t mInitialIndex;
 
-        cam.read(nif);
-
-        nif->getInt(); // -1
-        nif->getInt(); // 0
-        if (nif->getVersion() >= NIFStream::generateVersion(4,2,1,0))
-            nif->getInt(); // 0
-    }
-};
-
-// A node used as the base to switch between child nodes, such as for LOD levels.
-struct NiSwitchNode : public NiNode
-{
-    unsigned int switchFlags{0};
-    unsigned int initialIndex{0};
-
-    void read(NIFStream *nif) override
-    {
-        NiNode::read(nif);
-        if (nif->getVersion() >= NIFStream::generateVersion(10,1,0,0))
-            switchFlags = nif->getUShort();
-        initialIndex = nif->getUInt();
-    }
-};
-
-struct NiLODNode : public NiSwitchNode
-{
-    osg::Vec3f lodCenter;
-
-    struct LODRange
-    {
-        float minRange;
-        float maxRange;
+        void read(NIFStream* nif) override;
     };
-    std::vector<LODRange> lodLevels;
 
-    void read(NIFStream *nif) override
+    struct NiLODNode : NiSwitchNode
     {
-        NiSwitchNode::read(nif);
-        if (nif->getVersion() >= NIFFile::NIFVersion::VER_MW && nif->getVersion() <= NIFStream::generateVersion(10,0,1,0))
-            lodCenter = nif->getVector3();
-        else if (nif->getVersion() > NIFStream::generateVersion(10,0,1,0))
+        struct LODRange
         {
-            nif->skip(4); // NiLODData, unsupported at the moment
-            return;
-        }
+            float mMinRange;
+            float mMaxRange;
+        };
 
-        unsigned int numLodLevels = nif->getUInt();
-        for (unsigned int i=0; i<numLodLevels; ++i)
+        osg::Vec3f mLODCenter;
+        std::vector<LODRange> mLODLevels;
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct NiFltAnimationNode : NiSwitchNode
+    {
+        enum Flags
         {
-            LODRange r;
-            r.minRange = nif->getFloat();
-            r.maxRange = nif->getFloat();
-            lodLevels.push_back(r);
-        }
-    }
-};
+            Flag_Swing = 0x40
+        };
 
-} // Namespace
+        float mDuration;
+
+        void read(NIFStream* nif) override;
+
+        bool swing() const { return mFlags & Flag_Swing; }
+    };
+
+    // Abstract
+    struct NiAccumulator : Record
+    {
+        void read(NIFStream* nif) override {}
+    };
+
+    // Node children sorters
+    struct NiClusterAccumulator : NiAccumulator
+    {
+    };
+
+    struct NiAlphaAccumulator : NiClusterAccumulator
+    {
+    };
+
+    struct NiSortAdjustNode : NiNode
+    {
+        enum class SortingMode : uint32_t
+        {
+            Inherit,
+            Off,
+            Subsort,
+        };
+
+        SortingMode mMode;
+        NiAccumulatorPtr mSubSorter;
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+    };
+
+    struct NiBillboardNode : NiNode
+    {
+        int mMode;
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct NiDefaultAVObjectPalette : Record
+    {
+        NiAVObjectPtr mScene;
+        std::unordered_map<std::string, NiAVObjectPtr> mObjects;
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+    };
+
+    struct BSTreeNode : NiNode
+    {
+        NiAVObjectList mBones1, mBones2;
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+    };
+
+    struct BSMultiBoundNode : NiNode
+    {
+        enum class BSCPCullingType : uint32_t
+        {
+            Normal,
+            AllPass,
+            AllFail,
+            IgnoreMultiBounds,
+            ForceMultiBoundsNoUpdate,
+        };
+
+        BSMultiBoundPtr mMultiBound;
+        BSCPCullingType mCullingType;
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+    };
+
+    struct BSVertexDesc
+    {
+        uint8_t mVertexDataSize;
+        uint8_t mDynamicVertexSize;
+        uint8_t mUV1Offset;
+        uint8_t mUV2Offset;
+        uint8_t mNormalOffset;
+        uint8_t mTangentOffset;
+        uint8_t mColorOffset;
+        uint8_t mSkinningDataOffset;
+        uint8_t mLandscapeDataOffset;
+        uint8_t mEyeDataOffset;
+        uint16_t mFlags;
+
+        enum VertexAttribute
+        {
+            Vertex = 0x0001,
+            UVs = 0x0002,
+            UVs_2 = 0x0004,
+            Normals = 0x0008,
+            Tangents = 0x0010,
+            Vertex_Colors = 0x0020,
+            Skinned = 0x0040,
+            Land_Data = 0x0080,
+            Eye_Data = 0x0100,
+            Instance = 0x0200,
+            Full_Precision = 0x0400,
+        };
+
+        void read(NIFStream* nif);
+    };
+
+    struct BSVertexData
+    {
+        osg::Vec4f mVertex; // Bitangent X is stored in the fourth component
+        std::array<Misc::float16_t, 4> mHalfVertex; // Ditto
+        std::array<Misc::float16_t, 2> mUV;
+        std::array<char, 4> mNormal; // Bitangent Y is stored in the fourth component
+        std::array<char, 4> mTangent; // Bitangent Z is stored in the fourth component
+        std::array<char, 4> mVertColor;
+        std::array<Misc::float16_t, 4> mBoneWeights;
+        std::array<char, 4> mBoneIndices;
+        float mEyeData;
+
+        void read(NIFStream* nif, uint16_t flags);
+    };
+
+    struct BSTriShape : NiAVObject
+    {
+        osg::BoundingSpheref mBoundingSphere;
+        std::array<float, 6> mBoundMinMax;
+        RecordPtrT<Record> mSkin;
+        BSShaderPropertyPtr mShaderProperty;
+        NiAlphaPropertyPtr mAlphaProperty;
+        BSVertexDesc mVertDesc;
+        uint32_t mDataSize;
+        std::vector<BSVertexData> mVertData;
+        std::vector<unsigned short> mTriangles;
+        uint32_t mParticleDataSize;
+        std::vector<Misc::float16_t> mParticleVerts;
+        std::vector<Misc::float16_t> mParticleNormals;
+        std::vector<unsigned short> mParticleTriangles;
+
+        void read(NIFStream* nif) override;
+        void post(Reader& nif) override;
+    };
+
+    struct BSDynamicTriShape : BSTriShape
+    {
+        uint32_t mDynamicDataSize;
+        std::vector<osg::Vec4f> mDynamicData;
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct BSMeshLODTriShape : BSTriShape
+    {
+        std::array<uint32_t, 3> mLOD;
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct BSSubIndexTriShape : BSTriShape
+    {
+        struct SubSegment
+        {
+            uint32_t mStartIndex;
+            uint32_t mNumPrimitives;
+            uint32_t mArrayIndex;
+
+            void read(NIFStream* nif);
+        };
+
+        struct Segment
+        {
+            uint32_t mStartIndex;
+            uint32_t mNumPrimitives;
+            uint32_t mParentArrayIndex;
+            std::vector<SubSegment> mSubSegments;
+
+            void read(NIFStream* nif);
+        };
+
+        struct SubSegmentDataRecord
+        {
+            uint32_t mUserSlotID;
+            uint32_t mMaterial;
+            std::vector<float> mExtraData;
+
+            void read(NIFStream* nif);
+        };
+
+        struct SubSegmentData
+        {
+            std::vector<uint32_t> mArrayIndices;
+            std::vector<SubSegmentDataRecord> mDataRecords;
+            std::string mSSFFile;
+
+            void read(NIFStream* nif);
+        };
+
+        struct Segmentation
+        {
+            uint32_t mNumPrimitives;
+            uint32_t mNumTotalSegments;
+            std::vector<Segment> mSegments;
+            SubSegmentData mSubSegmentData;
+
+            void read(NIFStream* nif);
+        };
+
+        std::vector<BSSegmentedTriShape::SegmentData> mSegments; // SSE
+        Segmentation mSegmentation; // FO4
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct BSValueNode : NiNode
+    {
+        enum Flags
+        {
+            Flag_BillboardWorldZ = 0x1,
+            Flag_UsePlayerAdjust = 0x2,
+        };
+
+        uint32_t mValue;
+        uint8_t mValueFlags;
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct BSOrderedNode : NiNode
+    {
+        osg::Vec4f mAlphaSortBound;
+        bool mStaticBound;
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct BSRangeNode : NiNode
+    {
+        uint8_t mMin, mMax;
+        uint8_t mCurrent;
+
+        void read(NIFStream* nif) override;
+    };
+
+    struct BSResourceID
+    {
+        uint32_t mFileHash;
+        std::array<char, 4> mExtension;
+        uint32_t mDirectoryHash;
+
+        void read(NIFStream* nif);
+    };
+
+    struct BSDistantObjectInstance
+    {
+        BSResourceID mResourceID;
+        std::vector<osg::Matrixf> mTransforms;
+
+        void read(NIFStream* nif);
+    };
+
+    struct BSShaderTextureArray
+    {
+        std::vector<std::vector<std::string>> mTextureArrays;
+
+        void read(NIFStream* nif);
+    };
+
+    struct BSDistantObjectInstancedNode : BSMultiBoundNode
+    {
+        std::vector<BSDistantObjectInstance> mInstances;
+        std::array<BSShaderTextureArray, 3> mShaderTextureArrays;
+
+        void read(NIFStream* nif) override;
+    };
+
+}
 #endif

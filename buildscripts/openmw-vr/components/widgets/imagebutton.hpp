@@ -20,7 +20,8 @@ namespace Gui
 
         static void setDefaultNeedKeyFocus(bool enabled);
 
-        /// Set mImageNormal, mImageHighlighted and mImagePushed based on file convention (image_idle.ext, image_over.ext and image_pressed.ext)
+        /// Set mImageNormal, mImageHighlighted and mImagePushed based on file convention (image_idle.ext,
+        /// image_over.ext and image_pressed.ext)
         void setImage(const std::string& image);
 
         void setTextureRect(MyGUI::IntCoord coord);
@@ -31,13 +32,13 @@ namespace Gui
         static bool sDefaultNeedKeyFocus;
 
     protected:
-        void setPropertyOverride(const std::string& _key, const std::string& _value) override;
-        void onMouseLostFocus(MyGUI::Widget* _new) override;
-        void onMouseSetFocus(MyGUI::Widget* _old) override;
-        void onMouseButtonPressed(int _left, int _top, MyGUI::MouseButton _id) override;
-        void onMouseButtonReleased(int _left, int _top, MyGUI::MouseButton _id) override;
-        void onKeySetFocus(MyGUI::Widget* _old) override;
-        void onKeyLostFocus(MyGUI::Widget* _new) override;
+        void setPropertyOverride(std::string_view key, std::string_view value) override;
+        void onMouseLostFocus(MyGUI::Widget* newWidget) override;
+        void onMouseSetFocus(MyGUI::Widget* oldWidget) override;
+        void onMouseButtonPressed(int left, int top, MyGUI::MouseButton id) override;
+        void onMouseButtonReleased(int left, int top, MyGUI::MouseButton id) override;
+        void onKeySetFocus(MyGUI::Widget* newWidget) override;
+        void onKeyLostFocus(MyGUI::Widget* oldWidget) override;
 
         std::string mImageHighlighted;
         std::string mImageNormal;

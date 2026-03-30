@@ -9,14 +9,14 @@
 #include "../mwworld/class.hpp"
 
 #include "aicombataction.hpp"
-#include "creaturestats.hpp"
+#include "character.hpp"
 #include "steering.hpp"
 
 namespace MWMechanics
 {
     namespace
     {
-        float getInitialDistance(const std::string& spellId)
+        float getInitialDistance(const ESM::RefId& spellId)
         {
             ActionSpell action = ActionSpell(spellId);
             bool isRanged;
@@ -25,12 +25,17 @@ namespace MWMechanics
     }
 }
 
-MWMechanics::AiCast::AiCast(const std::string& targetId, const std::string& spellId, bool manualSpell)
-    : mTargetId(targetId), mSpellId(spellId), mCasting(false), mManual(manualSpell), mDistance(getInitialDistance(spellId))
+MWMechanics::AiCast::AiCast(const ESM::RefId& targetId, const ESM::RefId& spellId, bool scriptedSpell)
+    : mTargetId(targetId)
+    , mSpellId(spellId)
+    , mCasting(false)
+    , mScripted(scriptedSpell)
+    , mDistance(getInitialDistance(spellId))
 {
 }
 
-bool MWMechanics::AiCast::execute(const MWWorld::Ptr& actor, MWMechanics::CharacterController& characterController, MWMechanics::AiState& state, float duration)
+bool MWMechanics::AiCast::execute(const MWWorld::Ptr& actor, MWMechanics::CharacterController& characterController,
+    MWMechanics::AiState& state, float duration)
 {
     MWWorld::Ptr target;
     if (actor.getCellRef().getRefId() == mTargetId)
@@ -41,10 +46,12 @@ bool MWMechanics::AiCast::execute(const MWWorld::Ptr& actor, MWMechanics::Charac
     else
     {
         target = getTarget();
-        if (!target)
+        if (target.isEmpty())
             return true;
 
-        if (!mManual && !pathTo(actor, target.getRefData().getPosition().asVec3(), duration, mDistance))
+        if (!mScripted
+            && !pathTo(actor, target.getRefData().getPosition().asVec3(), duration,
+                characterController.getSupportedMovementDirections(), mDistance))
         {
             return false;
         }
@@ -78,7 +85,7 @@ bool MWMechanics::AiCast::execute(const MWWorld::Ptr& actor, MWMechanics::Charac
 
     if (!mCasting)
     {
-        MWBase::Environment::get().getMechanicsManager()->castSpell(actor, mSpellId, mManual);
+        MWBase::Environment::get().getMechanicsManager()->castSpell(actor, mSpellId, mScripted);
         mCasting = true;
         return false;
     }

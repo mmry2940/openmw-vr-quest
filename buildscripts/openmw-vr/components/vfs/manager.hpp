@@ -1,16 +1,21 @@
 #ifndef OPENMW_COMPONENTS_RESOURCEMANAGER_H
 #define OPENMW_COMPONENTS_RESOURCEMANAGER_H
 
-#include <components/files/constrainedfilestream.hpp>
+#include <components/files/istreamptr.hpp>
 
+#include <filesystem>
+#include <memory>
+#include <string>
+#include <string_view>
 #include <vector>
-#include <map>
+
+#include "filemap.hpp"
+#include "pathutil.hpp"
 
 namespace VFS
 {
-
     class Archive;
-    class File;
+    class RecursiveDirectoryRange;
 
     /// @brief The main class responsible for loading files from a virtual file system.
     /// @par Various archive types (e.g. directories on the filesystem, or compressed archives)
@@ -20,51 +25,63 @@ namespace VFS
     class Manager
     {
     public:
-        /// @param strict Use strict path handling? If enabled, no case folding will
-        /// be done, but slash/backslash conversions are always done.
-        Manager(bool strict);
+        Manager();
 
         ~Manager();
 
         // Empty the file index and unregister archives.
         void reset();
 
-        /// Register the given archive. All files contained in it will be added to the index on the next buildIndex() call.
-        /// @note Takes ownership of the given pointer.
-        void addArchive(Archive* archive);
+        /// Register the given archive. All files contained in it will be added to the index on the next buildIndex()
+        /// call.
+        void addArchive(std::unique_ptr<Archive>&& archive);
 
         /// Build the file index. Should be called when all archives have been registered.
         void buildIndex();
 
         /// Does a file with this name exist?
         /// @note May be called from any thread once the index has been built.
-        bool exists(const std::string& name) const;
+        bool exists(const Path::Normalized& name) const;
 
-        /// Get a complete list of files from all archives
-        /// @note May be called from any thread once the index has been built.
-        const std::map<std::string, File*>& getIndex() const;
+        bool exists(Path::NormalizedView name) const;
 
-        /// Normalize the given filename, making slashes/backslashes consistent, and lower-casing if mStrict is false.
-        /// @note May be called from any thread once the index has been built.
-        void normalizeFilename(std::string& name) const;
+        // Returns open file if exists or nullptr.
+        Files::IStreamPtr find(Path::NormalizedView name) const;
 
         /// Retrieve a file by name.
         /// @note Throws an exception if the file can not be found.
         /// @note May be called from any thread once the index has been built.
-        Files::IStreamPtr get(const std::string& name) const;
+        Files::IStreamPtr get(const Path::Normalized& name) const;
+
+        Files::IStreamPtr get(Path::NormalizedView name) const;
+
+        std::string getArchive(const Path::Normalized& name) const;
+
+        /// Recursively iterate over the elements of the given path
+        /// In practice it return all files of the VFS starting with the given path
+        /// @note the path is normalized
+        /// @note May be called from any thread once the index has been built.
+        RecursiveDirectoryRange getRecursiveDirectoryIterator(std::string_view path) const;
+
+        RecursiveDirectoryRange getRecursiveDirectoryIterator(VFS::Path::NormalizedView path) const;
+
+        RecursiveDirectoryRange getRecursiveDirectoryIterator() const;
+
+        std::filesystem::file_time_type getLastModified(VFS::Path::NormalizedView name) const;
+        // Equivalent to std::filesystem::path::stem. The result isn't normalized.
+        std::string getStem(VFS::Path::NormalizedView name) const;
+
+    private:
+        std::vector<std::unique_ptr<Archive>> mArchives;
+
+        FileMap mIndex;
+
+        inline Files::IStreamPtr findNormalized(std::string_view normalizedPath) const;
 
         /// Retrieve a file by name (name is already normalized).
         /// @note Throws an exception if the file can not be found.
         /// @note May be called from any thread once the index has been built.
-        Files::IStreamPtr getNormalized(const std::string& normalizedName) const;
-
-        std::string getArchive(const std::string& name) const;
-    private:
-        bool mStrict;
-
-        std::vector<Archive*> mArchives;
-
-        std::map<std::string, File*> mIndex;
+        Files::IStreamPtr getNormalized(std::string_view normalizedName) const;
     };
 
 }

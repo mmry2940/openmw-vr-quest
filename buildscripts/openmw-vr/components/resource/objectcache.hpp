@@ -15,185 +15,214 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * OpenSceneGraph Public License for more details.
-*/
+ */
 
 #ifndef OPENMW_COMPONENTS_RESOURCE_OBJECTCACHE
 #define OPENMW_COMPONENTS_RESOURCE_OBJECTCACHE
 
+#include "cachestats.hpp"
+
+#include <osg/Node>
 #include <osg/Referenced>
 #include <osg/ref_ptr>
-#include <osg/Node>
 
-#include <string>
+#include <algorithm>
 #include <map>
 #include <mutex>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace osg
 {
     class Object;
     class State;
     class NodeVisitor;
+    class Stats;
 }
 
-namespace Resource {
-
-template <typename KeyType>
-class GenericObjectCache : public osg::Referenced
+namespace Resource
 {
+    struct GenericObjectCacheItem
+    {
+        osg::ref_ptr<osg::Object> mValue;
+        double mLastUsage;
+    };
+
+    template <typename KeyType>
+    class GenericObjectCache : public osg::Referenced
+    {
     public:
-
-        GenericObjectCache()
-            : osg::Referenced(true) {}
-
-        /** For each object in the cache which has an reference count greater than 1
-          * (and therefore referenced by elsewhere in the application) set the time stamp
-          * for that object in the cache to specified time.
-          * This would typically be called once per frame by applications which are doing database paging,
-          * and need to prune objects that are no longer required.
-          * The time used should be taken from the FrameStamp::getReferenceTime().*/
-        void updateTimeStampOfObjectsInCacheWithExternalReferences(double referenceTime)
+        /*
+         * @brief Updates usage timestamps and removes expired items
+         *
+         * Updates the lastUsage timestamp of cached non-nullptr items that have external references.
+         * Initializes lastUsage timestamp for new items.
+         * Removes items that haven't been referenced for longer than expiryDelay.
+         *
+         * \note
+         * Last usage might be updated from other places so nullptr items
+         * that are not referenced elsewhere are not always removed.
+         *
+         * @param referenceTime the timestamp indicating when the item was most recently used
+         * @param expiryDelay the delay after which the cache entry for an item expires
+         */
+        void update(double referenceTime, double expiryDelay)
         {
-            // look for objects with external references and update their time stamp.
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            for(typename ObjectCacheMap::iterator itr=_objectCache.begin(); itr!=_objectCache.end(); ++itr)
+            std::vector<osg::ref_ptr<osg::Object>> objectsToRemove;
             {
-                // If ref count is greater than 1, the object has an external reference.
-                // If the timestamp is yet to be initialized, it needs to be updated too.
-                if (itr->second.first->referenceCount()>1 || itr->second.second == 0.0)
-                    itr->second.second = referenceTime;
-            }
-        }
+                const double expiryTime = referenceTime - expiryDelay;
+                std::lock_guard<std::mutex> lock(mMutex);
 
-        /** Removed object in the cache which have a time stamp at or before the specified expiry time.
-          * This would typically be called once per frame by applications which are doing database paging,
-          * and need to prune objects that are no longer required, and called after the a called
-          * after the call to updateTimeStampOfObjectsInCacheWithExternalReferences(expirtyTime).*/
-        void removeExpiredObjectsInCache(double expiryTime)
-        {
-            std::vector<osg::ref_ptr<osg::Object> > objectsToRemove;
-            {
-                std::lock_guard<std::mutex> lock(_objectCacheMutex);
-                // Remove expired entries from object cache
-                typename ObjectCacheMap::iterator oitr = _objectCache.begin();
-                while(oitr != _objectCache.end())
-                {
-                    if (oitr->second.second<=expiryTime)
-                    {
-                        objectsToRemove.push_back(oitr->second.first);
-                        _objectCache.erase(oitr++);
-                    }
-                    else
-                        ++oitr;
-                }
+                std::erase_if(mItems, [&](auto& v) {
+                    Item& item = v.second;
+
+                    // update last usage timestamp if item is being referenced externally
+                    // or initialize if not set
+                    if ((item.mValue != nullptr && item.mValue->referenceCount() > 1) || item.mLastUsage == 0)
+                        item.mLastUsage = referenceTime;
+
+                    // skip items that have been accessed since expiryTime
+                    if (item.mLastUsage > expiryTime)
+                        return false;
+
+                    ++mExpired;
+
+                    // just mark for removal here so objects can be removed in bulk outside the lock
+                    if (item.mValue != nullptr)
+                        objectsToRemove.push_back(std::move(item.mValue));
+
+                    return true;
+                });
             }
-            // note, actual unref happens outside of the lock
+            // remove expired items from cache
             objectsToRemove.clear();
         }
 
         /** Remove all objects in the cache regardless of having external references or expiry times.*/
         void clear()
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            _objectCache.clear();
+            std::lock_guard<std::mutex> lock(mMutex);
+            mItems.clear();
         }
 
         /** Add a key,object,timestamp triple to the Registry::ObjectCache.*/
-        void addEntryToObjectCache(const KeyType& key, osg::Object* object, double timestamp = 0.0)
+        template <class K>
+        void addEntryToObjectCache(K&& key, osg::Object* object, double timestamp = 0.0)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            _objectCache[key]=ObjectTimeStampPair(object,timestamp);
+            std::lock_guard<std::mutex> lock(mMutex);
+            const auto it = mItems.find(key);
+            if (it == mItems.end())
+                mItems.emplace_hint(it, std::forward<K>(key), Item{ object, timestamp });
+            else
+                it->second = Item{ object, timestamp };
         }
 
         /** Remove Object from cache.*/
-        void removeFromObjectCache(const KeyType& key)
+        void removeFromObjectCache(const auto& key)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            typename ObjectCacheMap::iterator itr = _objectCache.find(key);
-            if (itr!=_objectCache.end()) _objectCache.erase(itr);
+            std::lock_guard<std::mutex> lock(mMutex);
+            const auto itr = mItems.find(key);
+            if (itr != mItems.end())
+                mItems.erase(itr);
         }
 
         /** Get an ref_ptr<Object> from the object cache*/
-        osg::ref_ptr<osg::Object> getRefFromObjectCache(const KeyType& key)
+        osg::ref_ptr<osg::Object> getRefFromObjectCache(const auto& key)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            typename ObjectCacheMap::iterator itr = _objectCache.find(key);
-            if (itr!=_objectCache.end())
-                return itr->second.first;
-            else return nullptr;
+            std::lock_guard<std::mutex> lock(mMutex);
+            if (Item* const item = find(key))
+                return item->mValue;
+            return nullptr;
+        }
+
+        std::optional<osg::ref_ptr<osg::Object>> getRefFromObjectCacheOrNone(const auto& key)
+        {
+            const std::lock_guard<std::mutex> lock(mMutex);
+            if (Item* const item = find(key))
+                return item->mValue;
+            return std::nullopt;
         }
 
         /** Check if an object is in the cache, and if it is, update its usage time stamp. */
-        bool checkInObjectCache(const KeyType& key, double timeStamp)
+        bool checkInObjectCache(const auto& key, double timeStamp)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            typename ObjectCacheMap::iterator itr = _objectCache.find(key);
-            if (itr!=_objectCache.end())
+            std::lock_guard<std::mutex> lock(mMutex);
+            if (Item* const item = find(key))
             {
-                itr->second.second = timeStamp;
+                item->mLastUsage = timeStamp;
                 return true;
             }
-            else return false;
+            return false;
         }
 
         /** call releaseGLObjects on all objects attached to the object cache.*/
         void releaseGLObjects(osg::State* state)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            for(typename ObjectCacheMap::iterator itr = _objectCache.begin(); itr != _objectCache.end(); ++itr)
-            {
-                osg::Object* object = itr->second.first.get();
-                object->releaseGLObjects(state);
-            }
+            std::lock_guard<std::mutex> lock(mMutex);
+            for (const auto& [k, v] : mItems)
+                v.mValue->releaseGLObjects(state);
         }
 
         /** call node->accept(nv); for all nodes in the objectCache. */
         void accept(osg::NodeVisitor& nv)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            for(typename ObjectCacheMap::iterator itr = _objectCache.begin(); itr != _objectCache.end(); ++itr)
-            {
-                osg::Object* object = itr->second.first.get();
-                if (object)
-                {
-                    osg::Node* node = dynamic_cast<osg::Node*>(object);
-                    if (node)
+            std::lock_guard<std::mutex> lock(mMutex);
+            for (const auto& [k, v] : mItems)
+                if (osg::Object* const object = v.mValue.get())
+                    if (osg::Node* const node = dynamic_cast<osg::Node*>(object))
                         node->accept(nv);
-                }
-            }
         }
 
         /** call operator()(KeyType, osg::Object*) for each object in the cache. */
         template <class Functor>
-        void call(Functor& f)
+        void call(Functor&& f)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            for (typename ObjectCacheMap::iterator it = _objectCache.begin(); it != _objectCache.end(); ++it)
-                f(it->first, it->second.first.get());
+            std::lock_guard<std::mutex> lock(mMutex);
+            for (const auto& [k, v] : mItems)
+                f(k, v.mValue.get());
         }
 
-        /** Get the number of objects in the cache. */
-        unsigned int getCacheSize() const
+        template <class K>
+        std::optional<std::pair<KeyType, osg::ref_ptr<osg::Object>>> lowerBound(K&& key)
         {
-            std::lock_guard<std::mutex> lock(_objectCacheMutex);
-            return _objectCache.size();
+            const std::lock_guard<std::mutex> lock(mMutex);
+            const auto it = mItems.lower_bound(std::forward<K>(key));
+            if (it == mItems.end())
+                return std::nullopt;
+            return std::pair(it->first, it->second.mValue);
+        }
+
+        CacheStats getStats() const
+        {
+            const std::lock_guard<std::mutex> lock(mMutex);
+            return CacheStats{
+                .mSize = mItems.size(),
+                .mGet = mGet,
+                .mHit = mHit,
+                .mExpired = mExpired,
+            };
         }
 
     protected:
+        using Item = GenericObjectCacheItem;
 
-        virtual ~GenericObjectCache() {}
+        std::map<KeyType, Item, std::less<>> mItems;
+        mutable std::mutex mMutex;
+        std::size_t mGet = 0;
+        std::size_t mHit = 0;
+        std::size_t mExpired = 0;
 
-        typedef std::pair<osg::ref_ptr<osg::Object>, double >           ObjectTimeStampPair;
-        typedef std::map<KeyType, ObjectTimeStampPair >             ObjectCacheMap;
-
-        ObjectCacheMap                          _objectCache;
-        mutable std::mutex                      _objectCacheMutex;
-
-};
-
-class ObjectCache : public GenericObjectCache<std::string>
-{
-};
-
+        Item* find(const auto& key)
+        {
+            ++mGet;
+            const auto it = mItems.find(key);
+            if (it == mItems.end())
+                return nullptr;
+            ++mHit;
+            return &it->second;
+        }
+    };
 }
 
 #endif

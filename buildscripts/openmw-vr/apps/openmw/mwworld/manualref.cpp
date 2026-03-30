@@ -1,68 +1,109 @@
 #include "manualref.hpp"
+#include <components/esm/records.hpp>
+#include <components/esm4/loadstat.hpp>
 
 #include "esmstore.hpp"
 
 namespace
 {
 
-    template<typename T>
-    void create(const MWWorld::Store<T>& list, const std::string& name, boost::any& refValue, MWWorld::Ptr& ptrValue)
+    template <typename T>
+    void create(const MWWorld::Store<T>& store, const ESM::RefId& name, std::any& refValue, MWWorld::Ptr& ptrValue)
     {
-        const T* base = list.find(name);
+        const T* base = store.find(name);
 
         ESM::CellRef cellRef;
-        cellRef.mRefNum.unset();
+        cellRef.blank();
         cellRef.mRefID = name;
-        cellRef.mScale = 1;
-        cellRef.mFactionRank = 0;
-        cellRef.mChargeInt = -1;
-        cellRef.mChargeIntRemainder = 0.0f;
-        cellRef.mGoldValue = 1;
-        cellRef.mEnchantmentCharge = -1;
-        cellRef.mTeleport = false;
-        cellRef.mLockLevel = 0;
-        cellRef.mReferenceBlocked = 0;
 
-        MWWorld::LiveCellRef<T> ref(cellRef, base);
+        refValue = MWWorld::LiveCellRef<T>(cellRef, base);
+        ptrValue = MWWorld::Ptr(&std::any_cast<MWWorld::LiveCellRef<T>&>(refValue), nullptr);
+    }
 
-        refValue = ref;
-        ptrValue = MWWorld::Ptr(&boost::any_cast<MWWorld::LiveCellRef<T>&>(refValue), nullptr);
+    template <typename T>
+    void create(
+        const MWWorld::Store<T>& /*store*/, const MWWorld::Ptr& templatePtr, std::any& refValue, MWWorld::Ptr& ptrValue)
+    {
+        refValue = *static_cast<MWWorld::LiveCellRef<T>*>(templatePtr.getBase());
+        ptrValue = MWWorld::Ptr(&std::any_cast<MWWorld::LiveCellRef<T>&>(refValue), nullptr);
+    }
+
+    template <typename F>
+    void visitRefStore(const MWWorld::ESMStore& store, ESM::RefId name, F func)
+    {
+        switch (store.find(name))
+        {
+            case ESM::REC_ACTI:
+                return func(store.get<ESM::Activator>());
+            case ESM::REC_ALCH:
+                return func(store.get<ESM::Potion>());
+            case ESM::REC_APPA:
+                return func(store.get<ESM::Apparatus>());
+            case ESM::REC_ARMO:
+                return func(store.get<ESM::Armor>());
+            case ESM::REC_BOOK:
+                return func(store.get<ESM::Book>());
+            case ESM::REC_CLOT:
+                return func(store.get<ESM::Clothing>());
+            case ESM::REC_CONT:
+                return func(store.get<ESM::Container>());
+            case ESM::REC_CREA:
+                return func(store.get<ESM::Creature>());
+            case ESM::REC_DOOR:
+                return func(store.get<ESM::Door>());
+            case ESM::REC_INGR:
+                return func(store.get<ESM::Ingredient>());
+            case ESM::REC_LEVC:
+                return func(store.get<ESM::CreatureLevList>());
+            case ESM::REC_LEVI:
+                return func(store.get<ESM::ItemLevList>());
+            case ESM::REC_LIGH:
+                return func(store.get<ESM::Light>());
+            case ESM::REC_LOCK:
+                return func(store.get<ESM::Lockpick>());
+            case ESM::REC_MISC:
+                return func(store.get<ESM::Miscellaneous>());
+            case ESM::REC_NPC_:
+                return func(store.get<ESM::NPC>());
+            case ESM::REC_PROB:
+                return func(store.get<ESM::Probe>());
+            case ESM::REC_REPA:
+                return func(store.get<ESM::Repair>());
+            case ESM::REC_STAT:
+                return func(store.get<ESM::Static>());
+            case ESM::REC_WEAP:
+                return func(store.get<ESM::Weapon>());
+            case ESM::REC_BODY:
+                return func(store.get<ESM::BodyPart>());
+            case ESM::REC_STAT4:
+                return func(store.get<ESM4::Static>());
+            case ESM::REC_TERM4:
+                return func(store.get<ESM4::Terminal>());
+            case 0:
+                throw std::logic_error(
+                    "failed to create manual cell ref for " + name.toDebugString() + " (unknown ID)");
+
+            default:
+                throw std::logic_error(
+                    "failed to create manual cell ref for " + name.toDebugString() + " (unknown type)");
+        }
     }
 }
 
-MWWorld::ManualRef::ManualRef(const MWWorld::ESMStore& store, const std::string& name, const int count)
+MWWorld::ManualRef::ManualRef(const MWWorld::ESMStore& store, const ESM::RefId& name, const int count)
 {
-    std::string lowerName = Misc::StringUtils::lowerCase(name);
-    switch (store.find(lowerName))
-    {
-    case ESM::REC_ACTI: create(store.get<ESM::Activator>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_ALCH: create(store.get<ESM::Potion>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_APPA: create(store.get<ESM::Apparatus>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_ARMO: create(store.get<ESM::Armor>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_BOOK: create(store.get<ESM::Book>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_CLOT: create(store.get<ESM::Clothing>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_CONT: create(store.get<ESM::Container>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_CREA: create(store.get<ESM::Creature>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_DOOR: create(store.get<ESM::Door>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_INGR: create(store.get<ESM::Ingredient>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_LEVC: create(store.get<ESM::CreatureLevList>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_LEVI: create(store.get<ESM::ItemLevList>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_LIGH: create(store.get<ESM::Light>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_LOCK: create(store.get<ESM::Lockpick>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_MISC: create(store.get<ESM::Miscellaneous>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_NPC_: create(store.get<ESM::NPC>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_PROB: create(store.get<ESM::Probe>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_REPA: create(store.get<ESM::Repair>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_STAT: create(store.get<ESM::Static>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_WEAP: create(store.get<ESM::Weapon>(), lowerName, mRef, mPtr); break;
-    case ESM::REC_BODY: create(store.get<ESM::BodyPart>(), lowerName, mRef, mPtr); break;
+    auto cb = [&](const auto& typedStore) { create(typedStore, name, mRef, mPtr); };
+    visitRefStore(store, name, cb);
 
-    case 0:
-        throw std::logic_error("failed to create manual cell ref for " + lowerName + " (unknown ID)");
+    mPtr.getCellRef().setCount(count);
+}
 
-    default:
-        throw std::logic_error("failed to create manual cell ref for " + lowerName + " (unknown type)");
-    }
+MWWorld::ManualRef::ManualRef(const ESMStore& store, const Ptr& templatePtr, const int count)
+{
+    auto cb = [&](const auto& typedStore) { create(typedStore, templatePtr, mRef, mPtr); };
+    visitRefStore(store, templatePtr.getCellRef().getRefId(), cb);
 
-    mPtr.getRefData().setCount(count);
+    mPtr.getCellRef().setCount(count);
+    mPtr.getCellRef().unsetRefNum();
+    mPtr.getRefData().setLuaScripts(nullptr);
 }

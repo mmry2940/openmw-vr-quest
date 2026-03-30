@@ -4,23 +4,18 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
-#include <optional>
+
+#include <LinearMath/btVector3.h>
 
 #include "ptrholder.hpp"
 
 class btCollisionObject;
 class btCollisionShape;
 class btConvexShape;
-class btVector3;
 
 namespace osg
 {
     class Vec3f;
-}
-
-namespace Resource
-{
-    class BulletShape;
 }
 
 namespace MWPhysics
@@ -31,74 +26,56 @@ namespace MWPhysics
     class Projectile final : public PtrHolder
     {
     public:
-        Projectile(const MWWorld::Ptr& caster, const osg::Vec3f& position, float radius, bool canCrossWaterSurface, PhysicsTaskScheduler* scheduler, PhysicsSystem* physicssystem);
+        Projectile(const MWWorld::Ptr& caster, const osg::Vec3f& position, float radius,
+            PhysicsTaskScheduler* scheduler, PhysicsSystem* physicssystem);
         ~Projectile() override;
 
         btConvexShape* getConvexShape() const { return mConvexShape; }
 
-        void commitPositionChange();
+        void updateCollisionObjectPosition();
 
-        void setPosition(const osg::Vec3f& position);
-        osg::Vec3f getPosition() const;
+        bool isActive() const { return mActive.load(std::memory_order_acquire); }
 
-        btCollisionObject* getCollisionObject() const
-        {
-            return mCollisionObject.get();
-        }
-
-        bool isActive() const
-        {
-            return mActive.load(std::memory_order_acquire);
-        }
-
-        MWWorld::Ptr getTarget() const
-        {
-            assert(!mActive);
-            return mHitTarget;
-        }
+        MWWorld::Ptr getTarget() const;
 
         MWWorld::Ptr getCaster() const;
         void setCaster(const MWWorld::Ptr& caster);
+        const btCollisionObject* getCasterCollisionObject() const { return mCasterColObj; }
 
-        bool canTraverseWater() const;
+        void setHitWater() { mHitWater = true; }
 
-        void hit(const MWWorld::Ptr& target, btVector3 pos, btVector3 normal);
+        bool getHitWater() const { return mHitWater; }
+
+        void hit(const btCollisionObject* target, btVector3 pos, btVector3 normal);
 
         void setValidTargets(const std::vector<MWWorld::Ptr>& targets);
-        bool isValidTarget(const MWWorld::Ptr& target) const;
+        bool isValidTarget(const btCollisionObject* target) const;
 
-        std::optional<btVector3> getWaterHitPosition();
-        void setWaterHitPosition(btVector3 pos);
+        btVector3 getHitPosition() const { return mHitPosition; }
 
     private:
-
         std::unique_ptr<btCollisionShape> mShape;
         btConvexShape* mConvexShape;
 
-        std::unique_ptr<btCollisionObject> mCollisionObject;
-        btTransform mLocalTransform;
-        bool mTransformUpdatePending;
-        bool mCanCrossWaterSurface;
-        bool mCrossedWaterSurface;
+        bool mHitWater;
         std::atomic<bool> mActive;
         MWWorld::Ptr mCaster;
-        MWWorld::Ptr mHitTarget;
-        std::optional<btVector3> mWaterHitPosition;
+        const btCollisionObject* mCasterColObj;
+        const btCollisionObject* mHitTarget;
         btVector3 mHitPosition;
         btVector3 mHitNormal;
 
-        std::vector<MWWorld::Ptr> mValidTargets;
+        std::vector<const btCollisionObject*> mValidTargets;
 
         mutable std::mutex mMutex;
 
-        PhysicsSystem *mPhysics;
-        PhysicsTaskScheduler *mTaskScheduler;
+        PhysicsSystem* mPhysics;
+        PhysicsTaskScheduler* mTaskScheduler;
 
         Projectile(const Projectile&);
         Projectile& operator=(const Projectile&);
     };
 
 }
-
 
 #endif

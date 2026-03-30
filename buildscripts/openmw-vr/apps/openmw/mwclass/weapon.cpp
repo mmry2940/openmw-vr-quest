@@ -1,21 +1,22 @@
 #include "weapon.hpp"
 
-#include <components/esm/loadweap.hpp>
+#include <MyGUI_TextIterator.h>
+#include <MyGUI_UString.h>
+
+#include <components/esm3/loadnpc.hpp>
+#include <components/esm3/loadweap.hpp>
 #include <components/misc/constants.hpp>
-#include <components/settings/settings.hpp>
+#include <components/settings/values.hpp>
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/mechanicsmanager.hpp"
-#include "../mwbase/world.hpp"
 #include "../mwbase/windowmanager.hpp"
 
-#include "../mwworld/ptr.hpp"
 #include "../mwworld/actionequip.hpp"
-#include "../mwworld/inventorystore.hpp"
 #include "../mwworld/cellstore.hpp"
 #include "../mwworld/esmstore.hpp"
-#include "../mwphysics/physicssystem.hpp"
-#include "../mwworld/nullaction.hpp"
+#include "../mwworld/inventorystore.hpp"
+#include "../mwworld/ptr.hpp"
 
 #include "../mwmechanics/weapontype.hpp"
 
@@ -24,154 +25,144 @@
 #include "../mwrender/objects.hpp"
 #include "../mwrender/renderinginterface.hpp"
 
+#include "classmodel.hpp"
+#include "nameorid.hpp"
+
 namespace MWClass
 {
-
-    void Weapon::insertObjectRendering (const MWWorld::Ptr& ptr, const std::string& model, MWRender::RenderingInterface& renderingInterface) const
+    Weapon::Weapon()
+        : MWWorld::RegisteredClass<Weapon>(ESM::Weapon::sRecordId)
     {
-        if (!model.empty()) {
+    }
+
+    void Weapon::insertObjectRendering(
+        const MWWorld::Ptr& ptr, const std::string& model, MWRender::RenderingInterface& renderingInterface) const
+    {
+        if (!model.empty())
+        {
             renderingInterface.getObjects().insertModel(ptr, model);
         }
     }
 
-    std::string Weapon::getModel(const MWWorld::ConstPtr &ptr) const
+    std::string_view Weapon::getModel(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
-
-        const std::string &model = ref->mBase->mModel;
-        if (!model.empty()) {
-            return "meshes\\" + model;
-        }
-        return "";
+        return getClassModel<ESM::Weapon>(ptr);
     }
 
-    std::string Weapon::getName (const MWWorld::ConstPtr& ptr) const
+    std::string_view Weapon::getName(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
-        const std::string& name = ref->mBase->mName;
-
-        return !name.empty() ? name : ref->mBase->mId;
+        return getNameOrId<ESM::Weapon>(ptr);
     }
 
-    std::shared_ptr<MWWorld::Action> Weapon::activate (const MWWorld::Ptr& ptr,
-        const MWWorld::Ptr& actor) const
+    std::unique_ptr<MWWorld::Action> Weapon::activate(const MWWorld::Ptr& ptr, const MWWorld::Ptr& actor) const
     {
         return defaultItemActivate(ptr, actor);
     }
 
-    bool Weapon::hasItemHealth (const MWWorld::ConstPtr& ptr) const
+    bool Weapon::hasItemHealth(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
         int type = ref->mBase->mData.mType;
 
         return MWMechanics::getWeaponType(type)->mFlags & ESM::WeaponType::HasHealth;
     }
 
-    int Weapon::getItemMaxHealth (const MWWorld::ConstPtr& ptr) const
+    int Weapon::getItemMaxHealth(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         return ref->mBase->mData.mHealth;
     }
 
-    std::string Weapon::getScript (const MWWorld::ConstPtr& ptr) const
+    ESM::RefId Weapon::getScript(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref =
-            ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         return ref->mBase->mScript;
     }
 
-    std::pair<std::vector<int>, bool> Weapon::getEquipmentSlots (const MWWorld::ConstPtr& ptr) const
+    std::pair<std::vector<int>, bool> Weapon::getEquipmentSlots(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
         ESM::WeaponType::Class weapClass = MWMechanics::getWeaponType(ref->mBase->mData.mType)->mWeaponClass;
 
-        std::vector<int> slots_;
+        std::vector<int> slots;
         bool stack = false;
 
         if (weapClass == ESM::WeaponType::Ammo)
         {
-            slots_.push_back (int (MWWorld::InventoryStore::Slot_Ammunition));
+            slots.push_back(int(MWWorld::InventoryStore::Slot_Ammunition));
             stack = true;
         }
         else if (weapClass == ESM::WeaponType::Thrown)
         {
-            slots_.push_back (int (MWWorld::InventoryStore::Slot_CarriedRight));
+            slots.push_back(int(MWWorld::InventoryStore::Slot_CarriedRight));
             stack = true;
         }
         else
-            slots_.push_back (int (MWWorld::InventoryStore::Slot_CarriedRight));
+            slots.push_back(int(MWWorld::InventoryStore::Slot_CarriedRight));
 
-        return std::make_pair (slots_, stack);
+        return std::make_pair(slots, stack);
     }
 
-    int Weapon::getEquipmentSkill (const MWWorld::ConstPtr& ptr) const
+    ESM::RefId Weapon::getEquipmentSkill(const MWWorld::ConstPtr& ptr, bool useLuaInterfaceIfAvailable) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
         int type = ref->mBase->mData.mType;
 
         return MWMechanics::getWeaponType(type)->mSkill;
     }
 
-    int Weapon::getValue (const MWWorld::ConstPtr& ptr) const
+    int Weapon::getValue(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         return ref->mBase->mData.mValue;
     }
 
-    void Weapon::registerSelf()
+    const ESM::RefId& Weapon::getUpSoundId(const MWWorld::ConstPtr& ptr) const
     {
-        std::shared_ptr<Class> instance (new Weapon);
-
-        registerClass (typeid (ESM::Weapon).name(), instance);
-    }
-
-    std::string Weapon::getUpSoundId (const MWWorld::ConstPtr& ptr) const
-    {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
         int type = ref->mBase->mData.mType;
-        std::string soundId = MWMechanics::getWeaponType(type)->mSoundId;
-        return soundId + " Up";
+        return MWMechanics::getWeaponType(type)->mSoundIdUp;
     }
 
-    std::string Weapon::getDownSoundId (const MWWorld::ConstPtr& ptr) const
+    const ESM::RefId& Weapon::getDownSoundId(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
         int type = ref->mBase->mData.mType;
-        std::string soundId = MWMechanics::getWeaponType(type)->mSoundId;
-        return soundId + " Down";
+        return MWMechanics::getWeaponType(type)->mSoundIdDown;
     }
 
-    std::string Weapon::getInventoryIcon (const MWWorld::ConstPtr& ptr) const
+    const std::string& Weapon::getInventoryIcon(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         return ref->mBase->mIcon;
     }
 
-    MWGui::ToolTipInfo Weapon::getToolTipInfo (const MWWorld::ConstPtr& ptr, int count) const
+    MWGui::ToolTipInfo Weapon::getToolTipInfo(const MWWorld::ConstPtr& ptr, int count) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
         const ESM::WeaponType* weaponType = MWMechanics::getWeaponType(ref->mBase->mData.mType);
 
         MWGui::ToolTipInfo info;
-        info.caption = MyGUI::TextIterator::toTagsString(getName(ptr)) + MWGui::ToolTips::getCountString(count);
+        std::string_view name = getName(ptr);
+        info.caption = MyGUI::TextIterator::toTagsString(MyGUI::UString(name)) + MWGui::ToolTips::getCountString(count);
         info.icon = ref->mBase->mIcon;
 
-        const MWWorld::ESMStore& store = MWBase::Environment::get().getWorld()->getStore();
+        const MWWorld::ESMStore& store = *MWBase::Environment::get().getESMStore();
 
         std::string text;
 
         // weapon type & damage
-        if (weaponType->mWeaponClass != ESM::WeaponType::Ammo || Settings::Manager::getBool("show projectile damage", "Game"))
+        if (weaponType->mWeaponClass != ESM::WeaponType::Ammo || Settings::game().mShowProjectileDamage)
         {
             text += "\n#{sType} ";
 
-            int skill = MWMechanics::getWeaponType(ref->mBase->mData.mType)->mSkill;
-            const std::string type = ESM::Skill::sSkillNameIds[skill];
-            std::string oneOrTwoHanded;
+            const ESM::Skill* skill
+                = store.get<ESM::Skill>().find(MWMechanics::getWeaponType(ref->mBase->mData.mType)->mSkill);
+            std::string_view oneOrTwoHanded;
             if (weaponType->mWeaponClass == ESM::WeaponType::Melee)
             {
                 if (weaponType->mFlags & ESM::WeaponType::TwoHanded)
@@ -180,38 +171,34 @@ namespace MWClass
                     oneOrTwoHanded = "sOneHanded";
             }
 
-            text += store.get<ESM::GameSetting>().find(type)->mValue.getString() +
-                ((oneOrTwoHanded != "") ? ", " + store.get<ESM::GameSetting>().find(oneOrTwoHanded)->mValue.getString() : "");
+            text += skill->mName;
+            if (!oneOrTwoHanded.empty())
+                text += ", " + store.get<ESM::GameSetting>().find(oneOrTwoHanded)->mValue.getString();
 
             // weapon damage
             if (weaponType->mWeaponClass == ESM::WeaponType::Thrown)
             {
                 // Thrown weapons have 2x real damage applied
                 // as they're both the weapon and the ammo
-                text += "\n#{sAttack}: "
-                    + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[0] * 2))
+                text += "\n#{sAttack}: " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[0] * 2))
                     + " - " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[1] * 2));
             }
             else if (weaponType->mWeaponClass == ESM::WeaponType::Melee)
             {
                 // Chop
-                text += "\n#{sChop}: "
-                    + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[0]))
-                    + " - " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[1]));
+                text += "\n#{sChop}: " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[0])) + " - "
+                    + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[1]));
                 // Slash
-                text += "\n#{sSlash}: "
-                    + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mSlash[0]))
+                text += "\n#{sSlash}: " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mSlash[0]))
                     + " - " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mSlash[1]));
                 // Thrust
-                text += "\n#{sThrust}: "
-                    + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mThrust[0]))
+                text += "\n#{sThrust}: " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mThrust[0]))
                     + " - " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mThrust[1]));
             }
             else
             {
                 // marksman
-                text += "\n#{sAttack}: "
-                    + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[0]))
+                text += "\n#{sAttack}: " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[0]))
                     + " - " + MWGui::ToolTips::toString(static_cast<int>(ref->mBase->mData.mChop[1]));
             }
         }
@@ -220,15 +207,16 @@ namespace MWClass
         {
             int remainingHealth = getItemHealth(ptr);
             text += "\n#{sCondition}: " + MWGui::ToolTips::toString(remainingHealth) + "/"
-                    + MWGui::ToolTips::toString(ref->mBase->mData.mHealth);
+                + MWGui::ToolTips::toString(ref->mBase->mData.mHealth);
         }
 
-        const bool verbose = Settings::Manager::getBool("show melee info", "Game");
+        const bool verbose = Settings::game().mShowMeleeInfo;
         // add reach for melee weapon
         if (weaponType->mWeaponClass == ESM::WeaponType::Melee && verbose)
         {
             // display value in feet
-            const float combatDistance = store.get<ESM::GameSetting>().find("fCombatDistance")->mValue.getFloat() * ref->mBase->mData.mReach;
+            const float combatDistance
+                = store.get<ESM::GameSetting>().find("fCombatDistance")->mValue.getFloat() * ref->mBase->mData.mReach;
             text += MWGui::ToolTips::getWeightString(combatDistance / Constants::UnitsPerFoot, "#{sRange}");
             text += " #{sFeet}";
         }
@@ -247,93 +235,95 @@ namespace MWClass
         if (!info.enchant.empty())
             info.remainingEnchantCharge = static_cast<int>(ptr.getCellRef().getEnchantmentCharge());
 
-        if (MWBase::Environment::get().getWindowManager()->getFullHelp()) {
-            text += MWGui::ToolTips::getCellRefString(ptr.getCellRef());
-            text += MWGui::ToolTips::getMiscString(ref->mBase->mScript, "Script");
+        if (MWBase::Environment::get().getWindowManager()->getFullHelp())
+        {
+            info.extra += MWGui::ToolTips::getCellRefString(ptr.getCellRef());
+            info.extra += MWGui::ToolTips::getMiscString(ref->mBase->mScript.getRefIdString(), "Script");
         }
 
-        info.text = text;
+        info.text = std::move(text);
 
         return info;
     }
 
-    std::string Weapon::getEnchantment (const MWWorld::ConstPtr& ptr) const
+    ESM::RefId Weapon::getEnchantment(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         return ref->mBase->mEnchant;
     }
 
-    std::string Weapon::applyEnchantment(const MWWorld::ConstPtr &ptr, const std::string& enchId, int enchCharge, const std::string& newName) const
+    const ESM::RefId& Weapon::applyEnchantment(
+        const MWWorld::ConstPtr& ptr, const ESM::RefId& enchId, int enchCharge, const std::string& newName) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         ESM::Weapon newItem = *ref->mBase;
-        newItem.mId="";
-        newItem.mName=newName;
-        newItem.mData.mEnchant=enchCharge;
-        newItem.mEnchant=enchId;
+        newItem.mId = ESM::RefId();
+        newItem.mName = newName;
+        newItem.mData.mEnchant = enchCharge;
+        newItem.mEnchant = enchId;
         newItem.mData.mFlags |= ESM::Weapon::Magical;
-        const ESM::Weapon *record = MWBase::Environment::get().getWorld()->createRecord (newItem);
+        const ESM::Weapon* record = MWBase::Environment::get().getESMStore()->insert(newItem);
         return record->mId;
     }
 
-    std::pair<int, std::string> Weapon::canBeEquipped(const MWWorld::ConstPtr &ptr, const MWWorld::Ptr &npc) const
+    std::pair<int, std::string_view> Weapon::canBeEquipped(const MWWorld::ConstPtr& ptr, const MWWorld::Ptr& npc) const
     {
-        if (hasItemHealth(ptr) && getItemHealth(ptr) == 0)
-            return std::make_pair(0, "#{sInventoryMessage1}");
-
         // Do not allow equip weapons from inventory during attack
-        if (MWBase::Environment::get().getMechanicsManager()->isAttackingOrSpell(npc)
-            && MWBase::Environment::get().getWindowManager()->isGuiMode())
-            return std::make_pair(0, "#{sCantEquipWeapWarning}");
+        if (npc.isInCell() && MWBase::Environment::get().getWindowManager()->isGuiMode()
+            && MWBase::Environment::get().getMechanicsManager()->isAttackingOrSpell(npc))
+            return { 0, "#{sCantEquipWeapWarning}" };
 
-        std::pair<std::vector<int>, bool> slots_ = getEquipmentSlots(ptr);
+        if (hasItemHealth(ptr) && getItemHealth(ptr) == 0)
+            return { 0, "#{sInventoryMessage1}" };
 
-        if (slots_.first.empty())
-            return std::make_pair (0, "");
+        std::pair<std::vector<int>, bool> slots = getEquipmentSlots(ptr);
+
+        if (slots.first.empty())
+            return { 0, {} };
 
         int type = ptr.get<ESM::Weapon>()->mBase->mData.mType;
-        if(MWMechanics::getWeaponType(type)->mFlags & ESM::WeaponType::TwoHanded)
+        if (MWMechanics::getWeaponType(type)->mFlags & ESM::WeaponType::TwoHanded)
         {
-            return std::make_pair (2, "");
+            return { 2, {} };
         }
 
-        return std::make_pair(1, "");
+        return { 1, {} };
     }
 
-    std::shared_ptr<MWWorld::Action> Weapon::use (const MWWorld::Ptr& ptr, bool force) const
+    std::unique_ptr<MWWorld::Action> Weapon::use(const MWWorld::Ptr& ptr, bool force) const
     {
-        std::shared_ptr<MWWorld::Action> action(new MWWorld::ActionEquip(ptr, force));
+        std::unique_ptr<MWWorld::Action> action = std::make_unique<MWWorld::ActionEquip>(ptr, force);
 
         action->setSound(getUpSoundId(ptr));
 
         return action;
     }
 
-    MWWorld::Ptr Weapon::copyToCellImpl(const MWWorld::ConstPtr &ptr, MWWorld::CellStore &cell) const
+    MWWorld::Ptr Weapon::copyToCellImpl(const MWWorld::ConstPtr& ptr, MWWorld::CellStore& cell) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         return MWWorld::Ptr(cell.insert(ref), &cell);
     }
 
-    int Weapon::getEnchantmentPoints (const MWWorld::ConstPtr& ptr) const
+    int Weapon::getEnchantmentPoints(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
 
         return ref->mBase->mData.mEnchant;
     }
 
-    bool Weapon::canSell (const MWWorld::ConstPtr& item, int npcServices) const
+    bool Weapon::canSell(const MWWorld::ConstPtr& item, int npcServices) const
     {
         return (npcServices & ESM::NPC::Weapon)
-                || ((npcServices & ESM::NPC::MagicItems) && !getEnchantment(item).empty());
+            || ((npcServices & ESM::NPC::MagicItems) && !getEnchantment(item).empty());
     }
 
-    float Weapon::getWeight(const MWWorld::ConstPtr &ptr) const
+    float Weapon::getWeight(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Weapon> *ref = ptr.get<ESM::Weapon>();
+        const MWWorld::LiveCellRef<ESM::Weapon>* ref = ptr.get<ESM::Weapon>();
         return ref->mBase->mData.mWeight;
     }
 }

@@ -3,7 +3,10 @@
 
 #include "importscri.hpp"
 
-#include <components/esm/loadscpt.hpp>
+#include <cstdint>
+
+#include <components/esm/esmcommon.hpp>
+#include <components/esm3/loadscpt.hpp>
 
 namespace ESM
 {
@@ -15,8 +18,12 @@ namespace ESSImport
 
     struct SCHD
     {
-        ESM::NAME32              mName;
-        ESM::Script::SCHDstruct  mData;
+        ESM::NAME32 mName;
+        std::uint32_t mNumShorts;
+        std::uint32_t mNumLongs;
+        std::uint32_t mNumFloats;
+        std::uint32_t mScriptDataSize;
+        std::uint32_t mStringTableSize;
     };
 
     // A running global script
@@ -28,7 +35,7 @@ namespace ESSImport
         SCRI mSCRI;
 
         bool mRunning;
-        int mRefNum; // Targeted reference, -1: no reference
+        int32_t mRefNum; // Targeted reference, -1: no reference
 
         void load(ESM::ESMReader& esm);
     };

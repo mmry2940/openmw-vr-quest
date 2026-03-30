@@ -1,15 +1,15 @@
 #include "importscri.hpp"
 
-#include <components/esm/esmreader.hpp>
+#include <components/esm3/esmreader.hpp>
 
 namespace ESSImport
 {
 
-    void SCRI::load(ESM::ESMReader &esm)
+    void SCRI::load(ESM::ESMReader& esm)
     {
         mScript = esm.getHNOString("SCRI");
 
-        int numShorts = 0, numLongs = 0, numFloats = 0;
+        int32_t numShorts = 0, numLongs = 0, numFloats = 0;
         if (esm.isNextSub("SLCS"))
         {
             esm.getSubHeader();
@@ -21,9 +21,9 @@ namespace ESSImport
         if (esm.isNextSub("SLSD"))
         {
             esm.getSubHeader();
-            for (int i=0; i<numShorts; ++i)
+            for (int i = 0; i < numShorts; ++i)
             {
-                short val;
+                int16_t val;
                 esm.getT(val);
                 mShorts.push_back(val);
             }
@@ -33,9 +33,9 @@ namespace ESSImport
         if (esm.isNextSub("SLLD"))
         {
             esm.getSubHeader();
-            for (int i=0; i<numLongs; ++i)
+            for (int i = 0; i < numLongs; ++i)
             {
-                int val;
+                int32_t val;
                 esm.getT(val);
                 mLongs.push_back(val);
             }
@@ -43,7 +43,7 @@ namespace ESSImport
         if (esm.isNextSub("SLFD"))
         {
             esm.getSubHeader();
-            for (int i=0; i<numFloats; ++i)
+            for (int i = 0; i < numFloats; ++i)
             {
                 float val;
                 esm.getT(val);

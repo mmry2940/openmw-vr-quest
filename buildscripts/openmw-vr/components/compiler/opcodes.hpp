@@ -115,7 +115,15 @@ namespace Compiler
     {
         const int numberOfControls = 7;
 
-        extern const char *controls[numberOfControls];
+        inline constexpr const char* controls[numberOfControls] = {
+            "playercontrols",
+            "playerfighting",
+            "playerjumping",
+            "playerlooking",
+            "playermagic",
+            "playerviewswitch",
+            "vanitymode",
+        };
 
         const int opcodeEnable = 0x200007e;
         const int opcodeDisable = 0x2000085;
@@ -155,6 +163,7 @@ namespace Compiler
         const int opcodeJournalExplicit = 0x200030b;
         const int opcodeSetJournalIndex = 0x2000134;
         const int opcodeGetJournalIndex = 0x2000135;
+        const int opcodeFillJournal = 0x2000326;
         const int opcodeAddTopic = 0x200013a;
         const int opcodeChoice = 0x2000a;
         const int opcodeForceGreeting = 0x200014f;
@@ -318,6 +327,9 @@ namespace Compiler
         const int opcodeDisableExplicit = 0x200031b;
         const int opcodeGetDisabledExplicit = 0x200031c;
         const int opcodeStartScriptExplicit = 0x200031d;
+        const int opcodeHelp = 0x2000320;
+        const int opcodeReloadLua = 0x2000321;
+        const int opcodeTestModels = 0x2000325;
     }
 
     namespace Sky
@@ -482,6 +494,10 @@ namespace Compiler
 
         const int opcodeGetStat = 0x200024e;
         const int opcodeGetStatExplicit = 0x200024f;
+
+        const int opcodeGetPCVisionBonus = 0x2000322;
+        const int opcodeSetPCVisionBonus = 0x2000323;
+        const int opcodeModPCVisionBonus = 0x2000324;
     }
 
     namespace Transformation

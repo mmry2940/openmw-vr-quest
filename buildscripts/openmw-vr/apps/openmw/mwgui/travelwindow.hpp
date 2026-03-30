@@ -1,43 +1,48 @@
 #ifndef MWGUI_TravelWINDOW_H
 #define MWGUI_TravelWINDOW_H
 
-
-#include "windowbase.hpp"
 #include "referenceinterface.hpp"
+#include "windowbase.hpp"
 
 namespace MyGUI
 {
-  class Gui;
-  class Widget;
+    class Gui;
+    class Widget;
 }
 
 namespace MWGui
 {
     class TravelWindow : public ReferenceInterface, public WindowBase
     {
-        public:
-            TravelWindow();
+    public:
+        TravelWindow();
 
-            void setPtr (const MWWorld::Ptr& actor) override;
+        void setPtr(const MWWorld::Ptr& actor) override;
 
-        protected:
-            MyGUI::Button* mCancelButton;
-            MyGUI::TextBox* mPlayerGold;
-            MyGUI::TextBox* mDestinations;
-            MyGUI::TextBox* mSelect;
+        std::string_view getWindowIdForLua() const override { return "Travel"; }
 
-            MyGUI::ScrollView* mDestinationsView;
+    protected:
+        MyGUI::Button* mCancelButton;
+        MyGUI::TextBox* mPlayerGold;
 
-            void onCancelButtonClicked(MyGUI::Widget* _sender);
-            void onTravelButtonClick(MyGUI::Widget* _sender);
-            void onMouseWheel(MyGUI::Widget* _sender, int _rel);
-            void addDestination(const std::string& name, ESM::Position pos, bool interior);
-            void clearDestinations();
-            int mCurrentY;
+        std::vector<MyGUI::Button*> mDestinationButtons;
 
-            void updateLabels();
+        MyGUI::ScrollView* mDestinationsView;
 
-            void onReferenceUnavailable() override;
+        void onCancelButtonClicked(MyGUI::Widget* sender);
+        void onTravelButtonClick(MyGUI::Widget* sender);
+        void onMouseWheel(MyGUI::Widget* sender, int rel);
+        void addDestination(const ESM::RefId& name, const ESM::Position& pos, bool interior);
+        void clearDestinations();
+        int mCurrentY;
+
+        void updateLabels();
+
+        void onReferenceUnavailable() override;
+
+    private:
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
+        size_t mControllerFocus = 0;
     };
 }
 

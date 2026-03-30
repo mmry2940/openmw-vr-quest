@@ -1,6 +1,6 @@
 #include "completerpopup.hpp"
 
-CSVWidget::CompleterPopup::CompleterPopup(QWidget *parent)
+CSVWidget::CompleterPopup::CompleterPopup(QWidget* parent)
     : QListView(parent)
 {
     setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -22,7 +22,8 @@ int CSVWidget::CompleterPopup::sizeHintForRow(int row) const
 
     ensurePolished();
     QModelIndex index = model()->index(row, modelColumn());
-    QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate(index);
+    QStyleOptionViewItem option;
+    initViewItemOption(&option);
+    QAbstractItemDelegate* delegate = itemDelegateForIndex(index);
     return delegate->sizeHint(option, index).height();
 }

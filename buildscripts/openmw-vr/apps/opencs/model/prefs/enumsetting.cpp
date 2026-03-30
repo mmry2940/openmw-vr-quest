@@ -1,124 +1,80 @@
-
 #include "enumsetting.hpp"
 
-#include <QLabel>
 #include <QComboBox>
+#include <QLabel>
 #include <QMutexLocker>
 #include <QString>
+
+#include <algorithm>
+#include <memory>
+
+#include <apps/opencs/model/prefs/setting.hpp>
 
 #include <components/settings/settings.hpp>
 
 #include "category.hpp"
 #include "state.hpp"
 
-
-CSMPrefs::EnumValue::EnumValue (const std::string& value, const std::string& tooltip)
-: mValue (value), mTooltip (tooltip)
-{}
-
-CSMPrefs::EnumValue::EnumValue (const char *value)
-: mValue (value)
-{}
-
-
-CSMPrefs::EnumValues& CSMPrefs::EnumValues::add (const EnumValues& values)
+CSMPrefs::EnumSetting::EnumSetting(Category* parent, QMutex* mutex, std::string_view key, const QString& label,
+    std::span<const EnumValueView> values, Settings::Index& index)
+    : TypedSetting(parent, mutex, key, label, index)
+    , mValues(values)
+    , mWidget(nullptr)
 {
-    mValues.insert (mValues.end(), values.mValues.begin(), values.mValues.end());
-    return *this;
 }
 
-CSMPrefs::EnumValues& CSMPrefs::EnumValues::add (const EnumValue& value)
-{
-    mValues.push_back (value);
-    return *this;
-}
-
-CSMPrefs::EnumValues& CSMPrefs::EnumValues::add (const std::string& value, const std::string& tooltip)
-{
-    mValues.emplace_back(value, tooltip);
-    return *this;
-}
-
-
-CSMPrefs::EnumSetting::EnumSetting (Category *parent, Settings::Manager *values,
-  QMutex *mutex, const std::string& key, const std::string& label, const EnumValue& default_)
-: Setting (parent, values, mutex, key, label), mDefault (default_), mWidget(nullptr)
-{}
-
-CSMPrefs::EnumSetting& CSMPrefs::EnumSetting::setTooltip (const std::string& tooltip)
+CSMPrefs::EnumSetting& CSMPrefs::EnumSetting::setTooltip(const std::string& tooltip)
 {
     mTooltip = tooltip;
     return *this;
 }
 
-CSMPrefs::EnumSetting& CSMPrefs::EnumSetting::addValues (const EnumValues& values)
+CSMPrefs::SettingWidgets CSMPrefs::EnumSetting::makeWidgets(QWidget* parent)
 {
-    mValues.add (values);
-    return *this;
-}
+    QLabel* label = new QLabel(getLabel(), parent);
 
-CSMPrefs::EnumSetting& CSMPrefs::EnumSetting::addValue (const EnumValue& value)
-{
-    mValues.add (value);
-    return *this;
-}
+    mWidget = new QComboBox(parent);
 
-CSMPrefs::EnumSetting& CSMPrefs::EnumSetting::addValue (const std::string& value, const std::string& tooltip)
-{
-    mValues.add (value, tooltip);
-    return *this;
-}
-
-std::pair<QWidget *, QWidget *> CSMPrefs::EnumSetting::makeWidgets (QWidget *parent)
-{
-    QLabel *label = new QLabel (QString::fromUtf8 (getLabel().c_str()), parent);
-
-    mWidget = new QComboBox (parent);
-
-    int index = 0;
-
-    for (int i=0; i<static_cast<int> (mValues.mValues.size()); ++i)
+    for (std::size_t i = 0; i < mValues.size(); ++i)
     {
-        if (mDefault.mValue==mValues.mValues[i].mValue)
-            index = i;
+        const EnumValueView& v = mValues[i];
 
-        mWidget->addItem (QString::fromUtf8 (mValues.mValues[i].mValue.c_str()));
+        mWidget->addItem(QString::fromUtf8(v.mValue.data(), static_cast<int>(v.mValue.size())));
 
-        if (!mValues.mValues[i].mTooltip.empty())
-            mWidget->setItemData (i, QString::fromUtf8 (mValues.mValues[i].mTooltip.c_str()),
-                Qt::ToolTipRole);
+        if (!v.mTooltip.empty())
+            mWidget->setItemData(static_cast<int>(i),
+                QString::fromUtf8(v.mTooltip.data(), static_cast<int>(v.mTooltip.size())), Qt::ToolTipRole);
     }
 
-    mWidget->setCurrentIndex (index);
+    const std::string value = getValue();
+    const std::size_t index = std::find_if(mValues.begin(), mValues.end(), [&](const EnumValueView& v) {
+        return v.mValue == value;
+    }) - mValues.begin();
+
+    mWidget->setCurrentIndex(static_cast<int>(index));
 
     if (!mTooltip.empty())
     {
-        QString tooltip = QString::fromUtf8 (mTooltip.c_str());
-        label->setToolTip (tooltip);
+        QString tooltip = QString::fromUtf8(mTooltip.c_str());
+        label->setToolTip(tooltip);
     }
 
-    connect (mWidget, SIGNAL (currentIndexChanged (int)), this, SLOT (valueChanged (int)));
+    connect(mWidget, qOverload<int>(&QComboBox::currentIndexChanged), this, &EnumSetting::valueChanged);
 
-    return std::make_pair (label, mWidget);
+    return SettingWidgets{ .mLabel = label, .mInput = mWidget };
 }
 
 void CSMPrefs::EnumSetting::updateWidget()
 {
     if (mWidget)
-    {
-        int index = mWidget->findText(QString::fromStdString
-            (getValues().getString(getKey(), getParent()->getKey())));
-
-        mWidget->setCurrentIndex(index);
-    }
+        mWidget->setCurrentIndex(mWidget->findText(QString::fromStdString(getValue())));
 }
 
-void CSMPrefs::EnumSetting::valueChanged (int value)
+void CSMPrefs::EnumSetting::valueChanged(int value)
 {
-    {
-        QMutexLocker lock (getMutex());
-        getValues().setString (getKey(), getParent()->getKey(), mValues.mValues.at (value).mValue);
-    }
+    if (value < 0 || static_cast<std::size_t>(value) >= mValues.size())
+        throw std::logic_error("Invalid enum setting \"" + getKey() + "\" value index: " + std::to_string(value));
 
-    getParent()->getState()->update (*this);
+    setValue(std::string(mValues[value].mValue));
+    getParent()->getState()->update(*this);
 }

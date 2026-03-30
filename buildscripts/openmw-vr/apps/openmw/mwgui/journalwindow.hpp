@@ -3,11 +3,14 @@
 
 #include "windowbase.hpp"
 
-#include <components/to_utf8/to_utf8.hpp>
+#include <components/toutf8/toutf8.hpp>
 
 #include <memory>
 
-namespace MWBase { class WindowManager; }
+namespace MWBase
+{
+    class WindowManager;
+}
 
 namespace MWGui
 {
@@ -18,13 +21,25 @@ namespace MWGui
         JournalWindow();
 
         /// construct a new instance of the one JournalWindow implementation
-        static JournalWindow * create (std::shared_ptr <JournalViewModel> Model, bool questList, ToUTF8::FromType encoding);
+        static std::unique_ptr<JournalWindow> create(
+            std::shared_ptr<JournalViewModel> model, bool questList, ToUTF8::FromType encoding);
 
         /// destroy this instance of the JournalWindow implementation
-        virtual ~JournalWindow () {}
+        virtual ~JournalWindow() = default;
 
         /// show/hide the journal window
-        void setVisible (bool newValue) override = 0;
+        void setVisible(bool newValue) override = 0;
+
+        std::string_view getWindowIdForLua() const override { return "Journal"; }
+
+        std::vector<MyGUI::Button*> mButtons;
+        size_t mIndexRowCount = 1;
+        size_t mSelectedQuest = 0;
+        size_t mSelectedIndex = 0;
+        void moveSelectedIndex(int offset);
+        void setIndexControllerFocus(bool focused);
+        void setControllerFocusedQuest(size_t index);
+        bool optionsModeButtonHandler(const SDL_ControllerButtonEvent& arg);
     };
 }
 

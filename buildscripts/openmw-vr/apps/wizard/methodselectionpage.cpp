@@ -1,32 +1,46 @@
 #include "methodselectionpage.hpp"
 #include "mainwizard.hpp"
 
-#include <QUrl>
-#include <QDesktopServices>
+#include <components/misc/scalableicon.hpp>
 
-Wizard::MethodSelectionPage::MethodSelectionPage(QWidget *parent) :
-    QWizardPage(parent)
+#include <QDesktopServices>
+#include <QUrl>
+
+Wizard::MethodSelectionPage::MethodSelectionPage(QWidget* parent)
+    : QWizardPage(parent)
 {
     mWizard = qobject_cast<MainWizard*>(parent);
 
     setupUi(this);
+
+    installerIcon->setIcon(Misc::ScalableIcon::load(":system-installer"));
+    folderIcon->setIcon(Misc::ScalableIcon::load(":folder"));
+    buyLinkButton->setIcon(Misc::ScalableIcon::load(":dollar"));
 
 #ifndef OPENMW_USE_UNSHIELD
     retailDiscRadioButton->setEnabled(false);
     existingLocationRadioButton->setChecked(true);
     buyLinkButton->released();
 #endif
-    
+
+    QFont font = existingLocationRadioButton->font();
+    font.setBold(true);
+    existingLocationRadioButton->setFont(font);
+    retailDiscRadioButton->setFont(font);
+
     registerField(QLatin1String("installation.retailDisc"), retailDiscRadioButton);
-    
-    connect(buyLinkButton, SIGNAL(released()), this, SLOT(handleBuyButton()));
+
+    connect(buyLinkButton, &QPushButton::released, this, &MethodSelectionPage::handleBuyButton);
 }
 
 int Wizard::MethodSelectionPage::nextId() const
 {
-    if (field(QLatin1String("installation.retailDisc")).toBool() == true) {
+    if (field(QLatin1String("installation.retailDisc")).toBool() == true)
+    {
         return MainWizard::Page_InstallationTarget;
-    } else {
+    }
+    else
+    {
         return MainWizard::Page_ExistingInstallation;
     }
 }

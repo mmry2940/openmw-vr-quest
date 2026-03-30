@@ -1,32 +1,34 @@
-# local files
-set(GAME
-    main.cpp
+set(OPENMW_SOURCES
     engine.cpp
+    options.cpp
+)
 
+set(OPENMW_RESOURCES
     ${CMAKE_SOURCE_DIR}/files/windows/openmw.rc
     ${CMAKE_SOURCE_DIR}/files/windows/openmw.exe.manifest
 )
 
-if (ANDROID)
-    set(GAME ${GAME} android_main.cpp)
-endif()
-
-set(GAME_HEADER
+set(OPENMW_HEADERS
+    doc.hpp
     engine.hpp
+    options.hpp
+    profile.hpp
 )
 
-source_group(game FILES ${GAME} ${GAME_HEADER})
+source_group(apps/openmw FILES main.cpp androidmain.cpp ${OPENMW_SOURCES} ${OPENMW_HEADERS} ${OPENMW_RESOURCES})
 
 add_openmw_dir (mwrender
-    actors objects renderingmanager animation rotatecontroller sky npcanimation vismask
+    actors objects renderingmanager animation rotatecontroller sky skyutil npcanimation esm4npcanimation vismask
     creatureanimation effectmanager util renderinginterface pathgrid rendermode weaponanimation screenshotmanager
-    bulletdebugdraw globalmap characterpreview camera viewovershoulder localmap water terrainstorage ripplesimulation
+    bulletdebugdraw globalmap characterpreview camera localmap water terrainstorage ripplesimulation
     renderbin actoranimation landmanager navmesh actorspaths recastmesh fogmanager objectpaging groundcover
+    postprocessor pingpongcull luminancecalculator pingpongcanvas transparentpass precipitationocclusion ripples
+    actorutil distortion animationpriority bonegroup blendmask animblendcontroller
     )
 
 add_openmw_dir (mwinput
     actions actionmanager bindingsmanager controllermanager controlswitch
-    inputmanagerimp mousemanager keyboardmanager sdlmappings sensormanager
+    inputmanagerimp mousemanager keyboardmanager sensormanager gyromanager
     )
 
 add_openmw_dir (mwgui
@@ -42,6 +44,7 @@ add_openmw_dir (mwgui
     tradeitemmodel companionitemmodel pickpocketitemmodel controllers savegamedialog
     recharge mode videowidget backgroundimage itemwidget screenfader debugwindow spellmodel spellview
     draganddrop timeadvancer jailscreen itemchargeview keyboardnavigation textcolours statswatcher
+    postprocessorhud settings worlditemmodel itemtransfer controllerbuttonsoverlay inventorytabsoverlay
     )
 
 add_openmw_dir (mwdialogue
@@ -55,39 +58,53 @@ add_openmw_dir (mwscript
     animationextensions transformationextensions consoleextensions userextensions
     )
 
+add_openmw_dir (mwlua
+    luamanagerimp object objectlists userdataserializer luaevents engineevents objectvariant
+    context menuscripts globalscripts localscripts playerscripts luabindings objectbindings cellbindings coremwscriptbindings
+    mwscriptbindings camerabindings vfsbindings uibindings soundbindings inputbindings nearbybindings dialoguebindings
+    postprocessingbindings stats recordstore debugbindings corebindings worldbindings worker landbindings magicbindings factionbindings
+    classbindings itemdata inputprocessor animationbindings birthsignbindings racebindings markupbindings weatherbindings regionbindings
+    types/types types/door types/item types/actor types/container types/lockable types/weapon types/npc
+    types/creature types/player types/activator types/book types/lockpick types/probe types/apparatus
+    types/potion types/ingredient types/misc types/repair types/armor types/light types/static
+    types/clothing types/levelledlist types/terminal
+    )
+
 add_openmw_dir (mwsound
-    soundmanagerimp openal_output ffmpeg_decoder sound sound_buffer sound_decoder sound_output
-    loudness movieaudiofactory alext efx efx-presets regionsoundselector watersoundupdater volumesettings
+    soundmanagerimp openaloutput ffmpegdecoder sound soundbuffer sounddecoder soundoutput
+    loudness movieaudiofactory alext efx efxpresets regionsoundselector watersoundupdater
     )
 
 add_openmw_dir (mwworld
     refdata worldimp scene globals class action nullaction actionteleport
     containerstore actiontalk actiontake manualref player cellvisitors failedaction
-    cells localscripts customdata inventorystore ptr actionopen actionread actionharvest
+    worldmodel localscripts customdata inventorystore ptr actionopen actionread actionharvest
     actionequip timestamp actionalchemy cellstore actionapply actioneat
-    store esmstore recordcmp fallback actionrepair actionsoulgem livecellref actiondoor
+    store esmstore fallback actionrepair actionsoulgem livecellref actiondoor
     contentloader esmloader actiontrap cellreflist cellref weather projectilemanager
-    cellpreloader datetimemanager
+    cellpreloader datetimemanager groundcoverstore magiceffects cell ptrregistry
+    positioncellgrid
     )
 
 add_openmw_dir (mwphysics
     physicssystem trace collisiontype actor convert object heightfield closestnotmerayresultcallback
-    contacttestresultcallback deepestnotmecontacttestresultcallback stepper movementsolver projectile
+    contacttestresultcallback stepper movementsolver projectile
     actorconvexcallback raycasting mtphysics contacttestwrapper projectileconvexcallback
     )
 
 add_openmw_dir (mwclass
     classes activator creature npc weapon armor potion apparatus book clothing container door
     ingredient creaturelevlist itemlevlist light lockpick misc probe repair static actor bodypart
+    esm4base esm4npc light4
     )
 
 add_openmw_dir (mwmechanics
     mechanicsmanagerimp stat creaturestats magiceffects movement actorutil spelllist
     drawstate spells activespells npcstats aipackage aisequence aipursue alchemy aiwander aitravel aifollow aiavoiddoor aibreathe
     aicast aiescort aiface aiactivate aicombat recharge repair enchanting pathfinding pathgrid security spellcasting spellresistance
-    disease pickpocket levelledlist combat steering obstacle autocalcspell difficultyscaling aicombataction actor summoning
-    character actors objects aistate trading weaponpriority spellpriority weapontype spellutil tickableeffects
-    spellabsorption linkedeffects
+    disease pickpocket levelledlist combat steering obstacle autocalcspell difficultyscaling aicombataction summoning
+    character actors objects aistate weaponpriority spellpriority weapontype spellutil
+    spelleffects
     )
 
 add_openmw_dir (mwstate
@@ -96,12 +113,46 @@ add_openmw_dir (mwstate
 
 add_openmw_dir (mwbase
     environment world scriptmanager dialoguemanager journal soundmanager mechanicsmanager
-    inputmanager windowmanager statemanager
+    inputmanager windowmanager statemanager luamanager
     )
 
 # Main executable
 
-set(OPENMW_LINK_TARGETS 
+add_library(openmw-lib STATIC
+    ${OPENMW_FILES}
+    ${OPENMW_SOURCES}
+)
+
+if(BUILD_OPENMW)
+    if (ANDROID)
+        add_library(openmw SHARED
+            main.cpp
+            androidmain.cpp
+        )
+    else()
+        openmw_add_executable(openmw
+            ${APPLE_BUNDLE_RESOURCES}
+            ${OPENMW_RESOURCES}
+            main.cpp
+        )
+    endif()
+
+    target_link_libraries(openmw openmw-lib)
+
+    # Workaround necessary to ensure osgAnimation::MatrixLinearSampler dynamic casts work under Clang
+    # NOTE: it's unclear whether the broken behavior is spec-compliant
+    if (CMAKE_CXX_COMPILER_ID STREQUAL Clang)
+        set_target_properties(openmw PROPERTIES ENABLE_EXPORTS ON)
+    endif()
+endif()
+
+# Sound stuff - here so CMake doesn't stupidly recompile EVERYTHING
+# when we change the backend.
+include_directories(
+    ${FFmpeg_INCLUDE_DIRS}
+)
+
+target_link_libraries(openmw-lib
     # CMake's built-in OSG finder does not use pkgconfig, so we have to
     # manually ensure the order is correct for inter-library dependencies.
     # This only makes a difference with `-DOPENMW_USE_SYSTEM_OSG=ON -DOSG_STATIC=ON`.
@@ -113,74 +164,66 @@ set(OPENMW_LINK_TARGETS
     ${OSGDB_LIBRARIES}
     ${OSGUTIL_LIBRARIES}
     ${OSG_LIBRARIES}
-
-    ${Boost_SYSTEM_LIBRARY}
-    ${Boost_THREAD_LIBRARY}
-    ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_PROGRAM_OPTIONS_LIBRARY}
+    Boost::program_options
     ${OPENAL_LIBRARY}
     ${FFmpeg_LIBRARIES}
     ${MyGUI_LIBRARIES}
-    ${SDL2_LIBRARY}
+    SDL2::SDL2
     ${RecastNavigation_LIBRARIES}
     "osg-ffmpeg-videoplayer"
     "oics"
     components
 )
 
-if (USE_SYSTEM_TINYXML)
-    set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-        ${TinyXML_LIBRARIES})
-endif()
-    
-if (NOT UNIX)
-    set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-        ${SDL2MAIN_LIBRARY})
+if (MSVC AND PRECOMPILE_HEADERS_WITH_MSVC)
+    target_precompile_headers(openmw-lib PRIVATE
+        <boost/program_options/options_description.hpp>
+
+        <sol/sol.hpp>
+
+        <osg/StateSet>
+        <osg/Node>
+        <osg/Drawable>
+        <osg/Camera>
+
+        <osgViewer/Viewer>
+
+        <MyGUI_Widget.h>
+
+        <algorithm>
+        <filesystem>
+        <fstream>
+        <functional>
+        <memory>
+        <string>
+        <string_view>
+        <vector>
+    )
 endif()
 
-if(OSG_STATIC)
-    unset(_osg_plugins_static_files)
-    add_library(openmw_osg_plugins INTERFACE)
-    foreach(_plugin ${USED_OSG_PLUGINS})
-        string(TOUPPER ${_plugin} _plugin_uc)
-        if(OPENMW_USE_SYSTEM_OSG)
-            list(APPEND _osg_plugins_static_files ${${_plugin_uc}_LIBRARY})
-        else()
-            list(APPEND _osg_plugins_static_files $<TARGET_FILE:${${_plugin_uc}_LIBRARY}>)
-            target_link_libraries(openmw_osg_plugins INTERFACE $<TARGET_PROPERTY:${${_plugin_uc}_LIBRARY},LINK_LIBRARIES>)
-            add_dependencies(openmw_osg_plugins ${${_plugin_uc}_LIBRARY})
-        endif()
-    endforeach()
-    # We use --whole-archive because OSG plugins use registration.
-    get_whole_archive_options(_opts ${_osg_plugins_static_files})
-    target_link_options(openmw_osg_plugins INTERFACE ${_opts})
-    set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-        openmw_osg_plugins)
-
-    if(OPENMW_USE_SYSTEM_OSG)
-        # OSG plugin pkgconfig files are missing these dependencies.
-        # https://github.com/openscenegraph/OpenSceneGraph/issues/1052
-        set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-            freetype jpeg png)
-    endif()
-endif(OSG_STATIC)
+add_definitions(-DMYGUI_DONT_USE_OBSOLETE=ON)
 
 if (ANDROID)
-    set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-        EGL android log z)
+    target_link_libraries(openmw-lib EGL android log z)
 endif (ANDROID)
+
+if (USE_SYSTEM_TINYXML)
+    target_link_libraries(openmw-lib ${TinyXML_LIBRARIES})
+endif()
+
+if (NOT UNIX)
+    target_link_libraries(openmw-lib ${SDL2MAIN_LIBRARY})
+endif()
 
 # Fix for not visible pthreads functions for linker with glibc 2.15
 if (UNIX AND NOT APPLE)
-    set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-        ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(openmw-lib ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-if(APPLE)
+if(APPLE AND BUILD_OPENMW)
     set(BUNDLE_RESOURCES_DIR "${APP_BUNDLE_DIR}/Contents/Resources")
 
-    set(OPENMW_MYGUI_FILES_ROOT ${BUNDLE_RESOURCES_DIR})
-    set(OPENMW_SHADERS_ROOT ${BUNDLE_RESOURCES_DIR})
+    set(OPENMW_RESOURCES_ROOT ${BUNDLE_RESOURCES_DIR})
 
     add_subdirectory(../../files/ ${CMAKE_CURRENT_BINARY_DIR}/files)
 
@@ -188,140 +231,32 @@ if(APPLE)
     configure_file("${OpenMW_BINARY_DIR}/openmw.cfg" ${BUNDLE_RESOURCES_DIR} COPYONLY)
     configure_file("${OpenMW_BINARY_DIR}/gamecontrollerdb.txt" ${BUNDLE_RESOURCES_DIR} COPYONLY)
 
+    add_custom_command(TARGET openmw
+        POST_BUILD
+        COMMAND cp "${OpenMW_BINARY_DIR}/resources/version" "${BUNDLE_RESOURCES_DIR}/resources")
+
     find_library(COCOA_FRAMEWORK Cocoa)
     find_library(IOKIT_FRAMEWORK IOKit)
-
-    set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-        ${COCOA_FRAMEWORK}
-        ${IOKIT_FRAMEWORK})
+    target_link_libraries(openmw ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK})
 
     if (FFmpeg_FOUND)
-        find_library(COREVIDEO_FRAMEWORK CoreVideo)
-        find_library(VDA_FRAMEWORK VideoDecodeAcceleration)
-        set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-            z
-            ${COREVIDEO_FRAMEWORK}
-            ${VDA_FRAMEWORK})
+        target_link_options(openmw PRIVATE "LINKER:SHELL:-framework CoreVideo"
+                                           "LINKER:SHELL:-framework CoreMedia"
+                                           "LINKER:SHELL:-framework VideoToolbox"
+                                           "LINKER:SHELL:-framework AudioToolbox"
+                                           "LINKER:SHELL:-framework VideoDecodeAcceleration")
     endif()
-endif(APPLE)
+endif()
 
 if (BUILD_WITH_CODE_COVERAGE)
-    add_definitions (--coverage)
-    target_link_libraries(openmw gcov)
-    set(OPENMW_LINK_TARGETS ${OPENMW_LINK_TARGETS}
-        gcov)
-endif()
-
-if (MSVC)
-    # Debug version needs increased number of sections beyond 2^16
-    if (CMAKE_CL_64)
-        set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-    endif (CMAKE_CL_64)
-endif (MSVC)
-    
-if(BUILD_OPENMW)
-    if (NOT ANDROID)
-        openmw_add_executable(openmw
-            ${OPENMW_FILES}
-            ${GAME} ${GAME_HEADER}
-            ${APPLE_BUNDLE_RESOURCES}
-        )
-    else ()
-        add_library(openmw
-            SHARED
-            ${OPENMW_FILES}
-            ${GAME} ${GAME_HEADER}
-        )
-    endif ()
-
-    target_link_libraries(openmw ${OPENMW_LINK_TARGETS})
-    
-    if(APPLE)
-        add_custom_command(TARGET openmw
-            POST_BUILD
-            COMMAND cp "${OpenMW_BINARY_DIR}/resources/version" "${BUNDLE_RESOURCES_DIR}/resources")
-    endif(APPLE)
-
-    if (WIN32)
-        INSTALL(TARGETS openmw RUNTIME DESTINATION ".")
-    endif (WIN32)
-endif()
-
-if(BUILD_OPENMW_VR)
-# Use of FetchContent to include the OpenXR SDK requires CMake 3.11
-    if(${CMAKE_VERSION} VERSION_LESS "3.11") 
-        message(FATAL_ERROR "Building openmw_vr requires CMake version 3.11 or later.")
+    target_compile_options(openmw-lib PRIVATE --coverage)
+    target_link_libraries(openmw-lib gcov)
+    if (NOT ANDROID AND BUILD_OPENMW)
+        target_compile_options(openmw PRIVATE --coverage)
+        target_link_libraries(openmw gcov)
     endif()
-
-# TODO: Openmw and openmw_vr should preferrably share game code as a static or shared library
-# instead of being compiled separately, though for now that's not possible as i depend on
-# USE_OPENXR preprocessor switches.
-    set(OPENMW_VR_FILES
-        vrengine.cpp
-    )
-    add_openmw_dir (mwvr
-         openxraction openxractionset openxrdebug openxrinput openxrmanager openxrmanagerimpl openxrplatform openxrswapchain openxrswapchainimage openxrswapchainimpl openxrtracker openxrtypeconversions
-         realisticcombat 
-         vranimation vrcamera vrenvironment vrframebuffer vrgui vrinputmanager vrinput vrlistbox vrmetamenu vrpointer vrsession vrtracking vrtypes vrutil vrviewer vrvirtualkeyboard
-        )
-
-    if (NOT ANDROID)
-        openmw_add_executable(openmw_vr
-            ${OPENMW_FILES}
-            ${OPENMW_VR_FILES}
-            ${GAME} ${GAME_HEADER}
-            ${APPLE_BUNDLE_RESOURCES}
-        )
-    else ()
-        add_library(openmw_vr
-            SHARED
-            ${OPENMW_FILES}
-            ${OPENMW_VR_FILES}
-            ${GAME} ${GAME_HEADER}
-        )
-    endif ()
-
-    configure_resource_file(${OpenMW_SOURCE_DIR}/files/xrcontrollersuggestions.xml
-        "${OpenMW_BINARY_DIR}" "xrcontrollersuggestions.xml")
-    
-    ########### Import the OpenXR SDK
-    # Force the openxr-sdk to use its bundled jsoncpp to avoid problems from system jsoncpp if present
-    set(BUILD_WITH_SYSTEM_JSONCPP off) 
-    include(FetchContent)
-    FetchContent_Declare(
-        OpenXR
-        GIT_REPOSITORY https://github.com/KhronosGroup/OpenXR-SDK.git
-        GIT_TAG release-1.1.57
-        PATCH_COMMAND ${CMAKE_SOURCE_DIR}/../patches/patch_openxr.sh
-    )
-    FetchContent_MakeAvailable(OpenXR)
-
-    target_link_libraries(openmw_vr openxr_loader)
-
-    # Preprocessor variable used to control code paths to vr code
-    if (WIN32)
-        target_compile_options(openmw_vr PUBLIC -DUSE_OPENXR -DXR_USE_GRAPHICS_API_OPENGL -DXR_USE_GRAPHICS_API_D3D11 -DXR_USE_PLATFORM_WIN32)
-    elseif(ANDROID)
-        target_compile_options(openmw_vr PUBLIC -DUSE_OPENXR -DXR_USE_GRAPHICS_API_OPENGL_ES -DXR_USE_PLATFORM_ANDROID)
-    elseif(UNIX)
-        target_compile_options(openmw_vr PUBLIC -DUSE_OPENXR -DXR_USE_GRAPHICS_API_OPENGL -DXR_USE_PLATFORM_XLIB)
-        find_package(X11 REQUIRED)
-        target_link_libraries(openmw_vr ${X11_LIBRARIES})
-    endif()
-    target_link_libraries(openmw_vr ${OPENMW_LINK_TARGETS})
-    if(APPLE)
-        add_custom_command(TARGET openmw_vr
-            POST_BUILD
-            COMMAND cp "${OpenMW_BINARY_DIR}/resources/version" "${BUNDLE_RESOURCES_DIR}/resources")
-    endif(APPLE)
-
-    if (WIN32)
-        INSTALL(TARGETS openmw_vr RUNTIME DESTINATION ".")
-    endif (WIN32)
 endif()
 
-# Sound stuff - here so CMake doesn't stupidly recompile EVERYTHING
-# when we change the backend.
-include_directories(
-    ${FFmpeg_INCLUDE_DIRS}
-)
+if (WIN32 AND BUILD_OPENMW)
+    INSTALL(TARGETS openmw RUNTIME DESTINATION ".")
+endif()

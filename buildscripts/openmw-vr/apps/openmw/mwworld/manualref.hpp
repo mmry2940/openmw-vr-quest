@@ -1,28 +1,31 @@
 #ifndef GAME_MWWORLD_MANUALREF_H
 #define GAME_MWWORLD_MANUALREF_H
 
-#include <boost/any.hpp>
+#include <any>
 
 #include "ptr.hpp"
 
 namespace MWWorld
 {
-    /// \brief Manually constructed live cell ref
+    /// \brief Manually constructed live cell ref. The resulting Ptr shares its lifetime with this ManualRef and must
+    /// not be used past its end.
     class ManualRef
     {
-            boost::any mRef;
-            Ptr mPtr;
+        // Stores the ref (LiveCellRef<T>) by value.
+        std::any mRef;
+        Ptr mPtr;
 
-            ManualRef (const ManualRef&);
-            ManualRef& operator= (const ManualRef&);
+    public:
+        explicit ManualRef(const MWWorld::ESMStore& store, const ESM::RefId& name, const int count = 1);
+        explicit ManualRef(const MWWorld::ESMStore& store, const MWWorld::Ptr& templatePtr, const int count = 1);
 
-        public:
-            ManualRef(const MWWorld::ESMStore& store, const std::string& name, const int count = 1);
+        ManualRef(const ManualRef&) = delete;
+        ManualRef& operator=(const ManualRef&) = delete;
 
-            const Ptr& getPtr() const
-            {
-                return mPtr;
-            }
+        ManualRef(ManualRef&&) noexcept = default;
+        ManualRef& operator=(ManualRef&&) noexcept = default;
+
+        const Ptr& getPtr() const { return mPtr; }
     };
 }
 

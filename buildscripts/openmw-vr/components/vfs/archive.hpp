@@ -1,31 +1,23 @@
-#ifndef OPENMW_COMPONENTS_RESOURCE_ARCHIVE_H
-#define OPENMW_COMPONENTS_RESOURCE_ARCHIVE_H
+#ifndef OPENMW_COMPONENTS_VFS_ARCHIVE_H
+#define OPENMW_COMPONENTS_VFS_ARCHIVE_H
 
-#include <map>
+#include <string>
 
-#include <components/files/constrainedfilestream.hpp>
+#include "filemap.hpp"
+#include "pathutil.hpp"
 
 namespace VFS
 {
-
-    class File
-    {
-    public:
-        virtual ~File() {}
-
-        virtual Files::IStreamPtr open() = 0;
-    };
-
     class Archive
     {
     public:
-        virtual ~Archive() {}
+        virtual ~Archive() = default;
 
-        /// List all resources contained in this archive, and run the resource names through the given normalize function.
-        virtual void listResources(std::map<std::string, File*>& out, char (*normalize_function) (char)) = 0;
+        /// List all resources contained in this archive.
+        virtual void listResources(FileMap& out) = 0;
 
         /// True if this archive contains the provided normalized file.
-        virtual bool contains(const std::string& file, char (*normalize_function) (char)) const = 0;
+        virtual bool contains(Path::NormalizedView file) const = 0;
 
         virtual std::string getDescription() const = 0;
     };

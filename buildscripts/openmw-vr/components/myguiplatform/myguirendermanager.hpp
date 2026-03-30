@@ -4,13 +4,15 @@
 #include <MyGUI_RenderManager.h>
 
 #include <osg/ref_ptr>
-#include <set>
-
-#include "myguicompat.h"
 
 namespace Resource
 {
     class ImageManager;
+}
+
+namespace Shader
+{
+    class ShaderManager;
 }
 
 namespace osgViewer
@@ -26,108 +28,100 @@ namespace osg
     class StateSet;
 }
 
-namespace osgMyGUI
+namespace MyGUIPlatform
 {
 
-class Drawable;
-class GUICamera;
+    class Drawable;
+    class OSGTexture;
 
-class StateInjectableRenderTarget : public MyGUI::IRenderTarget
-{
-public:
-    StateInjectableRenderTarget() = default;
-    ~StateInjectableRenderTarget() = default;
+    class RenderManager : public MyGUI::RenderManager, public MyGUI::IRenderTarget
+    {
+        osg::ref_ptr<osgViewer::Viewer> mViewer;
+        osg::ref_ptr<osg::Group> mSceneRoot;
+        osg::ref_ptr<Drawable> mDrawable;
+        Resource::ImageManager* mImageManager;
 
-    /** specify a StateSet to inject for rendering. The StateSet will be used by future doRender calls until you reset it to nullptr again. */
-    void setInjectState(osg::StateSet* stateSet);
+        MyGUI::IntSize mViewSize;
+        bool mUpdate;
+        MyGUI::VertexColourType mVertexFormat;
+        MyGUI::RenderTargetInfo mInfo;
 
-protected:
-    osg::StateSet* mInjectState{ nullptr };
-};
+        std::map<std::string, OSGTexture> mTextures;
 
-class RenderManager : public MyGUI::RenderManager
-{
-    osg::ref_ptr<osgViewer::Viewer> mViewer;
-    osg::ref_ptr<osg::Group> mSceneRoot;
-    osg::ref_ptr<GUICamera> mGuiCamera;
-    std::set<GUICamera*> mGuiCameras;
-    Resource::ImageManager* mImageManager;
-    MyGUI::IntSize mViewSize;
+        bool mIsInitialise;
 
-    MyGUI::VertexColourType mVertexFormat;
-    MyGUI::RenderTargetInfo mInfo;
+        osg::ref_ptr<osg::Camera> mGuiRoot;
 
+        float mInvScalingFactor;
 
-    typedef std::map<std::string, MyGUI::ITexture*> MapTexture;
-    MapTexture mTextures;
+        osg::StateSet* mInjectState;
 
-    bool mIsInitialise;
+    public:
+        RenderManager(osgViewer::Viewer* viewer, osg::Group* sceneroot, Resource::ImageManager* imageManager,
+            float scalingFactor);
+        virtual ~RenderManager();
 
-    float mInvScalingFactor;
+        void initialise();
+        void shutdown();
 
+        void enableShaders(Shader::ShaderManager& shaderManager);
 
-    bool mVRMode;
+        static RenderManager& getInstance() { return *getInstancePtr(); }
+        static RenderManager* getInstancePtr()
+        {
+            return static_cast<RenderManager*>(MyGUI::RenderManager::getInstancePtr());
+        }
 
-    void destroyAllResources();
+        bool checkTexture(MyGUI::ITexture* texture) override;
 
-public:
-    RenderManager(osgViewer::Viewer *viewer, osg::Group *sceneroot, Resource::ImageManager* imageManager, float scalingFactor);
-    virtual ~RenderManager();
+        /** @see RenderManager::getViewSize */
+        const MyGUI::IntSize& getViewSize() const override { return mViewSize; }
 
-    void initialise();
-    void shutdown();
+        /** @see RenderManager::getVertexFormat */
+        MyGUI::VertexColourType getVertexFormat() const override { return mVertexFormat; }
 
-    void setScalingFactor(float factor);
+        /** @see RenderManager::isFormatSupported */
+        bool isFormatSupported(MyGUI::PixelFormat format, MyGUI::TextureUsage usage) override;
 
-    static RenderManager& getInstance() { return *getInstancePtr(); }
-    static RenderManager* getInstancePtr()
-    { return static_cast<RenderManager*>(MyGUI::RenderManager::getInstancePtr()); }
+        /** @see RenderManager::createVertexBuffer */
+        MyGUI::IVertexBuffer* createVertexBuffer() override;
+        /** @see RenderManager::destroyVertexBuffer */
+        void destroyVertexBuffer(MyGUI::IVertexBuffer* buffer) override;
 
-    /** @see RenderManager::getViewSize */
-    const MyGUI::IntSize& getViewSize() const override { return mViewSize; }
+        /** @see RenderManager::createTexture */
+        MyGUI::ITexture* createTexture(const std::string& name) override;
+        /** @see RenderManager::destroyTexture */
+        void destroyTexture(MyGUI::ITexture* texture) override;
+        /** @see RenderManager::getTexture */
+        MyGUI::ITexture* getTexture(const std::string& name) override;
 
-    /** @see RenderManager::getVertexFormat */
-    MyGUI::VertexColourType getVertexFormat() OPENMW_MYGUI_CONST_GETTER_3_4_1 override
-    { return mVertexFormat; }
+        // Called by the update traversal
+        void update();
 
-    /** @see RenderManager::isFormatSupported */
-    bool isFormatSupported(MyGUI::PixelFormat format, MyGUI::TextureUsage usage) override;
+        // Called by the cull traversal
+        /** @see IRenderTarget::begin */
+        void begin() override;
+        /** @see IRenderTarget::end */
+        void end() override;
+        /** @see IRenderTarget::doRender */
+        void doRender(MyGUI::IVertexBuffer* buffer, MyGUI::ITexture* texture, size_t count) override;
 
-    /** @see RenderManager::createVertexBuffer */
-    MyGUI::IVertexBuffer* createVertexBuffer() override;
-    /** @see RenderManager::destroyVertexBuffer */
-    void destroyVertexBuffer(MyGUI::IVertexBuffer *buffer) override;
+        /** specify a StateSet to inject for rendering. The StateSet will be used by future doRender calls until you
+         * reset it to nullptr again. */
+        void setInjectState(osg::StateSet* stateSet);
 
-    /** @see RenderManager::createTexture */
-    MyGUI::ITexture* createTexture(const std::string &name) override;
-    /** @see RenderManager::destroyTexture */
-    void destroyTexture(MyGUI::ITexture* _texture) override;
-    /** @see RenderManager::getTexture */
-    MyGUI::ITexture* getTexture(const std::string &name) override;
+        /** @see IRenderTarget::getInfo */
+        const MyGUI::RenderTargetInfo& getInfo() const override { return mInfo; }
 
-    // Called by the update traversal
-    void update();
+        void setViewSize(int width, int height) override;
 
-    bool checkTexture(MyGUI::ITexture* _texture);
+        void registerShader(const std::string& shaderName, const std::string& vertexProgramFile,
+            const std::string& fragmentProgramFile) override;
 
-    // setViewSize() is a part of MyGUI::RenderManager interface since 3.4.0 release
-#if MYGUI_VERSION < MYGUI_DEFINE_VERSION(3, 4, 0)
-    void setViewSize(int width, int height);
-#else
-    void setViewSize(int width, int height) override;
-#endif
+        /*internal:*/
 
-    // registerShader() is a part of MyGUI::RenderManager interface since 3.4.1 release
-#if MYGUI_VERSION > MYGUI_DEFINE_VERSION(3, 4, 0)
-    void registerShader(const std::string& _shaderName, const std::string& _vertexProgramFile, const std::string& _fragmentProgramFile) override;
-#endif
-
-/*internal:*/
-
-    void collectDrawCalls();
-    osg::ref_ptr<osg::Camera> createGUICamera(int order, std::string layerFilter);
-    void deleteGUICamera(GUICamera* camera);
-};
+        void collectDrawCalls();
+    };
 
 }
 

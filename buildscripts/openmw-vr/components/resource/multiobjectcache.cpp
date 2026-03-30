@@ -6,31 +6,21 @@
 
 namespace Resource
 {
-
-    MultiObjectCache::MultiObjectCache()
-    {
-
-    }
-
-    MultiObjectCache::~MultiObjectCache()
-    {
-
-    }
-
     void MultiObjectCache::removeUnreferencedObjectsInCache()
     {
-        std::vector<osg::ref_ptr<osg::Object> > objectsToRemove;
+        std::vector<osg::ref_ptr<osg::Object>> objectsToRemove;
         {
             std::lock_guard<std::mutex> lock(_objectCacheMutex);
 
             // Remove unreferenced entries from object cache
             ObjectCacheMap::iterator oitr = _objectCache.begin();
-            while(oitr != _objectCache.end())
+            while (oitr != _objectCache.end())
             {
                 if (oitr->second->referenceCount() <= 1)
                 {
                     objectsToRemove.push_back(oitr->second);
                     _objectCache.erase(oitr++);
+                    ++mExpired;
                 }
                 else
                 {
@@ -49,7 +39,7 @@ namespace Resource
         _objectCache.clear();
     }
 
-    void MultiObjectCache::addEntryToObjectCache(const std::string &filename, osg::Object *object)
+    void MultiObjectCache::addEntryToObjectCache(VFS::Path::NormalizedView filename, osg::Object* object)
     {
         if (!object)
         {
@@ -57,40 +47,45 @@ namespace Resource
             return;
         }
         std::lock_guard<std::mutex> lock(_objectCacheMutex);
-        _objectCache.insert(std::make_pair(filename, object));
+        _objectCache.emplace(filename, object);
     }
 
-    osg::ref_ptr<osg::Object> MultiObjectCache::takeFromObjectCache(const std::string &fileName)
+    osg::ref_ptr<osg::Object> MultiObjectCache::takeFromObjectCache(VFS::Path::NormalizedView fileName)
     {
         std::lock_guard<std::mutex> lock(_objectCacheMutex);
-        ObjectCacheMap::iterator found = _objectCache.find(fileName);
-        if (found == _objectCache.end())
-            return osg::ref_ptr<osg::Object>();
-        else
+        ++mGet;
+        const auto it = _objectCache.find(fileName);
+        if (it != _objectCache.end())
         {
-            osg::ref_ptr<osg::Object> object = found->second;
-            _objectCache.erase(found);
+            osg::ref_ptr<osg::Object> object = std::move(it->second);
+            _objectCache.erase(it);
+            ++mHit;
             return object;
         }
+
+        return nullptr;
     }
 
-    void MultiObjectCache::releaseGLObjects(osg::State *state)
+    void MultiObjectCache::releaseGLObjects(osg::State* state)
     {
         std::lock_guard<std::mutex> lock(_objectCacheMutex);
 
-        for(ObjectCacheMap::iterator itr = _objectCache.begin();
-            itr != _objectCache.end();
-            ++itr)
+        for (ObjectCacheMap::iterator itr = _objectCache.begin(); itr != _objectCache.end(); ++itr)
         {
             osg::Object* object = itr->second.get();
             object->releaseGLObjects(state);
         }
     }
 
-    unsigned int MultiObjectCache::getCacheSize() const
+    CacheStats MultiObjectCache::getStats() const
     {
         std::lock_guard<std::mutex> lock(_objectCacheMutex);
-        return _objectCache.size();
+        return CacheStats{
+            .mSize = _objectCache.size(),
+            .mGet = mGet,
+            .mHit = mHit,
+            .mExpired = mExpired,
+        };
     }
 
 }

@@ -1,5 +1,7 @@
 #include "imagebutton.hpp"
 
+#include <cmath>
+
 #include <MyGUI_RenderManager.h>
 
 #include <components/debug/debuglog.hpp>
@@ -32,50 +34,51 @@ namespace Gui
         updateImage();
     }
 
-    void ImageButton::setPropertyOverride(const std::string &_key, const std::string &_value)
+    void ImageButton::setPropertyOverride(std::string_view key, std::string_view value)
     {
-        if (_key == "ImageHighlighted")
-            mImageHighlighted = _value;
-        else if (_key == "ImagePushed")
-            mImagePushed = _value;
-        else if (_key == "ImageNormal")
+        if (key == "ImageHighlighted")
+            mImageHighlighted = value;
+        else if (key == "ImagePushed")
+            mImagePushed = value;
+        else if (key == "ImageNormal")
         {
-            if (mImageNormal == "")
+            if (mImageNormal.empty())
             {
-                setImageTexture(_value);
+                setImageTexture(value);
             }
-            mImageNormal = _value;
+            mImageNormal = value;
         }
-        else if (_key == "TextureRect")
+        else if (key == "TextureRect")
         {
-            mTextureRect = MyGUI::IntCoord::parse(_value);
+            mTextureRect = MyGUI::IntCoord::parse(value);
             mUseWholeTexture = (mTextureRect == MyGUI::IntCoord(0, 0, 0, 0));
         }
         else
-            ImageBox::setPropertyOverride(_key, _value);
+            ImageBox::setPropertyOverride(key, value);
     }
-    void ImageButton::onMouseSetFocus(Widget* _old)
+
+    void ImageButton::onMouseSetFocus(MyGUI::Widget* oldWidget)
     {
         mMouseFocus = true;
         updateImage();
-        Base::onMouseSetFocus(_old);
+        Base::onMouseSetFocus(oldWidget);
     }
 
-    void ImageButton::onMouseLostFocus(Widget* _new)
+    void ImageButton::onMouseLostFocus(MyGUI::Widget* newWidget)
     {
         mMouseFocus = false;
         updateImage();
-        Base::onMouseLostFocus(_new);
+        Base::onMouseLostFocus(newWidget);
     }
 
-    void ImageButton::onMouseButtonPressed(int _left, int _top, MyGUI::MouseButton _id)
+    void ImageButton::onMouseButtonPressed(int left, int top, MyGUI::MouseButton id)
     {
-        if (_id == MyGUI::MouseButton::Left)
+        if (id == MyGUI::MouseButton::Left)
         {
             mMousePress = true;
             updateImage();
         }
-        Base::onMouseButtonPressed(_left, _top, _id);
+        Base::onMouseButtonPressed(left, top, id);
     }
 
     void ImageButton::updateImage()
@@ -88,13 +91,16 @@ namespace Gui
 
         if (!mUseWholeTexture)
         {
-            int scale = 1.f;
+            float scale = 1.f;
             MyGUI::ITexture* texture = MyGUI::RenderManager::getInstance().getTexture(textureName);
             if (texture && getHeight() != 0)
-                scale = texture->getHeight() / getHeight();
+                scale = static_cast<float>(texture->getHeight()) / getHeight();
 
-            setImageTile(MyGUI::IntSize(mTextureRect.width * scale, mTextureRect.height * scale));
-            MyGUI::IntCoord scaledSize(mTextureRect.left * scale, mTextureRect.top * scale, mTextureRect.width * scale, mTextureRect.height * scale);
+            const int width = static_cast<int>(std::round(mTextureRect.width * scale));
+            const int height = static_cast<int>(std::round(mTextureRect.height * scale));
+            setImageTile(MyGUI::IntSize(width, height));
+            MyGUI::IntCoord scaledSize(static_cast<int>(std::round(mTextureRect.left * scale)),
+                static_cast<int>(std::round(mTextureRect.top * scale)), width, height);
             setImageCoord(scaledSize);
         }
 
@@ -107,7 +113,7 @@ namespace Gui
         if (!texture)
         {
             Log(Debug::Error) << "ImageButton: can't find image " << mImageNormal;
-            return MyGUI::IntSize(0,0);
+            return MyGUI::IntSize(0, 0);
         }
 
         if (mUseWholeTexture)
@@ -116,7 +122,7 @@ namespace Gui
         return MyGUI::IntSize(mTextureRect.width, mTextureRect.height);
     }
 
-    void ImageButton::setImage(const std::string &image)
+    void ImageButton::setImage(const std::string& image)
     {
         size_t extpos = image.find_last_of('.');
         std::string imageNoExt = image.substr(0, extpos);
@@ -130,24 +136,24 @@ namespace Gui
         updateImage();
     }
 
-    void ImageButton::onMouseButtonReleased(int _left, int _top, MyGUI::MouseButton _id)
+    void ImageButton::onMouseButtonReleased(int left, int top, MyGUI::MouseButton id)
     {
-        if (_id == MyGUI::MouseButton::Left)
+        if (id == MyGUI::MouseButton::Left)
         {
             mMousePress = false;
             updateImage();
         }
 
-        Base::onMouseButtonReleased(_left, _top, _id);
+        Base::onMouseButtonReleased(left, top, id);
     }
 
-    void ImageButton::onKeySetFocus(MyGUI::Widget *_old)
+    void ImageButton::onKeySetFocus(MyGUI::Widget* /*newWidget*/)
     {
         mKeyFocus = true;
         updateImage();
     }
 
-    void ImageButton::onKeyLostFocus(MyGUI::Widget *_new)
+    void ImageButton::onKeyLostFocus(MyGUI::Widget* /*oldWidget*/)
     {
         mKeyFocus = false;
         updateImage();

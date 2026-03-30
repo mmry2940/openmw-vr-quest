@@ -4,79 +4,78 @@
 #include <limits>
 
 #include <QLabel>
-#include <QSpinBox>
 #include <QMutexLocker>
+#include <QSpinBox>
 
 #include <components/settings/settings.hpp>
+
+#include <apps/opencs/model/prefs/setting.hpp>
 
 #include "category.hpp"
 #include "state.hpp"
 
-CSMPrefs::IntSetting::IntSetting (Category *parent, Settings::Manager *values,
-  QMutex *mutex, const std::string& key, const std::string& label, int default_)
-: Setting (parent, values, mutex, key, label), mMin (0), mMax (std::numeric_limits<int>::max()),
-  mDefault (default_), mWidget(nullptr)
-{}
+CSMPrefs::IntSetting::IntSetting(
+    Category* parent, QMutex* mutex, std::string_view key, const QString& label, Settings::Index& index)
+    : TypedSetting(parent, mutex, key, label, index)
+    , mMin(0)
+    , mMax(std::numeric_limits<int>::max())
+    , mWidget(nullptr)
+{
+}
 
-CSMPrefs::IntSetting& CSMPrefs::IntSetting::setRange (int min, int max)
+CSMPrefs::IntSetting& CSMPrefs::IntSetting::setRange(int min, int max)
 {
     mMin = min;
     mMax = max;
     return *this;
 }
 
-CSMPrefs::IntSetting& CSMPrefs::IntSetting::setMin (int min)
+CSMPrefs::IntSetting& CSMPrefs::IntSetting::setMin(int min)
 {
     mMin = min;
     return *this;
 }
 
-CSMPrefs::IntSetting& CSMPrefs::IntSetting::setMax (int max)
+CSMPrefs::IntSetting& CSMPrefs::IntSetting::setMax(int max)
 {
     mMax = max;
     return *this;
 }
 
-CSMPrefs::IntSetting& CSMPrefs::IntSetting::setTooltip (const std::string& tooltip)
+CSMPrefs::IntSetting& CSMPrefs::IntSetting::setTooltip(const std::string& tooltip)
 {
     mTooltip = tooltip;
     return *this;
 }
 
-std::pair<QWidget *, QWidget *> CSMPrefs::IntSetting::makeWidgets (QWidget *parent)
+CSMPrefs::SettingWidgets CSMPrefs::IntSetting::makeWidgets(QWidget* parent)
 {
-    QLabel *label = new QLabel (QString::fromUtf8 (getLabel().c_str()), parent);
+    QLabel* label = new QLabel(getLabel(), parent);
 
-    mWidget = new QSpinBox (parent);
-    mWidget->setRange (mMin, mMax);
-    mWidget->setValue (mDefault);
+    mWidget = new QSpinBox(parent);
+    mWidget->setRange(mMin, mMax);
+    mWidget->setValue(getValue());
 
     if (!mTooltip.empty())
     {
-        QString tooltip = QString::fromUtf8 (mTooltip.c_str());
-        label->setToolTip (tooltip);
-        mWidget->setToolTip (tooltip);
+        QString tooltip = QString::fromUtf8(mTooltip.c_str());
+        label->setToolTip(tooltip);
+        mWidget->setToolTip(tooltip);
     }
 
-    connect (mWidget, SIGNAL (valueChanged (int)), this, SLOT (valueChanged (int)));
+    connect(mWidget, qOverload<int>(&QSpinBox::valueChanged), this, &IntSetting::valueChanged);
 
-    return std::make_pair (label, mWidget);
+    return SettingWidgets{ .mLabel = label, .mInput = mWidget };
 }
 
 void CSMPrefs::IntSetting::updateWidget()
 {
     if (mWidget)
-    {
-        mWidget->setValue(getValues().getInt(getKey(), getParent()->getKey()));
-    }
+        mWidget->setValue(getValue());
 }
 
-void CSMPrefs::IntSetting::valueChanged (int value)
+void CSMPrefs::IntSetting::valueChanged(int value)
 {
-    {
-        QMutexLocker lock (getMutex());
-        getValues().setInt (getKey(), getParent()->getKey(), value);
-    }
-
-    getParent()->getState()->update (*this);
+    setValue(value);
+    getParent()->getState()->update(*this);
 }

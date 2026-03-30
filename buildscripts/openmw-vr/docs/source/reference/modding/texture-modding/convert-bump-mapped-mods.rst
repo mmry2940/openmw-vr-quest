@@ -2,23 +2,8 @@
 Normal maps from Morrowind to OpenMW
 ====================================
 
-- `General introduction to normal map conversion`_
-    - `OpenMW normal-mapping`_
-    - `Activating normal-mapping shaders in OpenMW`_
-    - `Morrowind bump-mapping`_
-    - `MGE XE normal-mapping`_
-- `Converting PeterBitt's Scamp Replacer`_ (Mod made for the MGE XE PBR prototype)
-    - `Tutorial - MGE`_
-- `Converting Lougian's Hlaalu Bump mapped`_ (Morrowind's bump-mapping, part 1: *without* custom models)
-    - `Tutorial - Morrowind, Part 1`_
-- `Converting Apel's Various Things - Sacks`_ (Morrowind's bump-mapping, part 2: *with* custom models)
-    - `Tutorial - Morrowind, Part 2`_
-
 General introduction to normal map conversion
-------------------------------------------------
-
-:Authors: Joakim (Lysol) Berg, Alexei (Capo) Dobrohotov
-:Updated: 2020-03-03
+---------------------------------------------
 
 This page has general information and tutorials on how normal-mapping works in OpenMW and how you can make mods using
 the old environment-mapped bump-mapping technique (such as `Netch Bump mapped`_ and `Hlaalu Bump mapped`_, and maybe the most
@@ -34,7 +19,7 @@ There are several techniques for bump-mapping, and normal-mapping is the most co
 So let's get on with it.
 
 OpenMW normal-mapping
-************************
+*********************
 
 Normal-mapping in OpenMW works in a very simple way: The engine just looks for a texture with a *_n.dds* suffix,
 and you're done.
@@ -58,19 +43,20 @@ Activating normal-mapping shaders in OpenMW
 Before normal (and specular and parallax) maps can show up in OpenMW, their auto-detection needs to be turned on in
 settings.cfg_-file. Add these rows where it would make sense:
 
-::
+.. code-block:: ini
+  :caption: settings.cfg
 
-    [Shaders]
-    auto use object normal maps = true
-    auto use terrain normal maps = true
+  [Shaders]
+  auto use object normal maps = true
+  auto use terrain normal maps = true
 
-    auto use object specular maps = true
-    auto use terrain specular maps = true
+  auto use object specular maps = true
+  auto use terrain specular maps = true
 
 See OpenMW's wiki page about `texture modding`_ to read more about it.
 
 Morrowind bump-mapping
-*****************************************************
+**********************
 
 **Conversion difficulty:**
 *Varies. Sometimes quick and easy, sometimes time-consuming and hard.*
@@ -81,10 +67,11 @@ are processed which makes bump-mapped models look a bit better,
 can make use of the gloss map channel in the bump map and can apply bump-mapping to skinned models.
 Add this to settings.cfg_-file:
 
-::
+.. code-block:: ini
+  :caption: settings.cfg
 
-    [Shaders]
-    apply lighting to environment maps = true
+  [Shaders]
+  apply lighting to environment maps = true
 
 But sometimes you may want them to look a bit better than in vanilla.
 Technically you aren't supposed to convert bump maps because they shouldn't be normal maps that are supported by OpenMW as well,
@@ -93,7 +80,7 @@ In this case you can benefit from OpenMW's normal-mapping support by using these
 This means that you will have to drop the bump-mapping references from the model and sometimes rename the texture.
 
 MGE XE normal-mapping
-***************************************
+*********************
 
 **Conversion difficulty:**
 *Easy*
@@ -116,9 +103,6 @@ Now, on to the tutorials.
 Converting PeterBitt's Scamp Replacer
 -------------------------------------
 **Mod made for the MGE XE PBR prototype**
-
-:Authors: Joakim (Lysol) Berg
-:Updated: 2016-11-11
 
 So, let's say you've found out that PeterBitt_ makes awesome models and textures featuring physically based rendering
 (PBR) and normal maps. Let's say that you tried to run his `PBR Scamp Replacer`_ in OpenMW and that you were greatly
@@ -161,15 +145,12 @@ Converting Lougian's Hlaalu Bump mapped
 ---------------------------------------
 **Mod made for Morrowind's bump-mapping, without custom models**
 
-:Authors: Joakim (Lysol) Berg, Alexei (Capo) Dobrohotov
-:Updated: 2020-03-03
-
 Converting normal maps made for the Morrowind's bump-mapping can be really easy or a real pain,
 depending on a few circumstances. In this tutorial, we will look at a very easy,
 although in some cases a bit time-consuming, example.
 
 Tutorial - Morrowind, Part 1
-**********************
+****************************
 
 We will be converting a quite popular texture replacer of the Hlaalu architecture, namely Lougian's `Hlaalu Bump mapped`_.
 Since this is just a texture pack and not a model replacer,
@@ -192,16 +173,13 @@ Converting Apel's Various Things - Sacks
 ----------------------------------------
 **Mod made for Morrowind bump-mapping, with custom models**
 
-:Authors: Joakim (Lysol) Berg, Alexei (Capostrophic) Dobrohotov
-:Updated: 2020-03-03
-
 In part one of this tutorial, we converted a mod that only included modified Morrowind model (``.nif``)
 files so that the bump maps could be loaded as normal maps.
 We ignored those model files since they are not needed with OpenMW. In this tutorial however,
 we will convert a mod that includes new, custom-made models. In other words, we cannot just ignore those files this time.
 
 Tutorial - Morrowind, Part 2
-**********************
+****************************
 
 The sacks included in Apel's `Various Things - Sacks`_ come in two versions – without bump-mapping, and with bump-mapping.
 Since we want the glory of normal-mapping in our OpenMW setup, we will go with the bump-mapped version.

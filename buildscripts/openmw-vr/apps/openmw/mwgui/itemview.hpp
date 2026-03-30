@@ -10,19 +10,20 @@ namespace MWGui
 
     class ItemView final : public MyGUI::Widget
     {
-    MYGUI_RTTI_DERIVED(ItemView)
+        MYGUI_RTTI_DERIVED(ItemView)
     public:
         ItemView();
-        ~ItemView() override;
 
         /// Register needed components with MyGUI's factory manager
-        static void registerComponents ();
+        static void registerComponents();
+
+        ItemModel* getModel() { return mModel.get(); }
 
         /// Takes ownership of \a model
-        void setModel (ItemModel* model);
+        void setModel(std::unique_ptr<ItemModel> model);
 
-        typedef MyGUI::delegates::CMultiDelegate1<ItemModel::ModelIndex> EventHandle_ModelIndex;
-        typedef MyGUI::delegates::CMultiDelegate0 EventHandle_Void;
+        typedef MyGUI::delegates::MultiDelegate<ItemModel::ModelIndex> EventHandle_ModelIndex;
+        typedef MyGUI::delegates::MultiDelegate<> EventHandle_Void;
         /// Fired when an item was clicked
         EventHandle_ModelIndex eventItemClicked;
         /// Fired when the background was clicked (useful for drag and drop)
@@ -32,21 +33,31 @@ namespace MWGui
 
         void resetScrollBars();
 
+        void setActiveControllerWindow(bool active);
+        int getControllerFocus() { return mControllerFocus; }
+        int getItemCount() { return mItemCount; }
+        void onControllerButton(const unsigned char button);
+
     private:
         void initialiseOverride() override;
 
         void layoutWidgets();
 
-        void setSize(const MyGUI::IntSize& _value) override;
-        void setCoord(const MyGUI::IntCoord& _value) override;
+        void setSize(const MyGUI::IntSize& value) override;
+        void setCoord(const MyGUI::IntCoord& value) override;
 
-        void onSelectedItem (MyGUI::Widget* sender);
-        void onSelectedBackground (MyGUI::Widget* sender);
-        void onMouseWheelMoved(MyGUI::Widget* _sender, int _rel);
+        void onSelectedItem(MyGUI::Widget* sender);
+        void onSelectedBackground(MyGUI::Widget* sender);
+        void onMouseWheelMoved(MyGUI::Widget* sender, int rel);
 
-        ItemModel* mModel;
+        std::unique_ptr<ItemModel> mModel;
         MyGUI::ScrollView* mScrollView;
 
+        int mItemCount = 0;
+        int mRows = 1;
+        int mControllerFocus = 0;
+        bool mControllerActiveWindow;
+        void updateControllerFocus(int prevFocus, int newFocus);
     };
 
 }

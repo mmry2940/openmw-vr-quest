@@ -3,6 +3,8 @@
 
 #include "recastallocutils.hpp"
 
+#include <RecastAlloc.h>
+
 #include <cassert>
 #include <memory>
 #include <vector>
@@ -13,8 +15,11 @@ namespace DetourNavigator
     {
     public:
         RecastTempAllocator(std::size_t capacity)
-            : mStack(capacity), mTop(mStack.data()), mPrev(nullptr)
-        {}
+            : mStack(capacity)
+            , mTop(mStack.data())
+            , mPrev(nullptr)
+        {
+        }
 
         void* alloc(std::size_t size)
         {
@@ -47,7 +52,6 @@ namespace DetourNavigator
                 mTop = mPrev;
                 mPrev = getTempPtrPrev(mTop);
             }
-            return;
         }
 
     private:
@@ -55,10 +59,7 @@ namespace DetourNavigator
         void* mTop;
         void* mPrev;
 
-        std::size_t getUsedSize() const
-        {
-            return static_cast<std::size_t>(static_cast<char*>(mTop) - mStack.data());
-        }
+        std::size_t getUsedSize() const { return static_cast<std::size_t>(static_cast<char*>(mTop) - mStack.data()); }
     };
 }
 

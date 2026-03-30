@@ -1,53 +1,40 @@
-#ifndef OPENMW_ESM_UTIL_H
-#define OPENMW_ESM_UTIL_H
+#ifndef OPENMW_COMPONENTS_ESM_UTIL_H
+#define OPENMW_COMPONENTS_ESM_UTIL_H
 
-#include <osg/Vec3f>
-#include <osg/Quat>
+#include <cmath>
+
+#include <osg/Vec2f>
+
+#include "components/esm3/loadcell.hpp"
+#include "components/misc/constants.hpp"
+
+#include "exteriorcelllocation.hpp"
+#include "refid.hpp"
 
 namespace ESM
 {
-
-// format 0, savegames only
-
-struct Quaternion
-{
-    float mValues[4];
-
-    Quaternion() = default;
-
-    Quaternion(const osg::Quat& q)
+    inline bool isEsm4Ext(ESM::RefId worldspaceId)
     {
-        mValues[0] = q.w();
-        mValues[1] = q.x();
-        mValues[2] = q.y();
-        mValues[3] = q.z();
+        return worldspaceId != ESM::Cell::sDefaultWorldspaceId;
     }
 
-    operator osg::Quat () const
+    inline int getCellSize(ESM::RefId worldspaceId)
     {
-        return osg::Quat(mValues[1], mValues[2], mValues[3], mValues[0]);
-    }
-};
-
-struct Vector3
-{
-    float mValues[3];
-
-    Vector3() = default;
-
-    Vector3(const osg::Vec3f& v)
-    {
-        mValues[0] = v.x();
-        mValues[1] = v.y();
-        mValues[2] = v.z();
+        return isEsm4Ext(worldspaceId) ? Constants::ESM4CellSizeInUnits : Constants::CellSizeInUnits;
     }
 
-    operator osg::Vec3f () const
-    {
-        return osg::Vec3f(mValues[0], mValues[1], mValues[2]);
-    }
-};
+    // Vertex count of a side of a land record
+    int getLandSize(ESM::RefId worldspaceId);
 
+    inline ESM::ExteriorCellLocation positionToExteriorCellLocation(
+        float x, float y, ESM::RefId worldspaceId = ESM::Cell::sDefaultWorldspaceId)
+    {
+        const float cellSize = getCellSize(worldspaceId);
+        return { static_cast<int>(std::floor(x / cellSize)), static_cast<int>(std::floor(y / cellSize)), worldspaceId };
+    }
+
+    // Convert exterior cell location to position.
+    osg::Vec2f indexToPosition(const ESM::ExteriorCellLocation& cellIndex, bool centre = false);
 }
 
 #endif

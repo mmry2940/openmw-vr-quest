@@ -2,20 +2,18 @@
 #define OPENCS_VIEW_RENDER_ACTOR_H
 
 #include <string>
+#include <string_view>
 
+#include <osg/Group>
+#include <osg/PositionAttitudeTransform>
 #include <osg/ref_ptr>
 
 #include <QObject>
 
-#include <components/esm/loadarmo.hpp>
+#include <components/esm3/loadarmo.hpp>
 #include <components/sceneutil/visitor.hpp>
 
 #include "../../model/world/actoradapter.hpp"
-
-namespace osg
-{
-    class Group;
-}
 
 namespace CSMWorld
 {
@@ -38,7 +36,7 @@ namespace CSVRender
         /// \param id       The referenceable id
         /// \param type     The record type
         /// \param data     The data store
-        Actor(const std::string& id, CSMWorld::Data& data);
+        Actor(const ESM::RefId& id, CSMWorld::Data& data);
 
         /// Retrieves the base node that meshes are attached to
         osg::Group* getBaseNode();
@@ -47,24 +45,24 @@ namespace CSVRender
         void update();
 
     private slots:
-        void handleActorChanged(const std::string& refId);
+        void handleActorChanged(const ESM::RefId& refId);
 
     private:
         void loadSkeleton(const std::string& model);
         void loadBodyParts();
         void attachBodyPart(ESM::PartReferenceType, const std::string& mesh);
 
-        std::string getBodyPartMesh(const std::string& bodyPartId);
+        std::string getBodyPartMesh(const ESM::RefId& bodyPartId);
 
         static const std::string MeshPrefix;
 
-        std::string mId;
+        ESM::RefId mId;
         CSMWorld::Data& mData;
         CSMWorld::ActorAdapter::ActorDataPtr mActorData;
 
-        osg::ref_ptr<osg::Group> mBaseNode;
+        osg::ref_ptr<osg::PositionAttitudeTransform> mBaseNode;
         SceneUtil::Skeleton* mSkeleton;
-        SceneUtil::NodeMapVisitor::NodeMap mNodeMap;
+        SceneUtil::NodeMap mNodeMap;
     };
 }
 

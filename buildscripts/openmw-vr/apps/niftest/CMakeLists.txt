@@ -9,11 +9,18 @@ openmw_add_executable(niftest
 )
 
 target_link_libraries(niftest
-  ${Boost_FILESYSTEM_LIBRARY}
-  components
+    components
 )
 
 if (BUILD_WITH_CODE_COVERAGE)
-  add_definitions (--coverage)
-  target_link_libraries(niftest gcov)
+    target_compile_options(niftest PRIVATE --coverage)
+    target_link_libraries(niftest gcov)
+endif()
+
+if (WIN32)
+    install(TARGETS niftest RUNTIME DESTINATION ".")
+endif()
+
+if (MSVC AND PRECOMPILE_HEADERS_WITH_MSVC)
+    target_precompile_headers(niftest PRIVATE <filesystem>)
 endif()

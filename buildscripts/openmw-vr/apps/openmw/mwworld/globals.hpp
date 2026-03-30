@@ -1,13 +1,15 @@
 #ifndef GAME_MWWORLD_GLOBALS_H
 #define GAME_MWWORLD_GLOBALS_H
 
-#include <vector>
-#include <string>
+#include <cstdint>
 #include <map>
+#include <string>
+#include <vector>
 
-#include <stdint.h>
+#include <components/esm3/loadglob.hpp>
+#include <components/misc/strings/algorithm.hpp>
 
-#include <components/esm/loadglob.hpp>
+#include "globalvariablename.hpp"
 
 namespace ESM
 {
@@ -26,37 +28,50 @@ namespace MWWorld
 
     class Globals
     {
-        private:
+    private:
+        using Collection = std::map<ESM::RefId, ESM::Global, std::less<>>;
 
-            typedef std::map<std::string, ESM::Global> Collection;
+        Collection mVariables; // type, value
 
-            Collection mVariables; // type, value
+        Collection::const_iterator find(std::string_view name) const;
 
-            Collection::const_iterator find (const std::string& name) const;
+        Collection::iterator find(std::string_view name);
 
-            Collection::iterator find (const std::string& name);
+    public:
+        static constexpr GlobalVariableName sDaysPassed{ "dayspassed" };
+        static constexpr GlobalVariableName sGameHour{ "gamehour" };
+        static constexpr GlobalVariableName sDay{ "day" };
+        static constexpr GlobalVariableName sMonth{ "month" };
+        static constexpr GlobalVariableName sYear{ "year" };
+        static constexpr GlobalVariableName sTimeScale{ "timescale" };
+        static constexpr GlobalVariableName sCharGenState{ "chargenstate" };
+        static constexpr GlobalVariableName sPCHasCrimeGold{ "pchascrimegold" };
+        static constexpr GlobalVariableName sPCHasGoldDiscount{ "pchasgolddiscount" };
+        static constexpr GlobalVariableName sCrimeGoldDiscount{ "crimegolddiscount" };
+        static constexpr GlobalVariableName sCrimeGoldTurnIn{ "crimegoldturnin" };
+        static constexpr GlobalVariableName sPCHasTurnIn{ "pchasturnin" };
+        static constexpr GlobalVariableName sPCKnownWerewolf{ "pcknownwerewolf" };
+        static constexpr GlobalVariableName sWerewolfClawMult{ "werewolfclawmult" };
+        static constexpr GlobalVariableName sPCRace{ "pcrace" };
 
-        public:
+        const ESM::Variant& operator[](GlobalVariableName name) const;
 
-            const ESM::Variant& operator[] (const std::string& name) const;
+        ESM::Variant& operator[](GlobalVariableName name);
 
-            ESM::Variant& operator[] (const std::string& name);
+        char getType(GlobalVariableName name) const;
+        ///< If there is no global variable with this name, ' ' is returned.
 
-            char getType (const std::string& name) const;
-            ///< If there is no global variable with this name, ' ' is returned.
+        void fill(const MWWorld::ESMStore& store);
+        ///< Replace variables with variables from \a store with default values.
 
-            void fill (const MWWorld::ESMStore& store);
-            ///< Replace variables with variables from \a store with default values.
+        int countSavedGameRecords() const;
 
-            int countSavedGameRecords() const;
+        void write(ESM::ESMWriter& writer, Loading::Listener& progress) const;
 
-            void write (ESM::ESMWriter& writer, Loading::Listener& progress) const;
-
-            bool readRecord (ESM::ESMReader& reader, uint32_t type);
-            ///< Records for variables that do not exist are dropped silently.
-            ///
-            /// \return Known type?
-
+        bool readRecord(ESM::ESMReader& reader, uint32_t type);
+        ///< Records for variables that do not exist are dropped silently.
+        ///
+        /// \return Known type?
     };
 }
 

@@ -1,21 +1,25 @@
 #ifndef CSV_DOC_SIZEHINT_H
 #define CSV_DOC_SIZEHINT_H
 
-#include <QWidget>
 #include <QSize>
+#include <QWidget>
 
 namespace CSVDoc
 {
     class SizeHintWidget : public QWidget
     {
-            QSize mSize;
+        QSize mSize;
 
-        public:
-            SizeHintWidget(QWidget *parent = nullptr);
-            ~SizeHintWidget() override;
+    public:
+        explicit SizeHintWidget(QWidget* parent = nullptr)
+            : QWidget(parent)
+        {
+        }
 
-            QSize sizeHint() const override;
-            void setSizeHint(const QSize &size);
+        ~SizeHintWidget() override = default;
+
+        QSize sizeHint() const override { return mSize; }
+        void setSizeHint(const QSize& size) { mSize = size; }
     };
 }
 

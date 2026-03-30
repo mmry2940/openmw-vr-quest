@@ -2,9 +2,8 @@
 #define CSM_WOLRD_COLUMNS_H
 
 #include <string>
+#include <utility>
 #include <vector>
-
-#include "columnbase.hpp"
 
 namespace CSMWorld
 {
@@ -46,7 +45,7 @@ namespace CSMWorld
             ColumnId_FactionIndex = 31,
             ColumnId_Charges = 32,
             ColumnId_Enchantment = 33,
-            ColumnId_CoinValue = 34,
+            ColumnId_StackCount = 34,
             ColumnId_Teleport = 35,
             ColumnId_TeleportCell = 36,
             ColumnId_LockLevel = 37,
@@ -280,7 +279,7 @@ namespace CSMWorld
             ColumnId_NpcReputation = 258,
             ColumnId_NpcRank = 259,
             ColumnId_Gold = 260,
-            ColumnId_NpcPersistence = 261,
+            // unused
 
             ColumnId_RaceAttributes = 262,
             ColumnId_Male = 263,
@@ -311,14 +310,14 @@ namespace CSMWorld
             ColumnId_MaxAttack = 284,
             ColumnId_CreatureMisc = 285,
 
-            ColumnId_Idle1 = 286,
-            ColumnId_Idle2 = 287,
-            ColumnId_Idle3 = 288,
-            ColumnId_Idle4 = 289,
-            ColumnId_Idle5 = 290,
-            ColumnId_Idle6 = 291,
-            ColumnId_Idle7 = 292,
-            ColumnId_Idle8 = 293,
+            ColumnId_Idle2 = 286,
+            ColumnId_Idle3 = 287,
+            ColumnId_Idle4 = 288,
+            ColumnId_Idle5 = 289,
+            ColumnId_Idle6 = 290,
+            ColumnId_Idle7 = 291,
+            ColumnId_Idle8 = 292,
+            ColumnId_Idle9 = 293,
 
             ColumnId_RegionWeather = 294,
             ColumnId_WeatherName = 295,
@@ -342,6 +341,21 @@ namespace CSMWorld
             ColumnId_FactionRep = 310,
             ColumnId_FactionAttrib1 = 311,
             ColumnId_FactionAttrib2 = 312,
+
+            ColumnId_Persistent = 313,
+            ColumnId_Blocked = 314,
+
+            ColumnId_LevelledCreatureId = 315,
+
+            ColumnId_SelectionGroupObjects = 316,
+
+            ColumnId_SoundProbability = 317,
+
+            ColumnId_IsLocked = 318,
+
+            ColumnId_ProjectileSpeed = 319,
+
+            ColumnId_GoldValue = 320,
 
             // Allocated to a separate value range, so we don't get a collision should we ever need
             // to extend the number of use values.
@@ -380,14 +394,14 @@ namespace CSMWorld
             ColumnId_Skill7 = 0x50006
         };
 
-        std::string getName (ColumnId column);
+        std::string getName(ColumnId column);
 
-        int getId (const std::string& name);
+        int getId(const std::string& name);
         ///< Will return -1 for an invalid name.
 
-        bool hasEnums (ColumnId column);
+        bool hasEnums(ColumnId column);
 
-        std::vector<std::pair<int,std::string>> getEnums (ColumnId column);
+        std::vector<std::pair<int, std::string>> getEnums(ColumnId column);
         ///< Returns an empty vector, if \a column isn't an enum type column.
     }
 }

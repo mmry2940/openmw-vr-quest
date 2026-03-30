@@ -1,28 +1,24 @@
 #ifndef VERSION_HPP
 #define VERSION_HPP
 
+#include <filesystem>
 #include <string>
+#include <string_view>
 
 namespace Version
 {
+    std::string_view getVersion();
+    std::string_view getCommitHash();
+    std::string_view getTagHash();
+    int getLuaApiRevision();
+    int getPostprocessingApiRevision();
 
-    struct Version
-    {
-        std::string mVersion;
-        std::string mCommitHash;
-        std::string mTagHash;
+    // Prepares string that contains version and commit hash.
+    std::string getOpenmwVersionDescription();
 
-        std::string describe();
-    };
+    bool checkResourcesVersion(const std::filesystem::path& resourcePath);
 
-    /// Read OpenMW version from the version file located in resourcePath.
-    Version getOpenmwVersion(const std::string& resourcePath);
-
-    /// Helper function to getOpenmwVersion and describe() it
-    std::string getOpenmwVersionDescription(const std::string& resourcePath);
-
+    std::string_view getDocumentationUrl();
 }
 
-
 #endif // VERSION_HPP
-

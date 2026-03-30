@@ -1,10 +1,12 @@
 #ifndef CSM_WOLRD_CELL_H
 #define CSM_WOLRD_CELL_H
 
-#include <vector>
-#include <string>
+#include <components/esm3/loadcell.hpp>
 
-#include <components/esm/loadcell.hpp>
+namespace ESM
+{
+    class ESMReader;
+}
 
 namespace CSMWorld
 {
@@ -14,10 +16,14 @@ namespace CSMWorld
     /// Exterior cell coordinates are encoded in the cell ID.
     struct Cell : public ESM::Cell
     {
-        std::string mId;
+        ESM::RefId mId;
 
-        void load (ESM::ESMReader &esm, bool &isDeleted);
+        void load(ESM::ESMReader& esm, bool& isDeleted)
+        {
+            ESM::Cell::load(esm, isDeleted, false);
 
+            mId = ESM::RefId::stringRefId(ESM::Cell::mId.toString());
+        }
     };
 }
 

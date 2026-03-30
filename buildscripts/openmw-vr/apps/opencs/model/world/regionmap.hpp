@@ -3,117 +3,121 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <QAbstractTableModel>
+#include <QModelIndex>
+#include <QVariant>
 
-#include "record.hpp"
-#include "cell.hpp"
 #include "cellcoordinates.hpp"
+#include <components/esm/refid.hpp>
+
+class QObject;
 
 namespace CSMWorld
 {
     class Data;
+    struct Cell;
+
+    template <typename ESXRecordT>
+    struct Record;
 
     /// \brief Model for the region map
     ///
     /// This class does not holds any record data (other than for the purpose of buffering).
     class RegionMap : public QAbstractTableModel
     {
-            Q_OBJECT
+        Q_OBJECT
 
-        public:
+    public:
+        enum Role
+        {
+            Role_Region = Qt::UserRole,
+            Role_CellId = Qt::UserRole + 1
+        };
 
-            enum Role
-            {
-                Role_Region = Qt::UserRole,
-                Role_CellId = Qt::UserRole+1
-            };
+    private:
+        struct CellDescription
+        {
+            float mMaxLandHeight;
+            bool mDeleted;
+            ESM::RefId mRegion;
+            std::string mName;
 
-        private:
+            CellDescription(const Record<Cell>& cell, float landHeight);
+        };
 
-            struct CellDescription
-            {
-                bool mDeleted;
-                std::string mRegion;
-                std::string mName;
+        Data& mData;
+        std::map<CellCoordinates, CellDescription> mMap;
+        CellCoordinates mMin; ///< inclusive
+        CellCoordinates mMax; ///< exclusive
+        std::map<ESM::RefId, unsigned int> mColours; ///< region ID, colour (RGBA)
 
-                CellDescription();
+        CellCoordinates getIndex(const QModelIndex& index) const;
+        ///< Translates a Qt model index into a cell index (which can contain negative components)
 
-                CellDescription (const Record<Cell>& cell);
-            };
+        QModelIndex getIndex(const CellCoordinates& index) const;
 
-            Data& mData;
-            std::map<CellCoordinates, CellDescription> mMap;
-            CellCoordinates mMin; ///< inclusive
-            CellCoordinates mMax; ///< exclusive
-            std::map<std::string, unsigned int> mColours; ///< region ID, colour (RGBA)
+        CellCoordinates getIndex(const Cell& cell) const;
 
-            CellCoordinates getIndex (const QModelIndex& index) const;
-            ///< Translates a Qt model index into a cell index (which can contain negative components)
+        void buildRegions();
 
-            QModelIndex getIndex (const CellCoordinates& index) const;
+        void buildMap();
 
-            CellCoordinates getIndex (const Cell& cell) const;
+        void addCell(const CellCoordinates& index, const CellDescription& description);
+        ///< May be called on a cell that is already in the map (in which case an update is
+        // performed)
 
-            void buildRegions();
+        void addCells(int start, int end);
 
-            void buildMap();
+        void removeCell(const CellCoordinates& index);
+        ///< May be called on a cell that is not in the map (in which case the call is ignored)
 
-            void addCell (const CellCoordinates& index, const CellDescription& description);
-            ///< May be called on a cell that is already in the map (in which case an update is
-            // performed)
+        void addRegion(const ESM::RefId& region, unsigned int colour);
+        ///< May be called on a region that is already listed (in which case an update is
+        /// performed)
+        ///
+        /// \note This function does not update the region map.
 
-            void addCells (int start, int end);
+        void removeRegion(const ESM::RefId& region);
+        ///< May be called on a region that is not listed (in which case the call is ignored)
+        ///
+        /// \note This function does not update the region map.
 
-            void removeCell (const CellCoordinates& index);
-            ///< May be called on a cell that is not in the map (in which case the call is ignored)
+        void updateRegions(const std::vector<ESM::RefId>& regions);
+        ///< Update cells affected by the listed regions
 
-            void addRegion (const std::string& region, unsigned int colour);
-            ///< May be called on a region that is already listed (in which case an update is
-            /// performed)
-            ///
-            /// \note This function does not update the region map.
+        void updateSize();
 
-            void removeRegion (const std::string& region);
-            ///< May be called on a region that is not listed (in which case the call is ignored)
-            ///
-            /// \note This function does not update the region map.
+        std::pair<CellCoordinates, CellCoordinates> getSize() const;
 
-            void updateRegions (const std::vector<std::string>& regions);
-            ///< Update cells affected by the listed regions
+    public:
+        RegionMap(Data& data);
 
-            void updateSize();
+        int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
-            std::pair<CellCoordinates, CellCoordinates> getSize() const;
+        int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
-        public:
+        QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+        ///< \note Calling this function with role==Role_CellId may return the ID of a cell
+        /// that does not exist.
 
-            RegionMap (Data& data);
+        Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-            int rowCount (const QModelIndex& parent = QModelIndex()) const override;
+    private slots:
 
-            int columnCount (const QModelIndex& parent = QModelIndex()) const override;
+        void regionsAboutToBeRemoved(const QModelIndex& parent, int start, int end);
 
-            QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const override;
-            ///< \note Calling this function with role==Role_CellId may return the ID of a cell
-            /// that does not exist.
+        void regionsInserted(const QModelIndex& parent, int start, int end);
 
-            Qt::ItemFlags flags (const QModelIndex& index) const override;
+        void regionsChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
-        private slots:
+        void cellsAboutToBeRemoved(const QModelIndex& parent, int start, int end);
 
-            void regionsAboutToBeRemoved (const QModelIndex& parent, int start, int end);
+        void cellsInserted(const QModelIndex& parent, int start, int end);
 
-            void regionsInserted (const QModelIndex& parent, int start, int end);
-
-            void regionsChanged (const QModelIndex& topLeft, const QModelIndex& bottomRight);
-
-            void cellsAboutToBeRemoved (const QModelIndex& parent, int start, int end);
-
-            void cellsInserted (const QModelIndex& parent, int start, int end);
-
-            void cellsChanged (const QModelIndex& topLeft, const QModelIndex& bottomRight);
+        void cellsChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
     };
 }
 

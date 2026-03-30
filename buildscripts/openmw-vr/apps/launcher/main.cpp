@@ -1,8 +1,16 @@
 #include <iostream>
 
-#include <QTranslator>
-#include <QTextCodec>
 #include <QDir>
+
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/variables_map.hpp>
+
+#include <components/debug/debugging.hpp>
+#include <components/files/configurationmanager.hpp>
+#include <components/files/qtconversion.hpp>
+#include <components/l10n/qttranslations.hpp>
+#include <components/platform/application.hpp>
+#include <components/platform/platform.hpp>
 
 #ifdef MAC_OS_X_VERSION_MIN_REQUIRED
 #undef MAC_OS_X_VERSION_MIN_REQUIRED
@@ -12,25 +20,31 @@
 
 #include "maindialog.hpp"
 
-int main(int argc, char *argv[])
+int runLauncher(int argc, char* argv[])
 {
+    Platform::init();
+
+    boost::program_options::variables_map variables;
+    boost::program_options::options_description description;
+    Files::ConfigurationManager configurationManager;
+    configurationManager.addCommonOptions(description);
+    configurationManager.readConfiguration(variables, description, true);
+
+    Debug::setupLogging(configurationManager.getLogPath(), "Launcher");
+
     try
     {
-        QApplication app(argc, argv);
+        Platform::Application app(argc, argv);
 
-        // Internationalization 
-        QString locale = QLocale::system().name().section('_', 0, 0);
+        QString resourcesPath(".");
+        if (!variables["resources"].empty())
+        {
+            resourcesPath = Files::pathToQString(variables["resources"].as<Files::MaybeQuotedPath>().u8string());
+        }
 
-        QTranslator appTranslator;
-        appTranslator.load(":/translations/" + locale + ".qm");
-        app.installTranslator(&appTranslator);
+        L10n::installQtTranslations(app, "launcher", resourcesPath);
 
-        // Now we make sure the current dir is set to application path
-        QDir dir(QCoreApplication::applicationDirPath());
-
-        QDir::setCurrent(dir.absolutePath());
-
-        Launcher::MainDialog mainWin;
+        Launcher::MainDialog mainWin(configurationManager);
 
         Launcher::FirstRunDialogResult result = mainWin.showFirstRunDialog();
         if (result == Launcher::FirstRunDialogResultFailure)
@@ -43,9 +57,14 @@ int main(int argc, char *argv[])
 
         return exitCode;
     }
-    catch (std::exception& e)
+    catch (const std::exception& e)
     {
-        std::cerr << "ERROR: " << e.what() << std::endl;
+        Log(Debug::Error) << "Unexpected exception: " << e.what();
         return 0;
     }
+}
+
+int main(int argc, char* argv[])
+{
+    return Debug::wrapApplication(runLauncher, argc, argv, "Launcher");
 }

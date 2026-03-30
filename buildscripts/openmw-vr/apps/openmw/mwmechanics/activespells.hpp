@@ -1,109 +1,178 @@
 #ifndef GAME_MWMECHANICS_ACTIVESPELLS_H
 #define GAME_MWMECHANICS_ACTIVESPELLS_H
 
-#include <map>
-#include <vector>
+#include <functional>
+#include <list>
+#include <queue>
 #include <string>
+#include <variant>
+#include <vector>
 
-#include <components/esm/activespells.hpp>
+#include <components/esm3/activespells.hpp>
 
+#include "../mwworld/ptr.hpp"
 #include "../mwworld/timestamp.hpp"
 
-#include "magiceffects.hpp"
+#include "spellcasting.hpp"
+
+namespace ESM
+{
+    struct Enchantment;
+    struct Spell;
+}
 
 namespace MWMechanics
 {
     /// \brief Lasting spell effects
     ///
-    /// \note The name of this class is slightly misleading, since it also handels lasting potion
+    /// \note The name of this class is slightly misleading, since it also handles lasting potion
     /// effects.
     class ActiveSpells
     {
-        public:
+    public:
+        using ActiveEffect = ESM::ActiveEffect;
+        class ActiveSpellParams
+        {
+            ESM::RefId mActiveSpellId;
+            ESM::RefId mSourceSpellId;
+            std::vector<ActiveEffect> mEffects;
+            std::string mDisplayName;
+            int mCasterActorId;
+            ESM::RefNum mItem;
+            ESM::ActiveSpells::Flags mFlags;
+            int mWorsenings;
+            MWWorld::TimeStamp mNextWorsening;
+            MWWorld::Ptr mSource;
 
-            typedef ESM::ActiveEffect ActiveEffect;
+            ActiveSpellParams(const ESM::ActiveSpells::ActiveSpellParams& params);
 
-            struct ActiveSpellParams
-            {
-                std::vector<ActiveEffect> mEffects;
-                MWWorld::TimeStamp mTimeStamp;
-                std::string mDisplayName;
+            ActiveSpellParams(const ESM::Spell* spell, const MWWorld::Ptr& actor, bool ignoreResistances = false);
 
-                // The caster that inflicted this spell on us
-                int mCasterActorId;
-            };
+            ActiveSpellParams(
+                const MWWorld::ConstPtr& item, const ESM::Enchantment* enchantment, const MWWorld::Ptr& actor);
 
-            typedef std::multimap<std::string, ActiveSpellParams > TContainer;
-            typedef TContainer::const_iterator TIterator;
+            ActiveSpellParams(const ActiveSpellParams& params, const MWWorld::Ptr& actor);
 
-            void readState (const ESM::ActiveSpells& state);
-            void writeState (ESM::ActiveSpells& state) const;
+            ESM::ActiveSpells::ActiveSpellParams toEsm() const;
 
-            TIterator begin() const;
-
-            TIterator end() const;
-
-            void update(float duration) const;
-
-        private:
-
-            mutable TContainer mSpells;
-            mutable MagicEffects mEffects;
-            mutable bool mSpellsChanged;
-
-            void rebuildEffects() const;
-
-            /// Add any effects that are in "from" and not in "addTo" to "addTo"
-            void mergeEffects(std::vector<ActiveEffect>& addTo, const std::vector<ActiveEffect>& from);
-
-            double timeToExpire (const TIterator& iterator) const;
-            ///< Returns time (in in-game hours) until the spell pointed to by \a iterator
-            /// expires.
-
-            const TContainer& getActiveSpells() const;
+            friend class ActiveSpells;
 
         public:
+            ActiveSpellParams(
+                const MWWorld::Ptr& caster, const ESM::RefId& id, std::string_view sourceName, ESM::RefNum item);
 
-            ActiveSpells();
+            ESM::RefId getActiveSpellId() const { return mActiveSpellId; }
+            void setActiveSpellId(ESM::RefId id) { mActiveSpellId = id; }
 
-            /// Add lasting effects
-            ///
-            /// \brief addSpell
-            /// \param id ID for stacking purposes.
-            /// \param stack If false, the spell is not added if one with the same ID exists already.
-            /// \param effects
-            /// \param displayName Name for display in magic menu.
-            ///
-            void addSpell (const std::string& id, bool stack, const std::vector<ActiveEffect>& effects,
-                           const std::string& displayName, int casterActorId);
+            const ESM::RefId& getSourceSpellId() const { return mSourceSpellId; }
 
-            /// Removes the active effects from this spell/potion/.. with \a id
-            void removeEffects (const std::string& id);
+            const std::vector<ActiveEffect>& getEffects() const { return mEffects; }
+            std::vector<ActiveEffect>& getEffects() { return mEffects; }
 
-            /// Remove all active effects with this effect id
-            void purgeEffect (short effectId);
+            int getCasterActorId() const { return mCasterActorId; }
 
-            /// Remove all active effects with this effect id and source id
-            void purgeEffect (short effectId, const std::string& sourceId, int effectIndex=-1);
+            int getWorsenings() const { return mWorsenings; }
 
-            /// Remove all active effects, if roll succeeds (for each effect)
-            void purgeAll(float chance, bool spellOnly = false);
+            const std::string& getDisplayName() const { return mDisplayName; }
 
-            /// Remove all effects with CASTER_LINKED flag that were cast by \a casterActorId
-            void purge (int casterActorId);
+            ESM::RefNum getItem() const { return mItem; }
+            ESM::RefId getEnchantment() const;
 
-            /// Remove all spells
-            void clear();
+            const ESM::Spell* getSpell() const;
+            bool hasFlag(ESM::ActiveSpells::Flags flags) const;
+            void setFlag(ESM::ActiveSpells::Flags flags);
 
-            bool isSpellActive (const std::string& id) const;
-            ///< case insensitive
+            // Increments worsenings count and sets the next timestamp
+            void worsen();
 
-            void purgeCorprusDisease();
+            bool shouldWorsen() const;
 
-            const MagicEffects& getMagicEffects() const;
+            void resetWorsenings();
+        };
 
-            void visitEffectSources (MWMechanics::EffectSourceVisitor& visitor) const;
+        typedef std::list<ActiveSpellParams> Collection;
+        typedef Collection::const_iterator TIterator;
 
+        void readState(const ESM::ActiveSpells& state);
+        void writeState(ESM::ActiveSpells& state) const;
+
+        TIterator begin() const;
+
+        TIterator end() const;
+
+        TIterator getActiveSpellById(const ESM::RefId& id);
+
+        void update(const MWWorld::Ptr& ptr, float duration);
+
+    private:
+        using ParamsPredicate = std::function<bool(const ActiveSpellParams&)>;
+        using EffectPredicate = std::function<bool(const ActiveSpellParams&, const ESM::ActiveEffect&)>;
+        using Predicate = std::variant<ParamsPredicate, EffectPredicate>;
+
+        struct IterationGuard
+        {
+            ActiveSpells& mActiveSpells;
+
+            IterationGuard(ActiveSpells& spells);
+            ~IterationGuard();
+        };
+        struct UpdateContext;
+
+        std::list<ActiveSpellParams> mSpells;
+        std::vector<ActiveSpellParams> mQueue;
+        std::queue<Predicate> mPurges;
+        bool mIterating;
+
+        void addToSpells(const MWWorld::Ptr& ptr, const ActiveSpellParams& spell, UpdateContext& context);
+
+        bool applyPurges(const MWWorld::Ptr& ptr, std::list<ActiveSpellParams>::iterator* currentSpell = nullptr,
+            std::vector<ActiveEffect>::iterator* currentEffect = nullptr);
+
+        bool updateActiveSpell(
+            const MWWorld::Ptr& ptr, float duration, Collection::iterator& spellIt, UpdateContext& context);
+
+        bool initParams(const MWWorld::Ptr& ptr, const ActiveSpellParams& params, UpdateContext& context);
+
+    public:
+        ActiveSpells();
+
+        /// Add lasting effects
+        ///
+        /// \brief addSpell
+        /// \param id ID for stacking purposes.
+        ///
+        void addSpell(const ActiveSpellParams& params);
+
+        /// Force resistances
+        void addSpell(const ESM::Spell* spell, const MWWorld::Ptr& actor, bool ignoreResistances = true);
+
+        /// Removes the active effects from this spell/potion/.. with \a id
+        void removeEffectsBySourceSpellId(const MWWorld::Ptr& ptr, const ESM::RefId& id);
+        /// Removes the active effects of a specific active spell
+        void removeEffectsByActiveSpellId(const MWWorld::Ptr& ptr, const ESM::RefId& id);
+
+        /// Remove all active effects with this effect id
+        void purgeEffect(const MWWorld::Ptr& ptr, int effectId, ESM::RefId effectArg = {});
+
+        void purge(EffectPredicate predicate, const MWWorld::Ptr& ptr);
+        void purge(ParamsPredicate predicate, const MWWorld::Ptr& ptr);
+
+        /// Remove all effects that were cast by \a casterActorId
+        void purge(const MWWorld::Ptr& ptr, int casterActorId);
+
+        /// Remove all spells
+        void clear(const MWWorld::Ptr& ptr);
+
+        /// True if a spell associated with this id is active
+        /// \note For enchantments, this is the id of the enchanted item, not the enchantment itself
+        bool isSpellActive(const ESM::RefId& id) const;
+
+        /// True if the enchantment is active
+        bool isEnchantmentActive(const ESM::RefId& id) const;
+
+        void skipWorsenings(double hours);
+
+        void unloadActor(const MWWorld::Ptr& ptr);
     };
 }
 

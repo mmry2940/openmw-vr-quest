@@ -24,21 +24,21 @@ namespace Gui
             throw std::runtime_error("WindowCaption needs an EditBox Client widget in its skin");
     }
 
-    void WindowCaption::setCaption(const MyGUI::UString &_value)
+    void WindowCaption::setCaption(const MyGUI::UString& value)
     {
-        EditBox::setCaption(_value);
+        EditBox::setCaption(value);
         align();
     }
 
-    void WindowCaption::setSize(const MyGUI::IntSize& _value)
+    void WindowCaption::setSize(const MyGUI::IntSize& value)
     {
-        Base::setSize(_value);
+        Base::setSize(value);
         align();
     }
 
-    void WindowCaption::setCoord(const MyGUI::IntCoord& _value)
+    void WindowCaption::setCoord(const MyGUI::IntCoord& value)
     {
-        Base::setCoord(_value);
+        Base::setCoord(value);
         align();
     }
 
@@ -48,7 +48,7 @@ namespace Gui
         MyGUI::Widget* caption = mClient;
         caption->setSize(textSize.width + 24, caption->getHeight());
 
-        int barwidth = (getWidth()-caption->getWidth())/2;
+        int barwidth = (getWidth() - caption->getWidth()) / 2;
         caption->setPosition(barwidth, caption->getTop());
         if (mLeft)
             mLeft->setCoord(0, mLeft->getTop(), barwidth, mLeft->getHeight());

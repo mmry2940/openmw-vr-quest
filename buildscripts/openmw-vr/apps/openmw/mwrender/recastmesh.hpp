@@ -1,16 +1,21 @@
 #ifndef OPENMW_MWRENDER_RECASTMESH_H
 #define OPENMW_MWRENDER_RECASTMESH_H
 
-#include <components/detournavigator/navigator.hpp>
+#include <components/detournavigator/recastmeshtiles.hpp>
+#include <components/detournavigator/version.hpp>
 
 #include <osg/ref_ptr>
-
-#include <vector>
 
 namespace osg
 {
     class Group;
     class Geometry;
+    class StateSet;
+}
+
+namespace DetourNavigator
+{
+    struct Settings;
 }
 
 namespace MWRender
@@ -31,22 +36,20 @@ namespace MWRender
 
         void disable();
 
-        bool isEnabled() const
-        {
-            return mEnabled;
-        }
+        bool isEnabled() const { return mEnabled; }
 
     private:
         struct Group
         {
-            std::size_t mGeneration;
-            std::size_t mRevision;
+            DetourNavigator::Version mVersion;
             osg::ref_ptr<osg::Group> mValue;
         };
 
         osg::ref_ptr<osg::Group> mRootNode;
         bool mEnabled;
         std::map<DetourNavigator::TilePosition, Group> mGroups;
+        osg::ref_ptr<osg::StateSet> mGroupStateSet;
+        osg::ref_ptr<osg::StateSet> mDebugDrawStateSet;
     };
 }
 

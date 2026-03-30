@@ -1,71 +1,147 @@
 #include "livecellref.hpp"
 
+#include <sstream>
+
 #include <components/debug/debuglog.hpp>
-#include <components/esm/objectstate.hpp>
+#include <components/esm3/loadcrea.hpp>
+#include <components/esm3/loadscpt.hpp>
+#include <components/esm3/objectstate.hpp>
 
 #include "../mwbase/environment.hpp"
-#include "../mwbase/world.hpp"
+#include "../mwbase/luamanager.hpp"
 
-#include "ptr.hpp"
 #include "class.hpp"
 #include "esmstore.hpp"
+#include "ptr.hpp"
+#include "worldmodel.hpp"
 
-MWWorld::LiveCellRefBase::LiveCellRefBase(const std::string& type, const ESM::CellRef &cref)
-  : mClass(&Class::get(type)), mRef(cref), mData(cref)
+namespace MWWorld
 {
-}
-
-void MWWorld::LiveCellRefBase::loadImp (const ESM::ObjectState& state)
-{
-    mRef = state.mRef;
-    mData = RefData (state, mData.isDeletedByContentFile());
-
-    Ptr ptr (this);
-
-    if (state.mHasLocals)
+    LiveCellRefBase::LiveCellRefBase(unsigned int type, const ESM::CellRef& cref)
+        : mClass(&Class::get(type))
+        , mRef(cref)
+        , mData(cref)
     {
-        std::string scriptId = mClass->getScript (ptr);
-        // Make sure we still have a script. It could have been coming from a content file that is no longer active.
-        if (!scriptId.empty())
+    }
+
+    LiveCellRefBase::LiveCellRefBase(unsigned int type, const ESM4::Reference& cref)
+        : mClass(&Class::get(type))
+        , mRef(cref)
+        , mData(cref)
+    {
+    }
+
+    LiveCellRefBase::LiveCellRefBase(unsigned int type, const ESM4::ActorCharacter& cref)
+        : mClass(&Class::get(type))
+        , mRef(cref)
+        , mData(cref)
+    {
+    }
+
+    LiveCellRefBase::LiveCellRefBase(LiveCellRefBase&& other) noexcept
+        : mClass(other.mClass)
+        , mRef(std::move(other.mRef))
+        , mData(std::move(other.mData))
+        , mWorldModel(std::exchange(other.mWorldModel, nullptr))
+    {
+    }
+
+    LiveCellRefBase::~LiveCellRefBase()
+    {
+        if (mWorldModel != nullptr)
+            mWorldModel->deregisterLiveCellRef(*this);
+    }
+
+    LiveCellRefBase& LiveCellRefBase::operator=(LiveCellRefBase&& other) noexcept
+    {
+        mClass = other.mClass;
+        mRef = std::move(other.mRef);
+        mData = std::move(other.mData);
+        mWorldModel = std::exchange(other.mWorldModel, nullptr);
+        return *this;
+    }
+
+    void LiveCellRefBase::loadImp(const ESM::ObjectState& state)
+    {
+        mRef = CellRef(state.mRef);
+        mData = RefData(state, mData.isDeletedByContentFile());
+
+        Ptr ptr(this);
+
+        if (state.mHasLocals)
         {
-            if (const ESM::Script* script = MWBase::Environment::get().getWorld()->getStore().get<ESM::Script>().search (scriptId))
+            const ESM::RefId& scriptId = mClass->getScript(ptr);
+            // Make sure we still have a script. It could have been coming from a content file that is no longer active.
+            if (!scriptId.empty())
             {
-                try
+                if (const ESM::Script* script
+                    = MWBase::Environment::get().getESMStore()->get<ESM::Script>().search(scriptId))
                 {
-                    mData.setLocals (*script);
-                    mData.getLocals().read (state.mLocals, scriptId);
-                }
-                catch (const std::exception& exception)
-                {
-                    Log(Debug::Error)
-                        << "Error: failed to load state for local script " << scriptId
-                        << " because an exception has been thrown: " << exception.what();
+                    try
+                    {
+                        mData.setLocals(*script);
+                        mData.getLocals().read(state.mLocals, scriptId);
+                    }
+                    catch (const std::exception& exception)
+                    {
+                        Log(Debug::Error) << "Error: failed to load state for local script " << scriptId
+                                          << " because an exception has been thrown: " << exception.what();
+                    }
                 }
             }
         }
+
+        mClass->readAdditionalState(ptr, state);
+
+        if (!mRef.getSoul().empty()
+            && !MWBase::Environment::get().getESMStore()->get<ESM::Creature>().search(mRef.getSoul()))
+        {
+            Log(Debug::Warning) << "Soul '" << mRef.getSoul() << "' not found, removing the soul from soul gem";
+            mRef.setSoul(ESM::RefId());
+        }
+
+        MWBase::Environment::get().getLuaManager()->loadLocalScripts(ptr, state.mLuaScripts);
     }
 
-    mClass->readAdditionalState (ptr, state);
-
-    if (!mRef.getSoul().empty() && !MWBase::Environment::get().getWorld()->getStore().get<ESM::Creature>().search(mRef.getSoul()))
+    void LiveCellRefBase::saveImp(ESM::ObjectState& state) const
     {
-        Log(Debug::Warning) << "Soul '" << mRef.getSoul() << "' not found, removing the soul from soul gem";
-        mRef.setSoul(std::string());
+        mRef.writeState(state);
+
+        ConstPtr ptr(this);
+
+        mData.write(state, mClass->getScript(ptr));
+        MWBase::Environment::get().getLuaManager()->saveLocalScripts(
+            Ptr(const_cast<LiveCellRefBase*>(this)), state.mLuaScripts);
+
+        mClass->writeAdditionalState(ptr, state);
     }
-}
 
-void MWWorld::LiveCellRefBase::saveImp (ESM::ObjectState& state) const
-{
-    mRef.writeState(state);
+    bool LiveCellRefBase::checkStateImp(const ESM::ObjectState& state)
+    {
+        return true;
+    }
 
-    ConstPtr ptr (this);
+    unsigned int LiveCellRefBase::getType() const
+    {
+        return mClass->getType();
+    }
 
-    mData.write (state, mClass->getScript (ptr));
+    bool LiveCellRefBase::isDeleted() const
+    {
+        return mData.isDeletedByContentFile() || mRef.getCount(false) == 0;
+    }
 
-    mClass->writeAdditionalState (ptr, state);
-}
+    std::string makeDynamicCastErrorMessage(const LiveCellRefBase* value, std::string_view recordType)
+    {
+        std::stringstream message;
 
-bool MWWorld::LiveCellRefBase::checkStateImp (const ESM::ObjectState& state)
-{
-    return true;
+        message << "Bad LiveCellRef cast to " << recordType << " from ";
+
+        if (value != nullptr)
+            message << value->getTypeDescription();
+        else
+            message << "an empty object";
+
+        return message.str();
+    }
 }

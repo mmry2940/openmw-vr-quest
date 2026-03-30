@@ -1,12 +1,14 @@
 #ifndef GAME_MWMECHANICS_NPCSTATS_H
 #define GAME_MWMECHANICS_NPCSTATS_H
 
+#include "creaturestats.hpp"
+#include <components/esm/refid.hpp>
+#include <components/esm3/loadclas.hpp>
+#include <components/esm3/loadskil.hpp>
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
-
-#include "creaturestats.hpp"
 
 namespace ESM
 {
@@ -20,118 +22,124 @@ namespace MWMechanics
 
     class NpcStats : public CreatureStats
     {
-            int mDisposition;
-            SkillValue mSkill[ESM::Skill::Length]; // SkillValue.mProgress used by the player only
+        int mDisposition;
+        int mCrimeDispositionModifier;
+        std::map<ESM::RefId, SkillValue> mSkills; // SkillValue.mProgress used by the player only
 
-            int mReputation;
-            int mCrimeId;
+        int mReputation;
+        int mCrimeId;
 
-            // ----- used by the player only, maybe should be moved at some point -------
-            int mBounty;
-            int mWerewolfKills;
-            /// Used only for the player and for NPC's with ranks, modified by scripts; other NPCs have maximum one faction defined in their NPC record
-            std::map<std::string, int> mFactionRank;
-            std::set<std::string> mExpelled;
-            std::map<std::string, int> mFactionReputation;
-            int mLevelProgress; // 0-10
-            std::vector<int> mSkillIncreases; // number of skill increases for each attribute (resets after leveling up)
-            std::vector<int> mSpecIncreases; // number of skill increases for each specialization (accumulates throughout the entire game)
-            std::set<std::string> mUsedIds;
-            // ---------------------------------------------------------------------------
+        // ----- used by the player only, maybe should be moved at some point -------
+        int mBounty;
+        int mWerewolfKills;
+        /// Used only for the player and for NPC's with ranks, modified by scripts; other NPCs have maximum one faction
+        /// defined in their NPC record
+        std::map<ESM::RefId, int> mFactionRank;
+        std::set<ESM::RefId> mExpelled;
+        std::map<ESM::RefId, int> mFactionReputation;
+        int mLevelProgress; // 0-10
+        std::map<ESM::RefId, int>
+            mSkillIncreases; // number of skill increases for each attribute (resets after leveling up)
+        std::vector<int> mSpecIncreases; // number of skill increases for each specialization (accumulates throughout
+                                         // the entire game)
+        std::set<ESM::RefId> mUsedIds;
+        // ---------------------------------------------------------------------------
 
-            /// Countdown to getting damage while underwater
-            float mTimeToStartDrowning;
+        /// Countdown to getting damage while underwater
+        float mTimeToStartDrowning;
 
-            bool mIsWerewolf;
+        bool mIsWerewolf;
 
-        public:
+    public:
+        NpcStats();
 
-            NpcStats();
+        int getBaseDisposition() const;
+        void setBaseDisposition(int disposition);
 
-            int getBaseDisposition() const;
-            void setBaseDisposition(int disposition);
+        int getCrimeDispositionModifier() const;
+        void setCrimeDispositionModifier(int value);
+        void modCrimeDispositionModifier(int value);
 
-            int getReputation() const;
-            void setReputation(int reputation);
+        int getReputation() const;
+        void setReputation(int reputation);
 
-            int getCrimeId() const;
-            void setCrimeId(int id);
+        int getCrimeId() const;
+        void setCrimeId(int id);
 
-            const SkillValue& getSkill (int index) const;
-            SkillValue& getSkill (int index);
-            void setSkill(int index, const SkillValue& value);
+        const SkillValue& getSkill(ESM::RefId id) const;
+        SkillValue& getSkill(ESM::RefId id);
+        void setSkill(ESM::RefId id, const SkillValue& value);
 
-            int getFactionRank(const std::string &faction) const;
-            const std::map<std::string, int>& getFactionRanks() const;
+        int getFactionRank(const ESM::RefId& faction) const;
+        const std::map<ESM::RefId, int>& getFactionRanks() const;
 
-            /// Increase the rank in this faction by 1, if such a rank exists.
-            void raiseRank(const std::string& faction);
-            /// Lower the rank in this faction by 1, if such a rank exists.
-            void lowerRank(const std::string& faction);
-            /// Join this faction, setting the initial rank to 0.
-            void joinFaction(const std::string& faction);
+        /// Join this faction, setting the initial rank to 0.
+        void joinFaction(const ESM::RefId& faction);
+        /// Sets the rank in this faction to a specified value, if such a rank exists.
+        void setFactionRank(const ESM::RefId& faction, int value);
 
-            const std::set<std::string>& getExpelled() const { return mExpelled; }
-            bool getExpelled(const std::string& factionID) const;
-            void expell(const std::string& factionID);
-            void clearExpelled(const std::string& factionID);
+        const std::set<ESM::RefId>& getExpelled() const { return mExpelled; }
+        bool getExpelled(const ESM::RefId& factionID) const;
+        void expell(const ESM::RefId& factionID, bool printMessage);
+        void clearExpelled(const ESM::RefId& factionID);
 
-            bool isInFaction (const std::string& faction) const;
+        bool isInFaction(const ESM::RefId& faction) const;
 
-            float getSkillProgressRequirement (int skillIndex, const ESM::Class& class_) const;
+        float getSkillProgressRequirement(ESM::RefId id, const ESM::Class& npcClass) const;
 
-            void useSkill (int skillIndex, const ESM::Class& class_, int usageType = -1, float extraFactor=1.f);
-            ///< Increase skill by usage.
+        int getLevelProgress() const;
+        void setLevelProgress(int progress);
 
-            void increaseSkill (int skillIndex, const ESM::Class& class_, bool preserveProgress, bool readBook = false);
+        int getLevelupAttributeMultiplier(ESM::Attribute::AttributeID attribute) const;
+        int getSkillIncreasesForAttribute(ESM::Attribute::AttributeID attribute) const;
+        void setSkillIncreasesForAttribute(ESM::Attribute::AttributeID, int increases);
 
-            int getLevelProgress() const;
+        int getSkillIncreasesForSpecialization(ESM::Class::Specialization spec) const;
+        void setSkillIncreasesForSpecialization(ESM::Class::Specialization spec, int increases);
 
-            int getLevelupAttributeMultiplier(int attribute) const;
+        void levelUp();
 
-            int getSkillIncreasesForSpecialization(int spec) const;
+        void updateHealth();
+        ///< Calculate health based on endurance and strength.
+        ///  Called at character creation.
 
-            void levelUp();
+        void flagAsUsed(const ESM::RefId& id);
+        ///< @note Id must be lower-case
 
-            void updateHealth();
-            ///< Calculate health based on endurance and strength.
-            ///  Called at character creation.
+        bool hasBeenUsed(const ESM::RefId& id) const;
+        ///< @note Id must be lower-case
 
-            void flagAsUsed (const std::string& id);
-            ///< @note Id must be lower-case
+        int getBounty() const;
 
-            bool hasBeenUsed (const std::string& id) const;
-            ///< @note Id must be lower-case
+        void setBounty(int bounty);
 
-            int getBounty() const;
+        int getFactionReputation(const ESM::RefId& faction) const;
 
-            void setBounty (int bounty);
+        void setFactionReputation(const ESM::RefId& faction, int value);
 
-            int getFactionReputation (const std::string& faction) const;
+        bool hasSkillsForRank(const ESM::RefId& factionId, int rank) const;
 
-            void setFactionReputation (const std::string& faction, int value);
+        bool isWerewolf() const;
 
-            bool hasSkillsForRank (const std::string& factionId, int rank) const;
+        void setWerewolf(bool set);
 
-            bool isWerewolf() const;
+        int getWerewolfKills() const;
 
-            void setWerewolf(bool set);
+        /// Increments mWerewolfKills by 1.
+        void addWerewolfKill();
 
-            int getWerewolfKills() const;
+        float getTimeToStartDrowning() const;
+        /// Sets time left for the creature to drown if it stays underwater.
+        /// @param time value from [0,20]
+        void setTimeToStartDrowning(float time);
 
-            /// Increments mWerewolfKills by 1.
-            void addWerewolfKill();
+        void writeState(ESM::CreatureStats& state) const;
+        void writeState(ESM::NpcStats& state) const;
 
-            float getTimeToStartDrowning() const;
-            /// Sets time left for the creature to drown if it stays underwater.
-            /// @param time value from [0,20]
-            void setTimeToStartDrowning(float time);
+        void readState(const ESM::CreatureStats& state);
+        void readState(const ESM::NpcStats& state);
 
-            void writeState (ESM::CreatureStats& state) const;
-            void writeState (ESM::NpcStats& state) const;
-
-            void readState (const ESM::CreatureStats& state);
-            void readState (const ESM::NpcStats& state);
+        const std::map<ESM::RefId, SkillValue>& getSkills() const { return mSkills; }
     };
 }
 

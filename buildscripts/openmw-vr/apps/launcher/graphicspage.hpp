@@ -3,11 +3,12 @@
 
 #include "ui_graphicspage.h"
 
-#include <components/settings/settings.hpp>
+#include <components/settings/windowmode.hpp>
 
-#include "sdlinit.hpp"
-
-namespace Files { struct ConfigurationManager; }
+namespace Files
+{
+    struct ConfigurationManager;
+}
 
 namespace Launcher
 {
@@ -18,7 +19,7 @@ namespace Launcher
         Q_OBJECT
 
     public:
-        explicit GraphicsPage(QWidget *parent = nullptr);
+        explicit GraphicsPage(QWidget* parent = nullptr);
 
         void saveSettings();
         bool loadSettings();
@@ -30,7 +31,6 @@ namespace Launcher
         void slotFullScreenChanged(int state);
         void slotStandardToggled(bool checked);
         void slotFramerateLimitToggled(bool checked);
-        void slotShadowDistLimitToggled(bool checked);
 
     private:
         QVector<QStringList> mResolutionsPerScreen;
@@ -39,6 +39,7 @@ namespace Launcher
         static QRect getMaximumResolution();
 
         bool setupSDL();
+        void handleWindowModeChange(Settings::WindowMode state);
     };
 }
 #endif

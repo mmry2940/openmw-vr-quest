@@ -1,186 +1,174 @@
 Video Settings
 ##############
 
-resolution x
-------------
+.. omw-setting::
+   :title: resolution x
+   :type: int
+   :range: > 0
+   :default: 800
+   :location: :bdg-success:`Launcher > Display` :bdg-info:`In Game > Options > Video`
 
-:Type:		integer
-:Range:		> 0
-:Default:	800
+   This setting determines the horizontal resolution of the OpenMW game window.
+   Larger values produce more detailed images within the constraints of your graphics hardware,
+   but may reduce the frame rate.
 
-This setting determines the horizontal resolution of the OpenMW game window.
-Larger values produce more detailed images within the constraints of your graphics hardware,
-but may reduce the frame rate.
+.. omw-setting::
+   :title: resolution y
+   :type: int
+   :range: > 0
+   :default: 600
+   :location: :bdg-success:`Launcher > Display` :bdg-info:`In Game > Options > Video`
 
-The window resolution can be selected from a menu of common screen sizes
-in the Video tab of the Video Panel of the Options menu, or in the Graphics tab of the OpenMW Launcher.
-The horizontal resolution can also be set to a custom value in the Graphics tab of the OpenMW Launcher.
+   This setting determines the vertical resolution of the OpenMW game window.
+   Larger values produce more detailed images within the constraints of your graphics hardware,
+   but may reduce the frame rate.
 
-resolution y
-------------
+.. omw-setting::
+   :title: window mode
+   :type: int
+   :range: 0, 1, 2
+   :default: 2
+   :location: :bdg-success:`Launcher > Display` :bdg-info:`In Game > Options > Video`
 
-:Type:		integer
-:Range:		> 0
-:Default:	600
+   This setting determines the window mode.
 
-This setting determines the vertical resolution of the OpenMW game window.
-Larger values produce more detailed images within the constraints of your graphics hardware,
-but may reduce the frame rate.
+   .. list-table::
+      :header-rows: 1
 
-The window resolution can be selected from a menu of common screen sizes
-in the Video tab of the Video Panel of the Options menu, or in the Graphics tab of the OpenMW Launcher.
-The vertical resolution can also be set to a custom value in the Graphics tab of the OpenMW Launcher.
+      * - Mode
+        - Meaning
+      * - 0
+        - Exclusive fullscreen
+      * - 1
+        - Windowed fullscreen, borderless window that matches screen resolution
+      * - 2
+        - Windowed
 
-fullscreen
-----------
+.. omw-setting::
+   :title: screen
+   :type: int
+   :range: ≥ 0
+   :default: 0
+   :location: :bdg-success:`Launcher > Display`
 
-:Type:		boolean
-:Range:		True/False
-:Default:	False
+   This setting determines which screen the game will open on in multi-monitor configurations.
+   This setting is particularly important when the fullscreen setting is true,
+   since this is the only way to control which screen is used,
+   but it can also be used to control which screen a normal window or a borderless window opens on as well.
+   The screens are numbered in increasing order, beginning with 0.
 
-This setting determines whether the entire screen is used for the specified resolution.
+.. omw-setting::
+   :title: minimize on focus loss
+   :type: boolean
+   :range: true, false
+   :default: true
 
-This setting can be toggled in game using the Fullscreen button in the Video tab of the Video panel in the Options menu.
-It can also be toggled with the Full Screen check box in the Graphics tab of the OpenMW Launcher.
+   Minimize the OpenMW window if it loses cursor focus. This setting is primarily useful for single screen configurations,
+   so that the OpenMW screen in full screen mode can be minimized
+   when the operating system regains control of the mouse and keyboard.
+   On multiple screen configurations, disabling this option makes it easier to switch between screens while playing OpenMW.
 
-screen
-------
+   .. note::
+      A minimized game window consumes less system resources and produces less heat,
+      since the game does not need to render in minimized state.
+      It is therefore advisable to minimize the game during pauses
+      (either via use of this setting, or by minimizing the window manually).
 
-:Type:		integer
-:Range:		>= 0
-:Default:	0
+   This setting has no effect if the fullscreen setting is false.
 
-This setting determines which screen the game will open on in multi-monitor configurations.
-This setting is particularly important when the fullscreen setting is true,
-since this is the only way to control which screen is used,
-but it can also be used to control which screen a normal window or a borderless window opens on as well.
-The screens are numbered in increasing order, beginning with 0.
+   .. note::
 
-This setting can be selected from a pull down menu in the Graphics tab of the OpenMW Launcher,
-but cannot be changed during game play.
+      Corresponds to SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS.
 
-minimize on focus loss
-----------------------
+.. omw-setting::
+   :title: window border
+   :type: boolean
+   :range: true, false
+   :default: true
+   :location: :bdg-success:`Launcher > Display` :bdg-info:`In Game > Options > Video`
 
-:Type:		boolean
-:Range:		True/False
-:Default:	True
+   This setting determines whether there's an operating system border drawn around the OpenMW window.
+   If this setting is true, the window can be moved and resized with the operating system window controls.
+   If this setting is false, the window has no operating system border.
 
-Minimize the OpenMW window if it loses cursor focus. This setting is primarily useful for single screen configurations,
-so that the OpenMW screen in full screen mode can be minimized
-when the operating system regains control of the mouse and keyboard.
-On multiple screen configurations, disabling this option makes it easier to switch between screens while playing OpenMW.
+   This setting has no effect if the fullscreen setting is true.
 
-.. Note::
-	A minimized game window consumes less system resources and produces less heat,
-	since the game does not need to render in minimized state.
-	It is therefore advisable to minimize the game during pauses
-	(either via use of this setting, or by minimizing the window manually).
+.. omw-setting::
+   :title: antialiasing
+   :type: int
+   :range: ≥ 0
+   :default: 0
+   :location: :bdg-success:`Launcher > Display`
 
-This setting has no effect if the fullscreen setting is false.
+   This setting controls anti-aliasing. Anti-aliasing is a technique designed to improve the appearance of polygon edges,
+   so they do not appear to be "jagged".
+   Anti-aliasing can smooth these edges at the cost of a minor reduction in the frame rate.
+   A value of 0 disables anti-aliasing.
+   Other values are supported according to the capabilities of your graphics hardware.
+   Higher values do a better job of smoothing out the image but have a greater impact on frame rate.
 
-Developer note: corresponds to SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS.
+.. omw-setting::
+   :title: vsync mode
+   :type: int
+   :range: 0, 1, 2
+   :default: 0
+   :location: :bdg-success:`Launcher > Display` :bdg-info:`In Game > Options > Video`
 
-This setting can only be configured by editing the settings configuration file.
+   This setting determines whether frame draws are synchronized with the vertical refresh rate of your monitor.
+   Enabling this setting can reduce screen tearing,
+   a visual defect caused by updating the image buffer in the middle of a screen draw.
+   Enabling this option (1 or 2) typically implies limiting the framerate to the refresh rate of your monitor,
+   but may also introduce additional delays caused by having to wait until the appropriate time
+   (the vertical blanking interval) to draw a frame, and a loss in mouse responsiveness known as 'input lag'.
+   Mode 2 of this option corresponds to the use of adaptive vsync. Adaptive vsync is turned off if the framerate
+   cannot reach your display's refresh rate. This prevents the input lag from becoming unbearable but may lead to tearing.
+   Some hardware might not support this mode, in which case traditional vsync will be used.
 
-window border
--------------
 
-:Type:		boolean
-:Range:		True/False
-:Default:	True
+.. omw-setting::
+   :title: framerate limit
+   :type: float32
+   :range: ≥ 0.0
+   :default: 300
 
-This setting determines whether there's an operating system border drawn around the OpenMW window.
-If this setting is true, the window can be moved and resized with the operating system window controls.
-If this setting is false, the window has no operating system border.
+   This setting determines the maximum frame rate in frames per second.
+   If this setting is 0.0, the frame rate is unlimited.
 
-This setting has no effect if the fullscreen setting is true.
+   There are several reasons to consider capping your frame rate,
+   especially if you're already experiencing a relatively high frame rate (greater than 60 frames per second).
+   Lower frame rates will consume less power and generate less heat and noise.
+   Frame rates above 60 frames per second rarely produce perceptible improvements in visual quality,
+   but may improve input responsiveness.
+   Capping the frame rate may in some situations reduce the perception of choppiness
+   (highly variable frame rates during game play) by lowering the peak frame rates.
 
-This setting can be toggled in game using the Window Border button
-in the Video tab of the Video panel in the Options menu.
-It can also be toggled with the Window Border check box in the OpenMW Launcher.
+   This setting interacts with the vsync setting in the Video section
+   in the sense that enabling vertical sync limits the frame rate to the refresh rate of your monitor
+   (often 60 frames per second).
+   Choosing to limit the frame rate using this setting instead of vsync may reduce input lag
+   due to the game not having to wait for the vertical blanking interval.
 
-antialiasing
-------------
 
-:Type:		integer
-:Range:		0, 2, 4, 8, 16
-:Default:	0
+.. omw-setting::
+   :title: contrast
+   :type: float32
+   :range: > 0.0
+   :default: 1.0
 
-This setting controls anti-aliasing. Anti-aliasing is a technique designed to improve the appearance of polygon edges,
-so they do not appear to be "jagged".
-Anti-aliasing can smooth these edges at the cost of a minor reduction in the frame rate.
-A value of 0 disables anti-aliasing.
-Other powers of two (e.g. 2, 4, 8, 16) are supported according to the capabilities of your graphics hardware.
-Higher values do a better job of smoothing out the image but have a greater impact on frame rate.
+   This setting controls the contrast correction for all video in the game.
+   It has been reported to not work on some Linux systems.
 
-This setting can be configured from a list of valid choices in the Graphics panel of the OpenMW Launcher,
-but cannot be changed during game play
-due to a technical limitation that may be addressed in a future version of OpenMW.
 
-vsync
------
+.. omw-setting::
+   :title: gamma
+   :type: float32
+   :range: > 0.0
+   :default: 1.0
+   :location: :bdg-success:`Launcher > Display` :bdg-info:`In Game > Options > Video > Detail Level`
 
-:Type:		boolean
-:Range:		True/False
-:Default:	False
+   This setting controls the gamma correction for all video in the game.
+   Gamma is an exponent that makes colors brighter if greater than 1.0 and darker if less than 1.0.
 
-This setting determines whether frame draws are synchronized with the vertical refresh rate of your monitor.
-Enabling this setting can reduce screen tearing,
-a visual defect caused by updating the image buffer in the middle of a screen draw.
-Enabling this option typically implies limiting the framerate to the refresh rate of your monitor,
-but may also introduce additional delays caused by having to wait until the appropriate time
-(the vertical blanking interval) to draw a frame, and a loss in mouse responsiveness known as 'input lag'.
+   .. warning::
 
-This setting can be adjusted in game using the VSync button in the Video tab of the Video panel in the Options menu.
-It can also be changed by toggling the Vertical Sync check box in the Graphics tab of the OpenMW Launcher.
-
-framerate limit
----------------
-
-:Type:		floating point
-:Range:		>= 0.0
-:Default:	300
-
-This setting determines the maximum frame rate in frames per second.
-If this setting is 0.0, the frame rate is unlimited.
-
-There are several reasons to consider capping your frame rate,
-especially if you're already experiencing a relatively high frame rate (greater than 60 frames per second).
-Lower frame rates will consume less power and generate less heat and noise.
-Frame rates above 60 frames per second rarely produce perceptible improvements in visual quality,
-but may improve input responsiveness.
-Capping the frame rate may in some situations reduce the perception of choppiness
-(highly variable frame rates during game play) by lowering the peak frame rates.
-
-This setting interacts with the vsync setting in the Video section
-in the sense that enabling vertical sync limits the frame rate to the refresh rate of your monitor
-(often 60 frames per second).
-Choosing to limit the frame rate using this setting instead of vsync may reduce input lag
-due to the game not having to wait for the vertical blanking interval.
-
-contrast
---------
-
-:Type:		floating point
-:Range:		> 0.0
-:Default:	1.0
-
-This setting controls the contrast correction for all video in the game.
-
-This setting can only be configured by editing the settings configuration file. 
-It has been reported to not work on some Linux systems.
-
-gamma
------
-
-:Type:		floating point
-:Range:		> 0.0
-:Default:	1.0
-
-This setting controls the gamma correction for all video in the game.
-Gamma is an exponent that makes colors brighter if greater than 1.0 and darker if less than 1.0.
-
-This setting can be changed in the Detail tab of the Video panel of the Options menu.
-It has been reported to not work on some Linux systems, 
-and therefore the in-game setting in the Options menu has been disabled on Linux systems.
+      This setting is only supported on Windows platform. The setting will not be displayed in the in-game menu if not available.

@@ -1,8 +1,8 @@
 #ifndef MWINPUT_MWMOUSEMANAGER_H
 #define MWINPUT_MWMOUSEMANAGER_H
 
-#include <components/settings/settings.hpp>
 #include <components/sdlutil/events.hpp>
+#include <components/settings/settings.hpp>
 
 namespace SDLUtil
 {
@@ -23,31 +23,24 @@ namespace MWInput
         void updateCursorMode();
         void update(float dt);
 
-        void mouseMoved(const SDLUtil::MouseMotionEvent &arg) override;
-        void mousePressed(const SDL_MouseButtonEvent &arg, Uint8 id) override;
-        void mouseReleased(const SDL_MouseButtonEvent &arg, Uint8 id) override;
-        void mouseWheelMoved(const SDL_MouseWheelEvent &arg) override;
-
-        void processChangedSettings(const Settings::CategorySettingVector& changed);
+        void mouseMoved(const SDLUtil::MouseMotionEvent& arg) override;
+        void mousePressed(const SDL_MouseButtonEvent& arg, Uint8 id) override;
+        void mouseReleased(const SDL_MouseButtonEvent& arg, Uint8 id) override;
+        void mouseWheelMoved(const SDL_MouseWheelEvent& arg) override;
 
         bool injectMouseButtonPress(Uint8 button);
         bool injectMouseButtonRelease(Uint8 button);
         void injectMouseMove(float xMove, float yMove, float mouseWheelMove);
         void warpMouse();
+        void warpMouseToWidget(MyGUI::Widget* widget);
 
         void setMouseLookEnabled(bool enabled) { mMouseLookEnabled = enabled; }
         void setGuiCursorEnabled(bool enabled) { mGuiCursorEnabled = enabled; }
 
-        // Used to override mouse position when using controllers not through SDL, such as OpenXR.
-        void setMousePosition(int x, int y);
+        int getMouseMoveX() const { return mMouseMoveX; }
+        int getMouseMoveY() const { return mMouseMoveY; }
 
     private:
-        bool mInvertX;
-        bool mInvertY;
-        bool mGrabCursor;
-        float mCameraSensitivity;
-        float mCameraYMultiplier;
-
         BindingsManager* mBindingsManager;
         SDLUtil::InputWrapper* mInputWrapper;
 
@@ -56,6 +49,11 @@ namespace MWInput
         int mMouseWheel;
         bool mMouseLookEnabled;
         bool mGuiCursorEnabled;
+        float mLastWarpX;
+        float mLastWarpY;
+
+        int mMouseMoveX;
+        int mMouseMoveY;
     };
 }
 #endif

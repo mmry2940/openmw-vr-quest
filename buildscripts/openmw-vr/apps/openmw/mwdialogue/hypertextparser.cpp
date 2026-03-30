@@ -1,10 +1,9 @@
-#include <components/esm/loaddial.hpp>
+#include <components/esm3/loaddial.hpp>
 
 #include "../mwbase/environment.hpp"
-#include "../mwbase/world.hpp"
 
-#include "../mwworld/store.hpp"
 #include "../mwworld/esmstore.hpp"
+#include "../mwworld/store.hpp"
 
 #include "keywordsearch.hpp"
 
@@ -14,30 +13,31 @@ namespace MWDialogue
 {
     namespace HyperTextParser
     {
-        std::vector<Token> parseHyperText(const std::string & text)
+        std::vector<Token> parseHyperText(const std::string& text)
         {
             std::vector<Token> result;
-            size_t pos_end = std::string::npos, iteration_pos = 0;
-            for(;;)
+            size_t posEnd = std::string::npos;
+            size_t iterationPos = 0;
+            for (;;)
             {
-                size_t pos_begin = text.find('@', iteration_pos);
-                if (pos_begin != std::string::npos)
-                    pos_end = text.find('#', pos_begin);
+                const size_t posBegin = text.find('@', iterationPos);
+                if (posBegin != std::string::npos)
+                    posEnd = text.find('#', posBegin);
 
-                if (pos_begin != std::string::npos && pos_end != std::string::npos)
+                if (posBegin != std::string::npos && posEnd != std::string::npos)
                 {
-                    if (pos_begin != iteration_pos)
-                        tokenizeKeywords(text.substr(iteration_pos, pos_begin - iteration_pos), result);
+                    if (posBegin != iterationPos)
+                        tokenizeKeywords(text.substr(iterationPos, posBegin - iterationPos), result);
 
-                    std::string link = text.substr(pos_begin + 1, pos_end - pos_begin - 1);
+                    std::string link = text.substr(posBegin + 1, posEnd - posBegin - 1);
                     result.emplace_back(link, Token::ExplicitLink);
 
-                    iteration_pos = pos_end + 1;
+                    iterationPos = posEnd + 1;
                 }
                 else
                 {
-                    if (iteration_pos != text.size())
-                        tokenizeKeywords(text.substr(iteration_pos), result);
+                    if (iterationPos != text.size())
+                        tokenizeKeywords(text.substr(iterationPos), result);
                     break;
                 }
             }
@@ -45,41 +45,30 @@ namespace MWDialogue
             return result;
         }
 
-        void tokenizeKeywords(const std::string & text, std::vector<Token> & tokens)
+        void tokenizeKeywords(const std::string& text, std::vector<Token>& tokens)
         {
-            const MWWorld::Store<ESM::Dialogue> & dialogs =
-                MWBase::Environment::get().getWorld()->getStore().get<ESM::Dialogue>();
+            const auto& keywordSearch
+                = MWBase::Environment::get().getESMStore()->get<ESM::Dialogue>().getDialogIdKeywordSearch();
 
-            std::vector<std::string> keywordList;
-            keywordList.reserve(dialogs.getSize());
-            for (const auto& it : dialogs)
-                keywordList.push_back(Misc::StringUtils::lowerCase(it.mId));
-            sort(keywordList.begin(), keywordList.end());
-
-            KeywordSearch<std::string, int /*unused*/> keywordSearch;
-
-            for (const auto& it : keywordList)
-                keywordSearch.seed(it, 0 /*unused*/);
-
-            std::vector<KeywordSearch<std::string, int /*unused*/>::Match> matches;
+            std::vector<KeywordSearch<int /*unused*/>::Match> matches;
             keywordSearch.highlightKeywords(text.begin(), text.end(), matches);
 
-            for (std::vector<KeywordSearch<std::string, int /*unused*/>::Match>::const_iterator it = matches.begin(); it != matches.end(); ++it)
+            for (const auto& match : matches)
             {
-                tokens.emplace_back(std::string(it->mBeg, it->mEnd), Token::ImplicitKeyword);
+                tokens.emplace_back(std::string(match.mBeg, match.mEnd), Token::ImplicitKeyword);
             }
         }
 
-        size_t removePseudoAsterisks(std::string & phrase)
+        size_t removePseudoAsterisks(std::string& phrase)
         {
             size_t pseudoAsterisksCount = 0;
 
-            if( !phrase.empty() )
+            if (!phrase.empty())
             {
                 std::string::reverse_iterator rit = phrase.rbegin();
 
                 const char specialPseudoAsteriskCharacter = 127;
-                while( rit != phrase.rend() && *rit == specialPseudoAsteriskCharacter )
+                while (rit != phrase.rend() && *rit == specialPseudoAsteriskCharacter)
                 {
                     pseudoAsterisksCount++;
                     ++rit;

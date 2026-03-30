@@ -1,6 +1,8 @@
 #ifndef OPENMW_MWGUI_REPAIR_H
 #define OPENMW_MWGUI_REPAIR_H
 
+#include <memory>
+
 #include "windowbase.hpp"
 
 #include "../mwmechanics/repair.hpp"
@@ -8,46 +10,49 @@
 namespace MWGui
 {
 
-class ItemSelectionDialog;
-class ItemWidget;
-class ItemChargeView;
+    class ItemSelectionDialog;
+    class ItemWidget;
+    class ItemChargeView;
 
-class Repair : public WindowBase
-{
-public:
-    Repair();
+    class Repair : public WindowBase
+    {
+    public:
+        Repair();
 
-    void onOpen() override;
+        void onOpen() override;
 
-    void setPtr (const MWWorld::Ptr& item) override;
+        void setPtr(const MWWorld::Ptr& item) override;
 
-protected:
-    ItemChargeView* mRepairBox;
+        std::string_view getWindowIdForLua() const override { return "Repair"; }
 
-    MyGUI::Widget* mToolBox;
+    protected:
+        ItemChargeView* mRepairBox;
 
-    ItemWidget* mToolIcon;
+        MyGUI::Widget* mToolBox;
 
-    ItemSelectionDialog* mItemSelectionDialog;
+        ItemWidget* mToolIcon;
 
-    MyGUI::TextBox* mUsesLabel;
-    MyGUI::TextBox* mQualityLabel;
+        std::unique_ptr<ItemSelectionDialog> mItemSelectionDialog;
 
-    MyGUI::Button* mCancelButton;
+        MyGUI::TextBox* mUsesLabel;
+        MyGUI::TextBox* mQualityLabel;
 
-    MWMechanics::Repair mRepair;
+        MyGUI::Button* mCancelButton;
 
-    void updateRepairView();
+        MWMechanics::Repair mRepair;
 
-    void onSelectItem(MyGUI::Widget* sender);
+        void updateRepairView();
 
-    void onItemSelected(MWWorld::Ptr item);
-    void onItemCancel();
+        void onSelectItem(MyGUI::Widget* sender);
 
-    void onRepairItem(MyGUI::Widget* sender, const MWWorld::Ptr& ptr);
-    void onCancel(MyGUI::Widget* sender);
+        void onItemSelected(MWWorld::Ptr item);
+        void onItemCancel();
 
-};
+        void onRepairItem(MyGUI::Widget* sender, const MWWorld::Ptr& ptr);
+        void onCancel(MyGUI::Widget* sender);
+
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
+    };
 
 }
 

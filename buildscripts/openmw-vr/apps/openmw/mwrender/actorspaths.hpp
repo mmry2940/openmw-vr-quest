@@ -1,18 +1,23 @@
 #ifndef OPENMW_MWRENDER_AGENTSPATHS_H
 #define OPENMW_MWRENDER_AGENTSPATHS_H
 
-#include <apps/openmw/mwworld/ptr.hpp>
-
-#include <components/detournavigator/navigator.hpp>
+#include "apps/openmw/mwworld/ptr.hpp"
 
 #include <osg/ref_ptr>
 
-#include <unordered_map>
 #include <deque>
+#include <map>
 
 namespace osg
 {
     class Group;
+    class StateSet;
+}
+
+namespace DetourNavigator
+{
+    struct Settings;
+    struct AgentBounds;
 }
 
 namespace MWRender
@@ -26,8 +31,8 @@ namespace MWRender
         bool toggle();
 
         void update(const MWWorld::ConstPtr& actor, const std::deque<osg::Vec3f>& path,
-                const osg::Vec3f& halfExtents, const osg::Vec3f& start, const osg::Vec3f& end,
-                const DetourNavigator::Settings& settings);
+            const DetourNavigator::AgentBounds& agentBounds, const osg::Vec3f& start, const osg::Vec3f& end,
+            const DetourNavigator::Settings& settings);
 
         void remove(const MWWorld::ConstPtr& actor);
 
@@ -40,11 +45,19 @@ namespace MWRender
         void disable();
 
     private:
-        using Groups = std::map<MWWorld::ConstPtr, osg::ref_ptr<osg::Group>>;
+        struct Group
+        {
+            const MWWorld::CellStore* mCell;
+            osg::ref_ptr<osg::Group> mNode;
+        };
+
+        using Groups = std::map<const MWWorld::LiveCellRefBase*, Group>;
 
         osg::ref_ptr<osg::Group> mRootNode;
         Groups mGroups;
         bool mEnabled;
+        osg::ref_ptr<osg::StateSet> mGroupStateSet;
+        osg::ref_ptr<osg::StateSet> mDebugDrawStateSet;
     };
 }
 

@@ -1,111 +1,107 @@
 #include "probe.hpp"
 
-#include <components/esm/loadprob.hpp>
+#include <MyGUI_TextIterator.h>
+#include <MyGUI_UString.h>
+
+#include <components/esm3/loadnpc.hpp>
+#include <components/esm3/loadprob.hpp>
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/mechanicsmanager.hpp"
 #include "../mwbase/windowmanager.hpp"
 
-#include "../mwworld/ptr.hpp"
 #include "../mwworld/actionequip.hpp"
-#include "../mwworld/inventorystore.hpp"
 #include "../mwworld/cellstore.hpp"
-#include "../mwphysics/physicssystem.hpp"
-#include "../mwworld/nullaction.hpp"
+#include "../mwworld/inventorystore.hpp"
+#include "../mwworld/ptr.hpp"
 
 #include "../mwgui/tooltips.hpp"
 
 #include "../mwrender/objects.hpp"
 #include "../mwrender/renderinginterface.hpp"
 
+#include "classmodel.hpp"
+#include "nameorid.hpp"
+
 namespace MWClass
 {
-
-    void Probe::insertObjectRendering (const MWWorld::Ptr& ptr, const std::string& model, MWRender::RenderingInterface& renderingInterface) const
+    Probe::Probe()
+        : MWWorld::RegisteredClass<Probe>(ESM::Probe::sRecordId)
     {
-        if (!model.empty()) {
+    }
+
+    void Probe::insertObjectRendering(
+        const MWWorld::Ptr& ptr, const std::string& model, MWRender::RenderingInterface& renderingInterface) const
+    {
+        if (!model.empty())
+        {
             renderingInterface.getObjects().insertModel(ptr, model);
         }
     }
 
-    std::string Probe::getModel(const MWWorld::ConstPtr &ptr) const
+    std::string_view Probe::getModel(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
-
-        const std::string &model = ref->mBase->mModel;
-        if (!model.empty()) {
-            return "meshes\\" + model;
-        }
-        return "";
+        return getClassModel<ESM::Probe>(ptr);
     }
 
-    std::string Probe::getName (const MWWorld::ConstPtr& ptr) const
+    std::string_view Probe::getName(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
-        const std::string& name = ref->mBase->mName;
-
-        return !name.empty() ? name : ref->mBase->mId;
+        return getNameOrId<ESM::Probe>(ptr);
     }
-    std::shared_ptr<MWWorld::Action> Probe::activate (const MWWorld::Ptr& ptr,
-        const MWWorld::Ptr& actor) const
+    std::unique_ptr<MWWorld::Action> Probe::activate(const MWWorld::Ptr& ptr, const MWWorld::Ptr& actor) const
     {
         return defaultItemActivate(ptr, actor);
     }
 
-    std::string Probe::getScript (const MWWorld::ConstPtr& ptr) const
+    ESM::RefId Probe::getScript(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref =
-            ptr.get<ESM::Probe>();
+        const MWWorld::LiveCellRef<ESM::Probe>* ref = ptr.get<ESM::Probe>();
 
         return ref->mBase->mScript;
     }
 
-    std::pair<std::vector<int>, bool> Probe::getEquipmentSlots (const MWWorld::ConstPtr& ptr) const
+    std::pair<std::vector<int>, bool> Probe::getEquipmentSlots(const MWWorld::ConstPtr& ptr) const
     {
-        std::vector<int> slots_;
+        std::vector<int> slots;
 
-        slots_.push_back (int (MWWorld::InventoryStore::Slot_CarriedRight));
+        slots.push_back(static_cast<int>(MWWorld::InventoryStore::Slot_CarriedRight));
 
-        return std::make_pair (slots_, false);
+        return std::make_pair(slots, false);
     }
 
-    int Probe::getValue (const MWWorld::ConstPtr& ptr) const
+    int Probe::getValue(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
+        const MWWorld::LiveCellRef<ESM::Probe>* ref = ptr.get<ESM::Probe>();
 
         return ref->mBase->mData.mValue;
     }
 
-    void Probe::registerSelf()
+    const ESM::RefId& Probe::getUpSoundId(const MWWorld::ConstPtr& ptr) const
     {
-        std::shared_ptr<Class> instance (new Probe);
-
-        registerClass (typeid (ESM::Probe).name(), instance);
+        static const ESM::RefId sound = ESM::RefId::stringRefId("Item Probe Up");
+        return sound;
     }
 
-    std::string Probe::getUpSoundId (const MWWorld::ConstPtr& ptr) const
+    const ESM::RefId& Probe::getDownSoundId(const MWWorld::ConstPtr& ptr) const
     {
-        return std::string("Item Probe Up");
+        static const ESM::RefId sound = ESM::RefId::stringRefId("Item Probe Down");
+        return sound;
     }
 
-    std::string Probe::getDownSoundId (const MWWorld::ConstPtr& ptr) const
+    const std::string& Probe::getInventoryIcon(const MWWorld::ConstPtr& ptr) const
     {
-        return std::string("Item Probe Down");
-    }
-
-    std::string Probe::getInventoryIcon (const MWWorld::ConstPtr& ptr) const
-    {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
+        const MWWorld::LiveCellRef<ESM::Probe>* ref = ptr.get<ESM::Probe>();
 
         return ref->mBase->mIcon;
     }
 
-    MWGui::ToolTipInfo Probe::getToolTipInfo (const MWWorld::ConstPtr& ptr, int count) const
+    MWGui::ToolTipInfo Probe::getToolTipInfo(const MWWorld::ConstPtr& ptr, int count) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
+        const MWWorld::LiveCellRef<ESM::Probe>* ref = ptr.get<ESM::Probe>();
 
         MWGui::ToolTipInfo info;
-        info.caption = MyGUI::TextIterator::toTagsString(getName(ptr)) + MWGui::ToolTips::getCountString(count);
+        std::string_view name = getName(ptr);
+        info.caption = MyGUI::TextIterator::toTagsString(MyGUI::UString(name)) + MWGui::ToolTips::getCountString(count);
         info.icon = ref->mBase->mIcon;
 
         std::string text;
@@ -117,57 +113,58 @@ namespace MWClass
         text += MWGui::ToolTips::getWeightString(ref->mBase->mData.mWeight, "#{sWeight}");
         text += MWGui::ToolTips::getValueString(ref->mBase->mData.mValue, "#{sValue}");
 
-        if (MWBase::Environment::get().getWindowManager()->getFullHelp()) {
-            text += MWGui::ToolTips::getCellRefString(ptr.getCellRef());
-            text += MWGui::ToolTips::getMiscString(ref->mBase->mScript, "Script");
+        if (MWBase::Environment::get().getWindowManager()->getFullHelp())
+        {
+            info.extra += MWGui::ToolTips::getCellRefString(ptr.getCellRef());
+            info.extra += MWGui::ToolTips::getMiscString(ref->mBase->mScript.getRefIdString(), "Script");
         }
 
-        info.text = text;
+        info.text = std::move(text);
 
         return info;
     }
 
-    std::shared_ptr<MWWorld::Action> Probe::use (const MWWorld::Ptr& ptr, bool force) const
+    std::unique_ptr<MWWorld::Action> Probe::use(const MWWorld::Ptr& ptr, bool force) const
     {
-        std::shared_ptr<MWWorld::Action> action(new MWWorld::ActionEquip(ptr, force));
+        std::unique_ptr<MWWorld::Action> action = std::make_unique<MWWorld::ActionEquip>(ptr, force);
 
         action->setSound(getUpSoundId(ptr));
 
         return action;
     }
 
-    MWWorld::Ptr Probe::copyToCellImpl(const MWWorld::ConstPtr &ptr, MWWorld::CellStore &cell) const
+    MWWorld::Ptr Probe::copyToCellImpl(const MWWorld::ConstPtr& ptr, MWWorld::CellStore& cell) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
+        const MWWorld::LiveCellRef<ESM::Probe>* ref = ptr.get<ESM::Probe>();
 
         return MWWorld::Ptr(cell.insert(ref), &cell);
     }
 
-    std::pair<int, std::string> Probe::canBeEquipped(const MWWorld::ConstPtr &ptr, const MWWorld::Ptr &npc) const
+    std::pair<int, std::string_view> Probe::canBeEquipped(const MWWorld::ConstPtr& ptr, const MWWorld::Ptr& npc) const
     {
         // Do not allow equip tools from inventory during attack
         if (MWBase::Environment::get().getMechanicsManager()->isAttackingOrSpell(npc)
             && MWBase::Environment::get().getWindowManager()->isGuiMode())
-            return std::make_pair(0, "#{sCantEquipWeapWarning}");
+            return { 0, "#{sCantEquipWeapWarning}" };
 
-        return std::make_pair(1, "");
+        return { 1, {} };
     }
 
-    bool Probe::canSell (const MWWorld::ConstPtr& item, int npcServices) const
+    bool Probe::canSell(const MWWorld::ConstPtr& item, int npcServices) const
     {
         return (npcServices & ESM::NPC::Probes) != 0;
     }
 
-    int Probe::getItemMaxHealth (const MWWorld::ConstPtr& ptr) const
+    int Probe::getItemMaxHealth(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
+        const MWWorld::LiveCellRef<ESM::Probe>* ref = ptr.get<ESM::Probe>();
 
         return ref->mBase->mData.mUses;
     }
 
-    float Probe::getWeight(const MWWorld::ConstPtr &ptr) const
+    float Probe::getWeight(const MWWorld::ConstPtr& ptr) const
     {
-        const MWWorld::LiveCellRef<ESM::Probe> *ref = ptr.get<ESM::Probe>();
+        const MWWorld::LiveCellRef<ESM::Probe>* ref = ptr.get<ESM::Probe>();
         return ref->mBase->mData.mWeight;
     }
 }

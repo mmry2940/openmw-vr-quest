@@ -3,33 +3,36 @@
 
 #include "setting.hpp"
 
+#include <string>
+#include <utility>
+
 class QCheckBox;
 
 namespace CSMPrefs
 {
-    class BoolSetting : public Setting
+    class Category;
+
+    class BoolSetting final : public TypedSetting<bool>
     {
-            Q_OBJECT
+        Q_OBJECT
 
-            std::string mTooltip;
-            bool mDefault;
-            QCheckBox* mWidget;
+        std::string mTooltip;
+        QCheckBox* mWidget;
 
-        public:
+    public:
+        explicit BoolSetting(
+            Category* parent, QMutex* mutex, std::string_view key, const QString& label, Settings::Index& index);
 
-            BoolSetting (Category *parent, Settings::Manager *values,
-                QMutex *mutex, const std::string& key, const std::string& label, bool default_);
+        BoolSetting& setTooltip(const std::string& tooltip);
 
-            BoolSetting& setTooltip (const std::string& tooltip);
+        /// Return label, input widget.
+        SettingWidgets makeWidgets(QWidget* parent) override;
 
-            /// Return label, input widget.
-            std::pair<QWidget *, QWidget *> makeWidgets (QWidget *parent) override;
+        void updateWidget() override;
 
-            void updateWidget() override;
+    private slots:
 
-        private slots:
-
-            void valueChanged (int value);
+        void valueChanged(int value);
     };
 }
 

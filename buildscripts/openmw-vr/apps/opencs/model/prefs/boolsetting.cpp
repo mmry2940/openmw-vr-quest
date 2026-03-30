@@ -1,4 +1,3 @@
-
 #include "boolsetting.hpp"
 
 #include <QCheckBox>
@@ -6,52 +5,50 @@
 
 #include <components/settings/settings.hpp>
 
+#include <apps/opencs/model/prefs/setting.hpp>
+
 #include "category.hpp"
 #include "state.hpp"
 
-CSMPrefs::BoolSetting::BoolSetting (Category *parent, Settings::Manager *values,
-  QMutex *mutex, const std::string& key, const std::string& label, bool default_)
-: Setting (parent, values, mutex, key, label),  mDefault (default_), mWidget(nullptr)
-{}
+CSMPrefs::BoolSetting::BoolSetting(
+    Category* parent, QMutex* mutex, std::string_view key, const QString& label, Settings::Index& index)
+    : TypedSetting(parent, mutex, key, label, index)
+    , mWidget(nullptr)
+{
+}
 
-CSMPrefs::BoolSetting& CSMPrefs::BoolSetting::setTooltip (const std::string& tooltip)
+CSMPrefs::BoolSetting& CSMPrefs::BoolSetting::setTooltip(const std::string& tooltip)
 {
     mTooltip = tooltip;
     return *this;
 }
 
-std::pair<QWidget *, QWidget *> CSMPrefs::BoolSetting::makeWidgets (QWidget *parent)
+CSMPrefs::SettingWidgets CSMPrefs::BoolSetting::makeWidgets(QWidget* parent)
 {
-    mWidget = new QCheckBox (QString::fromUtf8 (getLabel().c_str()), parent);
-    mWidget->setCheckState (mDefault ? Qt::Checked : Qt::Unchecked);
+    mWidget = new QCheckBox(getLabel(), parent);
+    mWidget->setCheckState(getValue() ? Qt::Checked : Qt::Unchecked);
 
     if (!mTooltip.empty())
     {
-        QString tooltip = QString::fromUtf8 (mTooltip.c_str());
-        mWidget->setToolTip (tooltip);
+        QString tooltip = QString::fromUtf8(mTooltip.c_str());
+        mWidget->setToolTip(tooltip);
     }
 
-    connect (mWidget, SIGNAL (stateChanged (int)), this, SLOT (valueChanged (int)));
+    connect(mWidget, &QCheckBox::stateChanged, this, &BoolSetting::valueChanged);
 
-    return std::make_pair (static_cast<QWidget *> (nullptr), mWidget);
+    return SettingWidgets{ .mLabel = nullptr, .mInput = mWidget };
 }
 
 void CSMPrefs::BoolSetting::updateWidget()
 {
     if (mWidget)
     {
-        mWidget->setCheckState(getValues().getBool(getKey(), getParent()->getKey())
-            ? Qt::Checked
-            : Qt::Unchecked);
+        mWidget->setCheckState(getValue() ? Qt::Checked : Qt::Unchecked);
     }
 }
 
-void CSMPrefs::BoolSetting::valueChanged (int value)
+void CSMPrefs::BoolSetting::valueChanged(int value)
 {
-    {
-        QMutexLocker lock (getMutex());
-        getValues().setBool (getKey(), getParent()->getKey(), value);
-    }
-
-    getParent()->getState()->update (*this);
+    setValue(value != Qt::Unchecked);
+    getParent()->getState()->update(*this);
 }

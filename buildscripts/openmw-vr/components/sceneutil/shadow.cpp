@@ -1,120 +1,151 @@
 #include "shadow.hpp"
 
+#include <osgShadow/ShadowSettings>
 #include <osgShadow/ShadowedScene>
 
-#include <components/misc/stringops.hpp>
-#include <components/settings/settings.hpp>
+#include <components/misc/strings/algorithm.hpp>
+#include <components/settings/categories/shadows.hpp>
+#include <components/stereo/stereomanager.hpp>
+
+#include "mwshadowtechnique.hpp"
 
 namespace SceneUtil
 {
     using namespace osgShadow;
 
-    void ShadowManager::setupShadowSettings()
+    ShadowManager* ShadowManager::sInstance = nullptr;
+
+    const ShadowManager& ShadowManager::instance()
     {
-        mEnableShadows = Settings::Manager::getBool("enable shadows", "Shadows");
+        if (sInstance)
+            return *sInstance;
+        else
+            throw std::logic_error("No ShadowManager exists yet");
+    }
+
+    void ShadowManager::setupShadowSettings(
+        const Settings::ShadowsCategory& settings, Shader::ShaderManager& shaderManager)
+    {
+        mEnableShadows = settings.mEnableShadows;
 
         if (!mEnableShadows)
         {
             mShadowTechnique->disableShadows();
             return;
         }
-        
+
         mShadowTechnique->enableShadows();
 
         mShadowSettings->setLightNum(0);
         mShadowSettings->setReceivesShadowTraversalMask(~0u);
 
-        int numberOfShadowMapsPerLight = Settings::Manager::getInt("number of shadow maps", "Shadows");
-        numberOfShadowMapsPerLight = std::max(1, std::min(numberOfShadowMapsPerLight, 8));
+        const int numberOfShadowMapsPerLight = settings.mNumberOfShadowMaps;
 
         mShadowSettings->setNumShadowMapsPerLight(numberOfShadowMapsPerLight);
-        mShadowSettings->setBaseShadowTextureUnit(8 - numberOfShadowMapsPerLight);
+        mShadowSettings->setBaseShadowTextureUnit(shaderManager.reserveGlobalTextureUnits(
+            Shader::ShaderManager::Slot::ShadowMaps, numberOfShadowMapsPerLight));
 
-        const float maximumShadowMapDistance = Settings::Manager::getFloat("maximum shadow map distance", "Shadows");
+        const float maximumShadowMapDistance = settings.mMaximumShadowMapDistance;
         if (maximumShadowMapDistance > 0)
         {
-            const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
+            const float shadowFadeStart = settings.mShadowFadeStart;
             mShadowSettings->setMaximumShadowMapDistance(maximumShadowMapDistance);
             mShadowTechnique->setShadowFadeStart(maximumShadowMapDistance * shadowFadeStart);
         }
 
-        mShadowSettings->setMinimumShadowMapNearFarRatio(Settings::Manager::getFloat("minimum lispsm near far ratio", "Shadows"));
+        mShadowSettings->setMinimumShadowMapNearFarRatio(settings.mMinimumLispsmNearFarRatio);
 
-        std::string computeSceneBounds = Settings::Manager::getString("compute scene bounds", "Shadows");
-        if (Misc::StringUtils::lowerCase(computeSceneBounds) == "primitives")
+        const std::string& computeSceneBounds = settings.mComputeSceneBounds;
+        if (Misc::StringUtils::ciEqual(computeSceneBounds, "primitives"))
             mShadowSettings->setComputeNearFarModeOverride(osg::CullSettings::COMPUTE_NEAR_FAR_USING_PRIMITIVES);
-        else if (Misc::StringUtils::lowerCase(computeSceneBounds) == "bounds")
+        else if (Misc::StringUtils::ciEqual(computeSceneBounds, "bounds"))
             mShadowSettings->setComputeNearFarModeOverride(osg::CullSettings::COMPUTE_NEAR_FAR_USING_BOUNDING_VOLUMES);
 
-        int mapres = Settings::Manager::getInt("shadow map resolution", "Shadows");
+        const int mapres = settings.mShadowMapResolution;
         mShadowSettings->setTextureSize(osg::Vec2s(mapres, mapres));
 
-        mShadowTechnique->setSplitPointUniformLogarithmicRatio(Settings::Manager::getFloat("split point uniform logarithmic ratio", "Shadows"));
-        mShadowTechnique->setSplitPointDeltaBias(Settings::Manager::getFloat("split point bias", "Shadows"));
+        mShadowTechnique->setSplitPointUniformLogarithmicRatio(settings.mSplitPointUniformLogarithmicRatio);
+        mShadowTechnique->setSplitPointDeltaBias(settings.mSplitPointBias);
 
-        mShadowTechnique->setPolygonOffset(Settings::Manager::getFloat("polygon offset factor", "Shadows"), Settings::Manager::getFloat("polygon offset units", "Shadows"));
+        mShadowTechnique->setPolygonOffset(settings.mPolygonOffsetFactor, settings.mPolygonOffsetUnits);
 
-        if (Settings::Manager::getBool("use front face culling", "Shadows"))
+        if (settings.mUseFrontFaceCulling)
             mShadowTechnique->enableFrontFaceCulling();
         else
             mShadowTechnique->disableFrontFaceCulling();
 
-        if (Settings::Manager::getBool("allow shadow map overlap", "Shadows"))
-            mShadowSettings->setMultipleShadowMapHint(osgShadow::ShadowSettings::CASCADED);
-        else
-            mShadowSettings->setMultipleShadowMapHint(osgShadow::ShadowSettings::PARALLEL_SPLIT);
+        mShadowSettings->setMultipleShadowMapHint(osgShadow::ShadowSettings::CASCADED);
 
-        if (Settings::Manager::getBool("enable debug hud", "Shadows"))
+        if (settings.mEnableDebugHud)
             mShadowTechnique->enableDebugHUD();
         else
             mShadowTechnique->disableDebugHUD();
     }
 
-    void ShadowManager::disableShadowsForStateSet(osg::ref_ptr<osg::StateSet> stateset)
+    void ShadowManager::disableShadowsForStateSet(osg::StateSet& stateset) const
     {
-        if (!Settings::Manager::getBool("enable shadows", "Shadows"))
+        if (!mEnableShadows)
             return;
 
-        int numberOfShadowMapsPerLight = Settings::Manager::getInt("number of shadow maps", "Shadows");
-        numberOfShadowMapsPerLight = std::max(1, std::min(numberOfShadowMapsPerLight, 8));
-
-        int baseShadowTextureUnit = 8 - numberOfShadowMapsPerLight;
-        
         osg::ref_ptr<osg::Image> fakeShadowMapImage = new osg::Image();
         fakeShadowMapImage->allocateImage(1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT);
         *(float*)fakeShadowMapImage->data() = std::numeric_limits<float>::infinity();
         osg::ref_ptr<osg::Texture> fakeShadowMapTexture = new osg::Texture2D(fakeShadowMapImage);
+        fakeShadowMapTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+        fakeShadowMapTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
         fakeShadowMapTexture->setShadowComparison(true);
         fakeShadowMapTexture->setShadowCompareFunc(osg::Texture::ShadowCompareFunc::ALWAYS);
-        for (int i = baseShadowTextureUnit; i < baseShadowTextureUnit + numberOfShadowMapsPerLight; ++i)
+        for (unsigned int i = mShadowSettings->getBaseShadowTextureUnit();
+             i < mShadowSettings->getBaseShadowTextureUnit() + mShadowSettings->getNumShadowMapsPerLight(); ++i)
         {
-            stateset->setTextureAttributeAndModes(i, fakeShadowMapTexture, osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
-            stateset->addUniform(new osg::Uniform(("shadowTexture" + std::to_string(i - baseShadowTextureUnit)).c_str(), i));
-            stateset->addUniform(new osg::Uniform(("shadowTextureUnit" + std::to_string(i - baseShadowTextureUnit)).c_str(), i));
+            stateset.setTextureAttribute(i, fakeShadowMapTexture,
+                osg::StateAttribute::ON | osg::StateAttribute::OVERRIDE | osg::StateAttribute::PROTECTED);
+            stateset.addUniform(new osg::Uniform(
+                ("shadowTexture" + std::to_string(i - mShadowSettings->getBaseShadowTextureUnit())).c_str(),
+                static_cast<int>(i)));
         }
+        stateset.addUniform(new osg::Uniform("maximumShadowMapDistance", 0.00001f));
+        stateset.addUniform(new osg::Uniform("shadowFadeStart", 0.0f));
     }
 
-    ShadowManager::ShadowManager(osg::ref_ptr<osg::Group> sceneRoot, osg::ref_ptr<osg::Group> rootNode, unsigned int outdoorShadowCastingMask, unsigned int indoorShadowCastingMask, Shader::ShaderManager &shaderManager) 
-      : mShadowedScene(new osgShadow::ShadowedScene),
-        mShadowTechnique(new MWShadowTechnique),
-        mOutdoorShadowCastingMask(outdoorShadowCastingMask),
-        mIndoorShadowCastingMask(indoorShadowCastingMask)
+    ShadowManager::ShadowManager(osg::ref_ptr<osg::Group> sceneRoot, osg::ref_ptr<osg::Group> rootNode,
+        unsigned int outdoorShadowCastingMask, unsigned int indoorShadowCastingMask, unsigned int worldMask,
+        const Settings::ShadowsCategory& settings, Shader::ShaderManager& shaderManager)
+        : mShadowedScene(new osgShadow::ShadowedScene)
+        , mShadowTechnique(new MWShadowTechnique)
+        , mOutdoorShadowCastingMask(outdoorShadowCastingMask)
+        , mIndoorShadowCastingMask(indoorShadowCastingMask)
     {
+        if (sInstance)
+            throw std::logic_error("A ShadowManager already exists");
+
         mShadowedScene->setShadowTechnique(mShadowTechnique);
+
+        if (Stereo::getStereo())
+            Stereo::Manager::instance().setShadowTechnique(mShadowTechnique);
 
         mShadowedScene->addChild(sceneRoot);
         rootNode->addChild(mShadowedScene);
         mShadowedScene->setNodeMask(sceneRoot->getNodeMask());
 
         mShadowSettings = mShadowedScene->getShadowSettings();
-        setupShadowSettings();
+        setupShadowSettings(settings, shaderManager);
 
         mShadowTechnique->setupCastingShader(shaderManager);
+        mShadowTechnique->setWorldMask(worldMask);
 
         enableOutdoorMode();
+
+        sInstance = this;
     }
 
-    Shader::ShaderManager::DefineMap ShadowManager::getShadowDefines()
+    ShadowManager::~ShadowManager()
+    {
+        if (Stereo::getStereo())
+            Stereo::Manager::instance().setShadowTechnique(nullptr);
+    }
+
+    Shader::ShaderManager::DefineMap ShadowManager::getShadowDefines(const Settings::ShadowsCategory& settings) const
     {
         if (!mEnableShadows)
             return getShadowsDisabledDefines();
@@ -126,20 +157,20 @@ namespace SceneUtil
         for (unsigned int i = 0; i < mShadowSettings->getNumShadowMapsPerLight(); ++i)
             definesWithShadows["shadow_texture_unit_list"] += std::to_string(i) + ",";
         // remove extra comma
-        definesWithShadows["shadow_texture_unit_list"] = definesWithShadows["shadow_texture_unit_list"].substr(0, definesWithShadows["shadow_texture_unit_list"].length() - 1);
+        definesWithShadows["shadow_texture_unit_list"] = definesWithShadows["shadow_texture_unit_list"].substr(
+            0, definesWithShadows["shadow_texture_unit_list"].length() - 1);
 
-        definesWithShadows["shadowMapsOverlap"] = Settings::Manager::getBool("allow shadow map overlap", "Shadows") ? "1" : "0";
-
-        definesWithShadows["useShadowDebugOverlay"] = Settings::Manager::getBool("enable debug overlay", "Shadows") ? "1" : "0";
+        definesWithShadows["useShadowDebugOverlay"] = settings.mEnableDebugOverlay ? "1" : "0";
 
         // switch this to reading settings if it's ever exposed to the user
-        definesWithShadows["perspectiveShadowMaps"] = mShadowSettings->getShadowMapProjectionHint() == ShadowSettings::PERSPECTIVE_SHADOW_MAP ? "1" : "0";
+        definesWithShadows["perspectiveShadowMaps"]
+            = mShadowSettings->getShadowMapProjectionHint() == ShadowSettings::PERSPECTIVE_SHADOW_MAP ? "1" : "0";
 
-        definesWithShadows["disableNormalOffsetShadows"] = Settings::Manager::getFloat("normal offset distance", "Shadows") == 0.0 ? "1" : "0";
+        definesWithShadows["disableNormalOffsetShadows"] = settings.mNormalOffsetDistance == 0.0 ? "1" : "0";
 
-        definesWithShadows["shadowNormalOffset"] = std::to_string(Settings::Manager::getFloat("normal offset distance", "Shadows"));
+        definesWithShadows["shadowNormalOffset"] = std::to_string(settings.mNormalOffsetDistance);
 
-        definesWithShadows["limitShadowMapDistance"] = Settings::Manager::getFloat("maximum shadow map distance", "Shadows") > 0 ? "1" : "0";
+        definesWithShadows["limitShadowMapDistance"] = settings.mMaximumShadowMapDistance > 0 ? "1" : "0";
 
         return definesWithShadows;
     }
@@ -151,8 +182,6 @@ namespace SceneUtil
         definesWithoutShadows["shadows_enabled"] = "0";
 
         definesWithoutShadows["shadow_texture_unit_list"] = "";
-
-        definesWithoutShadows["shadowMapsOverlap"] = "0";
 
         definesWithoutShadows["useShadowDebugOverlay"] = "0";
 
@@ -167,9 +196,9 @@ namespace SceneUtil
         return definesWithoutShadows;
     }
 
-    void ShadowManager::enableIndoorMode()
+    void ShadowManager::enableIndoorMode(const Settings::ShadowsCategory& settings)
     {
-        if (Settings::Manager::getBool("enable indoor shadows", "Shadows"))
+        if (settings.mEnableIndoorShadows)
             mShadowSettings->setCastsShadowTraversalMask(mIndoorShadowCastingMask);
         else
             mShadowTechnique->disableShadows(true);

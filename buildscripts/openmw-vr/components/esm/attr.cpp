@@ -1,58 +1,56 @@
 #include "attr.hpp"
 
-using namespace ESM;
+#include <components/esm3/esmreader.hpp>
+#include <components/esm3/esmwriter.hpp>
 
-const Attribute::AttributeID Attribute::sAttributeIds[Attribute::Length] = {
-    Attribute::Strength,
-    Attribute::Intelligence,
-    Attribute::Willpower,
-    Attribute::Agility,
-    Attribute::Speed,
-    Attribute::Endurance,
-    Attribute::Personality,
-    Attribute::Luck
-};
+#include <stdexcept>
 
-const std::string Attribute::sAttributeNames[Attribute::Length] = {
-    "Strength",
-    "Intelligence",
-    "Willpower",
-    "Agility",
-    "Speed",
-    "Endurance",
-    "Personality",
-    "Luck"
-};
+namespace ESM
+{
+    const Attribute::AttributeID Attribute::Strength("Strength");
+    const Attribute::AttributeID Attribute::Intelligence("Intelligence");
+    const Attribute::AttributeID Attribute::Willpower("Willpower");
+    const Attribute::AttributeID Attribute::Agility("Agility");
+    const Attribute::AttributeID Attribute::Speed("Speed");
+    const Attribute::AttributeID Attribute::Endurance("Endurance");
+    const Attribute::AttributeID Attribute::Personality("Personality");
+    const Attribute::AttributeID Attribute::Luck("Luck");
 
-const std::string Attribute::sGmstAttributeIds[Attribute::Length] = {
-    "sAttributeStrength",
-    "sAttributeIntelligence",
-    "sAttributeWillpower",
-    "sAttributeAgility",
-    "sAttributeSpeed",
-    "sAttributeEndurance",
-    "sAttributePersonality",
-    "sAttributeLuck"
-};
+    static const RefId sAttributes[Attribute::Length] = {
+        Attribute::Strength,
+        Attribute::Intelligence,
+        Attribute::Willpower,
+        Attribute::Agility,
+        Attribute::Speed,
+        Attribute::Endurance,
+        Attribute::Personality,
+        Attribute::Luck,
+    };
 
-const std::string Attribute::sGmstAttributeDescIds[Attribute::Length] = {
-    "sStrDesc",
-    "sIntDesc",
-    "sWilDesc",
-    "sAgiDesc",
-    "sSpdDesc",
-    "sEndDesc",
-    "sPerDesc",
-    "sLucDesc"
-};
+    RefId Attribute::indexToRefId(int index)
+    {
+        if (index < 0 || index >= Length)
+            return RefId();
+        return sAttributes[index];
+    }
 
-const std::string Attribute::sAttributeIcons[Attribute::Length] = {
-    "icons\\k\\attribute_strength.dds",
-    "icons\\k\\attribute_int.dds",
-    "icons\\k\\attribute_wilpower.dds",
-    "icons\\k\\attribute_agility.dds",
-    "icons\\k\\attribute_speed.dds",
-    "icons\\k\\attribute_endurance.dds",
-    "icons\\k\\attribute_personality.dds",
-    "icons\\k\\attribute_luck.dds"
-};
+    int Attribute::refIdToIndex(RefId id)
+    {
+        for (int i = 0; i < Length; ++i)
+        {
+            if (sAttributes[i] == id)
+                return i;
+        }
+        return -1;
+    }
+
+    void Attribute::load(ESMReader& esm, bool& isDeleted)
+    {
+        throw std::runtime_error("Attribute loading not yet implemented");
+    }
+
+    void Attribute::save(ESMWriter& esm, bool isDeleted) const
+    {
+        throw std::runtime_error("Attribute saving not yet implemented");
+    }
+}

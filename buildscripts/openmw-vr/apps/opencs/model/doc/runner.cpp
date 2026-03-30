@@ -1,22 +1,29 @@
 #include "runner.hpp"
 
-#include <QApplication>
+#include <utility>
+
+#include <QCoreApplication>
 #include <QDir>
+#include <QProcess>
+#include <QString>
+#include <QStringList>
 #include <QTemporaryFile>
 #include <QTextStream>
 
+#include <components/files/qtconversion.hpp>
+
 #include "operationholder.hpp"
 
-CSMDoc::Runner::Runner (const boost::filesystem::path& projectPath)
-: mRunning (false), mStartup (nullptr), mProjectPath (projectPath)
+CSMDoc::Runner::Runner(std::filesystem::path projectPath)
+    : mRunning(false)
+    , mStartup(nullptr)
+    , mProjectPath(std::move(projectPath))
 {
-    connect (&mProcess, SIGNAL (finished (int, QProcess::ExitStatus)),
-        this, SLOT (finished (int, QProcess::ExitStatus)));
+    connect(&mProcess, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &Runner::finished);
 
-    connect (&mProcess, SIGNAL (readyReadStandardOutput()),
-        this, SLOT (readyReadStandardOutput()));
+    connect(&mProcess, &QProcess::readyReadStandardOutput, this, &Runner::readyReadStandardOutput);
 
-    mProcess.setProcessChannelMode (QProcess::MergedChannels);
+    mProcess.setProcessChannelMode(QProcess::MergedChannels);
 
     mProfile.blank();
 }
@@ -25,13 +32,13 @@ CSMDoc::Runner::~Runner()
 {
     if (mRunning)
     {
-        disconnect (&mProcess, nullptr, this, nullptr);
+        disconnect(&mProcess, nullptr, this, nullptr);
         mProcess.kill();
         mProcess.waitForFinished();
     }
 }
 
-void CSMDoc::Runner::start (bool delayed)
+void CSMDoc::Runner::start(bool delayed)
 {
     if (mStartup)
     {
@@ -45,27 +52,28 @@ void CSMDoc::Runner::start (bool delayed)
 
         QString path = "openmw";
 #ifdef Q_OS_WIN
-        path.append(QString(".exe"));
-#elif defined(Q_OS_MAC)
-        QDir dir(QCoreApplication::applicationDirPath());
-        dir.cdUp();
-        dir.cdUp();
-        dir.cdUp();
-        path = dir.absoluteFilePath(path.prepend("OpenMW.app/Contents/MacOS/"));
-#else
-        path.prepend(QString("./"));
+        path.append(QLatin1String(".exe"));
 #endif
+        QDir dir(QCoreApplication::applicationDirPath());
+#ifdef Q_OS_MAC
+        // the CS and engine are in separate .app directories
+        dir.cdUp();
+        dir.cdUp();
+        dir.cdUp();
+        path.prepend("OpenMW.app/Contents/MacOS/");
+#endif
+        path = dir.absoluteFilePath(path);
 
-        mStartup = new QTemporaryFile (this);
+        mStartup = new QTemporaryFile(this);
         mStartup->open();
 
         {
-            QTextStream stream (mStartup);
+            QTextStream stream(mStartup);
 
             if (!mStartupInstruction.empty())
-                stream << QString::fromUtf8 (mStartupInstruction.c_str()) << '\n';
+                stream << QString::fromUtf8(mStartupInstruction.c_str()) << '\n';
 
-            stream << QString::fromUtf8 (mProfile.mScriptText.c_str());
+            stream << QString::fromUtf8(mProfile.mScriptText.c_str());
         }
 
         mStartup->close();
@@ -78,21 +86,20 @@ void CSMDoc::Runner::start (bool delayed)
         else
             arguments << "--new-game=1";
 
-        arguments << ("--script-run="+mStartup->fileName());;
+        arguments << ("--script-run=" + mStartup->fileName());
 
-        arguments <<
-            QString::fromUtf8 (("--data=\""+mProjectPath.parent_path().string()+"\"").c_str());
+        arguments << "--data=\"" + Files::pathToQString(mProjectPath.parent_path()) + "\"";
 
-        for (std::vector<std::string>::const_iterator iter (mContentFiles.begin());
-            iter!=mContentFiles.end(); ++iter)
+        arguments << "--replace=content";
+
+        for (const auto& mContentFile : mContentFiles)
         {
-            arguments << QString::fromUtf8 (("--content="+*iter).c_str());
+            arguments << "--content=" + Files::pathToQString(mContentFile);
         }
 
-        arguments
-            << QString::fromUtf8 (("--content="+mProjectPath.filename().string()).c_str());
+        arguments << "--content=" + Files::pathToQString(mProjectPath.filename());
 
-        mProcess.start (path, arguments);
+        mProcess.start(path, arguments);
     }
 
     mRunning = true;
@@ -104,7 +111,7 @@ void CSMDoc::Runner::stop()
     delete mStartup;
     mStartup = nullptr;
 
-    if (mProcess.state()==QProcess::NotRunning)
+    if (mProcess.state() == QProcess::NotRunning)
     {
         mRunning = false;
         emit runStateChanged();
@@ -118,39 +125,38 @@ bool CSMDoc::Runner::isRunning() const
     return mRunning;
 }
 
-void CSMDoc::Runner::configure (const ESM::DebugProfile& profile,
-    const std::vector<std::string>& contentFiles, const std::string& startupInstruction)
+void CSMDoc::Runner::configure(const ESM::DebugProfile& profile, const std::vector<std::filesystem::path>& contentFiles,
+    const std::string& startupInstruction)
 {
     mProfile = profile;
     mContentFiles = contentFiles;
     mStartupInstruction = startupInstruction;
 }
 
-void CSMDoc::Runner::finished (int exitCode, QProcess::ExitStatus exitStatus)
+void CSMDoc::Runner::finished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     mRunning = false;
     emit runStateChanged();
 }
 
-QTextDocument *CSMDoc::Runner::getLog()
+QTextDocument* CSMDoc::Runner::getLog()
 {
     return &mLog;
 }
 
 void CSMDoc::Runner::readyReadStandardOutput()
 {
-    mLog.setPlainText (
-        mLog.toPlainText() + QString::fromUtf8 (mProcess.readAllStandardOutput()));
+    mLog.setPlainText(mLog.toPlainText() + QString::fromUtf8(mProcess.readAllStandardOutput()));
 }
 
-
-CSMDoc::SaveWatcher::SaveWatcher (Runner *runner, OperationHolder *operation)
-: QObject (runner), mRunner (runner)
+CSMDoc::SaveWatcher::SaveWatcher(Runner* runner, OperationHolder* operation)
+    : QObject(runner)
+    , mRunner(runner)
 {
-    connect (operation, SIGNAL (done (int, bool)), this, SLOT (saveDone (int, bool)));
+    connect(operation, &OperationHolder::done, this, &SaveWatcher::saveDone);
 }
 
-void CSMDoc::SaveWatcher::saveDone (int type, bool failed)
+void CSMDoc::SaveWatcher::saveDone(int type, bool failed)
 {
     if (failed)
         mRunner->stop();

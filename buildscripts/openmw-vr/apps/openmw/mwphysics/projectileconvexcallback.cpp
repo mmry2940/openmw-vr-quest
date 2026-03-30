@@ -1,69 +1,49 @@
-#include "../mwworld/class.hpp"
+#include <BulletCollision/CollisionDispatch/btCollisionObject.h>
 
-#include "actor.hpp"
 #include "collisiontype.hpp"
 #include "projectile.hpp"
 #include "projectileconvexcallback.hpp"
-#include "ptrholder.hpp"
 
 namespace MWPhysics
 {
-    ProjectileConvexCallback::ProjectileConvexCallback(const btCollisionObject* me, const btVector3& from, const btVector3& to, Projectile* proj)
-        : btCollisionWorld::ClosestConvexResultCallback(from, to)
-        , mMe(me), mProjectile(proj)
+    btScalar ProjectileConvexCallback::addSingleResult(
+        btCollisionWorld::LocalConvexResult& result, bool normalInWorldSpace)
     {
-        assert(mProjectile);
-    }
-
-    btScalar ProjectileConvexCallback::addSingleResult(btCollisionWorld::LocalConvexResult& result, bool normalInWorldSpace)
-    {
+        const auto* hitObject = result.m_hitCollisionObject;
         // don't hit the caster
-        if (result.m_hitCollisionObject == mMe)
+        if (hitObject == mCaster)
             return 1.f;
 
         // don't hit the projectile
-        if (result.m_hitCollisionObject == mProjectile->getCollisionObject())
+        if (hitObject == mMe)
             return 1.f;
 
         btCollisionWorld::ClosestConvexResultCallback::addSingleResult(result, normalInWorldSpace);
-        switch (result.m_hitCollisionObject->getBroadphaseHandle()->m_collisionFilterGroup)
+        switch (hitObject->getBroadphaseHandle()->m_collisionFilterGroup)
         {
             case CollisionType_Actor:
-                {
-                    auto* target = static_cast<Actor*>(result.m_hitCollisionObject->getUserPointer());
-                    if (!mProjectile->isValidTarget(target->getPtr()))
-                        return 1.f;
-                    mProjectile->hit(target->getPtr(), result.m_hitPointLocal, result.m_hitNormalLocal);
-                    break;
-                }
+            {
+                if (!mProjectile.isValidTarget(hitObject))
+                    return 1.f;
+                break;
+            }
             case CollisionType_Projectile:
-                {
-                    auto* target = static_cast<Projectile*>(result.m_hitCollisionObject->getUserPointer());
-                    if (!mProjectile->isValidTarget(target->getCaster()))
-                        return 1.f;
-                    target->hit(mProjectile->getPtr(), m_hitPointWorld, m_hitNormalWorld);
-                    mProjectile->hit(target->getPtr(), m_hitPointWorld, m_hitNormalWorld);
-                    break;
-                }
+            {
+                auto* target = static_cast<Projectile*>(hitObject->getUserPointer());
+                if (!mProjectile.isValidTarget(target->getCasterCollisionObject()))
+                    return 1.f;
+                target->hit(mMe, m_hitPointWorld, m_hitNormalWorld);
+                break;
+            }
             case CollisionType_Water:
-                {
-                    mProjectile->setWaterHitPosition(m_hitPointWorld);
-                    if (mProjectile->canTraverseWater())
-                        return 1.f;
-                    mProjectile->hit(MWWorld::Ptr(), m_hitPointWorld, m_hitNormalWorld);
-                    break;
-                }
-            default:
-                {
-                    auto* target = static_cast<PtrHolder*>(result.m_hitCollisionObject->getUserPointer());
-                    auto ptr = target ? target->getPtr() : MWWorld::Ptr();
-                    mProjectile->hit(ptr, m_hitPointWorld, m_hitNormalWorld);
-                    break;
-                }
+            {
+                mProjectile.setHitWater();
+                break;
+            }
         }
+        mProjectile.hit(hitObject, m_hitPointWorld, m_hitNormalWorld);
 
         return result.m_hitFraction;
     }
 
 }
-

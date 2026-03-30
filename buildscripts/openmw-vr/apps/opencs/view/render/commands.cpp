@@ -1,19 +1,45 @@
 #include "commands.hpp"
 
-#include <components/esm/loadland.hpp>
+#include <memory>
 
-#include "terrainselection.hpp"
+#include <apps/opencs/view/render/editmode.hpp>
+#include <apps/opencs/view/render/terrainselection.hpp>
 
-CSVRender::DrawTerrainSelectionCommand::DrawTerrainSelectionCommand(TerrainSelection& terrainSelection, QUndoCommand* parent)
-    : mTerrainSelection(terrainSelection)
-{ }
+#include <components/debug/debuglog.hpp>
+
+#include "terrainshapemode.hpp"
+#include "worldspacewidget.hpp"
+
+CSVRender::DrawTerrainSelectionCommand::DrawTerrainSelectionCommand(
+    WorldspaceWidget* worldspaceWidget, QUndoCommand* parent)
+    : mWorldspaceWidget(worldspaceWidget)
+{
+}
 
 void CSVRender::DrawTerrainSelectionCommand::redo()
 {
-    mTerrainSelection.update();
+    tryUpdate();
 }
 
 void CSVRender::DrawTerrainSelectionCommand::undo()
 {
-    mTerrainSelection.update();
+    tryUpdate();
+}
+
+void CSVRender::DrawTerrainSelectionCommand::tryUpdate()
+{
+    if (!mWorldspaceWidget)
+    {
+        Log(Debug::Verbose) << "Can't update terrain selection, no WorldspaceWidget found!";
+        return;
+    }
+
+    auto terrainMode = dynamic_cast<CSVRender::TerrainShapeMode*>(mWorldspaceWidget->getEditMode());
+    if (!terrainMode)
+    {
+        Log(Debug::Verbose) << "Can't update terrain selection in current EditMode";
+        return;
+    }
+
+    terrainMode->getTerrainSelection()->update();
 }

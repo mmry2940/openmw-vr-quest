@@ -10,19 +10,19 @@ namespace osg
     class StateSet;
 }
 
-namespace osgMyGUI
+namespace MyGUIPlatform
 {
 
     /// @brief A Layer rendering with additive blend mode.
-    class AdditiveLayer : public MyGUI::OverlappedLayer
+    class AdditiveLayer final : public MyGUI::OverlappedLayer
     {
     public:
-        MYGUI_RTTI_DERIVED( AdditiveLayer )
+        MYGUI_RTTI_DERIVED(AdditiveLayer)
 
         AdditiveLayer();
         ~AdditiveLayer() override;
 
-        void renderToTarget(MyGUI::IRenderTarget* _target, bool _update) override;
+        void renderToTarget(MyGUI::IRenderTarget* target, bool update) override;
 
     private:
         osg::ref_ptr<osg::StateSet> mStateSet;

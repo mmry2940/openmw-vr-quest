@@ -13,16 +13,17 @@ namespace CSVRender
 
     class TagBase : public osg::Referenced
     {
-            Mask mMask;
+        Mask mMask;
 
-        public:
+    public:
+        explicit TagBase(Mask mask)
+            : mMask(mask)
+        {
+        }
 
-            TagBase (Mask mask);
+        Mask getMask() const { return mMask; }
 
-            Mask getMask() const;
-
-            virtual QString getToolTip (bool hideBasics, const WorldspaceHitResult& hit) const;
-
+        virtual QString getToolTip(bool hideBasics, const WorldspaceHitResult& hit) const { return {}; }
     };
 }
 

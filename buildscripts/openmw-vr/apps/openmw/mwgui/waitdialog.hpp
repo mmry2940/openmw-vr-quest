@@ -2,8 +2,8 @@
 #define MWGUI_WAIT_DIALOG_H
 
 #include "timeadvancer.hpp"
-
 #include "windowbase.hpp"
+#include <components/esm/refid.hpp>
 
 namespace MWGui
 {
@@ -27,7 +27,7 @@ namespace MWGui
     public:
         WaitDialog();
 
-        void setPtr(const MWWorld::Ptr &ptr) override;
+        void setPtr(const MWWorld::Ptr& ptr) override;
 
         void onOpen() override;
 
@@ -36,12 +36,17 @@ namespace MWGui
         void clear() override;
 
         void onFrame(float dt) override;
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
 
         bool getSleeping() { return mTimeAdvancer.isRunning() && mSleeping; }
         void wakeUp();
         void autosave();
 
         WindowBase* getProgressBar() { return &mProgressBar; }
+
+        std::string_view getWindowIdForLua() const override { return "WaitDialog"; }
+
+        ControllerButtons* getControllerButtons() override;
 
     protected:
         MyGUI::TextBox* mDateTimeText;
@@ -59,7 +64,7 @@ namespace MWGui
         float mFadeTimeRemaining;
 
         int mInterruptAt;
-        std::string mInterruptCreatureList;
+        ESM::RefId mInterruptCreatureList;
 
         WaitDialogProgressBar mProgressBar;
 

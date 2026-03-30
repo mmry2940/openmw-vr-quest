@@ -1,11 +1,14 @@
 #ifndef MWGUI_SPELLCREATION_H
 #define MWGUI_SPELLCREATION_H
 
-#include <components/esm/loadmgef.hpp>
-#include <components/esm/loadspel.hpp>
+#include <memory>
 
-#include "windowbase.hpp"
+#include <components/esm3/loadmgef.hpp>
+#include <components/esm3/loadspel.hpp>
+
 #include "referenceinterface.hpp"
+#include "widgets.hpp"
+#include "windowbase.hpp"
 
 namespace Gui
 {
@@ -28,12 +31,12 @@ namespace MWGui
 
         void setConstantEffect(bool constant);
 
-        void setSkill(int skill);
-        void setAttribute(int attribute);
+        void setSkill(ESM::RefId skill);
+        void setAttribute(ESM::RefId attribute);
 
-        void newEffect (const ESM::MagicEffect* effect);
-        void editEffect (ESM::ENAMstruct effect);
-        typedef MyGUI::delegates::CMultiDelegate1<ESM::ENAMstruct> EventHandle_Effect;
+        void newEffect(const ESM::MagicEffect* effect);
+        void editEffect(ESM::ENAMstruct effect);
+        typedef MyGUI::delegates::MultiDelegate<ESM::ENAMstruct> EventHandle_Effect;
 
         EventHandle_Effect eventEffectAdded;
         EventHandle_Effect eventEffectModified;
@@ -68,28 +71,32 @@ namespace MWGui
         bool mEditing;
 
     protected:
-        void onRangeButtonClicked (MyGUI::Widget* sender);
-        void onDeleteButtonClicked (MyGUI::Widget* sender);
-        void onOkButtonClicked (MyGUI::Widget* sender);
-        void onCancelButtonClicked (MyGUI::Widget* sender);
+        void onRangeButtonClicked(MyGUI::Widget* sender);
+        void onDeleteButtonClicked(MyGUI::Widget* sender);
+        void onOkButtonClicked(MyGUI::Widget* sender);
+        void onCancelButtonClicked(MyGUI::Widget* sender);
 
-        void onMagnitudeMinChanged (MyGUI::ScrollBar* sender, size_t pos);
-        void onMagnitudeMaxChanged (MyGUI::ScrollBar* sender, size_t pos);
-        void onDurationChanged (MyGUI::ScrollBar* sender, size_t pos);
-        void onAreaChanged (MyGUI::ScrollBar* sender, size_t pos);
+        void onMagnitudeMinChanged(MyGUI::ScrollBar* sender, size_t pos);
+        void onMagnitudeMaxChanged(MyGUI::ScrollBar* sender, size_t pos);
+        void onDurationChanged(MyGUI::ScrollBar* sender, size_t pos);
+        void onAreaChanged(MyGUI::ScrollBar* sender, size_t pos);
         void setMagicEffect(const ESM::MagicEffect* effect);
 
         void updateBoxes();
 
-    protected:
+    private:
         ESM::ENAMstruct mEffect;
         ESM::ENAMstruct mOldEffect;
 
         const ESM::MagicEffect* mMagicEffect;
 
         bool mConstantEffect;
-    };
 
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
+        void updateControllerFocus(int prevFocus, int newFocus);
+        int mControllerFocus = 0;
+        std::vector<MyGUI::TextBox*> mButtons;
+    };
 
     class EffectEditorBase
     {
@@ -112,8 +119,8 @@ namespace MWGui
         MyGUI::ScrollView* mUsedEffectsView;
 
         EditEffectDialog mAddEffectDialog;
-        SelectAttributeDialog* mSelectAttributeDialog;
-        SelectSkillDialog* mSelectSkillDialog;
+        std::unique_ptr<SelectAttributeDialog> mSelectAttributeDialog;
+        std::unique_ptr<SelectSkillDialog> mSelectSkillDialog;
 
         int mSelectedEffect;
         short mSelectedKnownEffectId;
@@ -126,7 +133,7 @@ namespace MWGui
         void onEffectModified(ESM::ENAMstruct effect);
         void onEffectRemoved(ESM::ENAMstruct effect);
 
-        void onAvailableEffectClicked (MyGUI::Widget* sender);
+        void onAvailableEffectClicked(MyGUI::Widget* sender);
 
         void onAttributeOrSkillCancel();
         void onSelectAttribute();
@@ -137,12 +144,20 @@ namespace MWGui
         void updateEffectsView();
 
         void startEditing();
-        void setWidgets (Gui::MWList* availableEffectsList, MyGUI::ScrollView* usedEffectsView);
+        void setWidgets(Gui::MWList* availableEffectsList, MyGUI::ScrollView* usedEffectsView);
 
-        virtual void notifyEffectsChanged () {}
+        virtual void notifyEffectsChanged() {}
+
+        virtual bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg);
 
     private:
         Type mType;
+
+        int mAvailableFocus;
+        int mEffectFocus;
+        bool mRightColumn;
+        std::vector<MyGUI::Button*> mAvailableButtons;
+        std::vector<std::pair<Widgets::MWSpellEffectPtr, MyGUI::Button*>> mEffectButtons;
     };
 
     class SpellCreationDialog : public WindowBase, public ReferenceInterface, public EffectEditorBase
@@ -157,12 +172,15 @@ namespace MWGui
 
         void setPtr(const MWWorld::Ptr& actor) override;
 
+        std::string_view getWindowIdForLua() const override { return "SpellCreationDialog"; }
+
     protected:
         void onReferenceUnavailable() override;
 
-        void onCancelButtonClicked (MyGUI::Widget* sender);
-        void onBuyButtonClicked (MyGUI::Widget* sender);
+        void onCancelButtonClicked(MyGUI::Widget* sender);
+        void onBuyButtonClicked(MyGUI::Widget* sender);
         void onAccept(MyGUI::EditBox* sender);
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
 
         void notifyEffectsChanged() override;
 
@@ -172,9 +190,9 @@ namespace MWGui
         MyGUI::Button* mBuyButton;
         MyGUI::Button* mCancelButton;
         MyGUI::TextBox* mPriceLabel;
+        MyGUI::TextBox* mPlayerGold;
 
         ESM::Spell mSpell;
-
     };
 
 }

@@ -1,33 +1,40 @@
 #ifndef OPENMW_MWGUI_MERCHANTREPAIR_H
 #define OPENMW_MWGUI_MERCHANTREPAIR_H
 
-#include "windowbase.hpp"
 #include "../mwworld/ptr.hpp"
+#include "windowbase.hpp"
 
 namespace MWGui
 {
 
-class MerchantRepair : public WindowBase
-{
-public:
-    MerchantRepair();
+    class MerchantRepair : public WindowBase
+    {
+    public:
+        MerchantRepair();
 
-    void onOpen() override;
+        void onOpen() override;
 
-    void setPtr(const MWWorld::Ptr& actor) override;
+        void setPtr(const MWWorld::Ptr& actor) override;
 
-private:
-    MyGUI::ScrollView* mList;
-    MyGUI::Button* mOkButton;
-    MyGUI::TextBox* mGoldLabel;
+        std::string_view getWindowIdForLua() const override { return "MerchantRepair"; }
 
-    MWWorld::Ptr mActor;
+    private:
+        MyGUI::ScrollView* mList;
+        MyGUI::Button* mOkButton;
+        MyGUI::TextBox* mGoldLabel;
+        /// List of enabled/repairable items and their index in the full list.
+        std::vector<std::pair<MyGUI::Button*, size_t>> mButtons;
 
-protected:
-    void onMouseWheel(MyGUI::Widget* _sender, int _rel);
-    void onRepairButtonClick(MyGUI::Widget* sender);
-    void onOkButtonClick(MyGUI::Widget* sender);
-};
+        MWWorld::Ptr mActor;
+
+        size_t mControllerFocus = 0;
+
+    protected:
+        void onMouseWheel(MyGUI::Widget* sender, int rel);
+        void onRepairButtonClick(MyGUI::Widget* sender);
+        void onOkButtonClick(MyGUI::Widget* sender);
+        bool onControllerButtonEvent(const SDL_ControllerButtonEvent& arg) override;
+    };
 
 }
 

@@ -9,24 +9,24 @@ namespace MWGui
 
     /// \brief Allows us to get the members of
     ///        ResourceImageSetPointer that we need.
-    /// \example MyGUI::FactoryManager::getInstance().registerFactory<ResourceImageSetPointerFix>("Resource", "ResourceImageSetPointer");
+    /// \example MyGUI::FactoryManager::getInstance().registerFactory<ResourceImageSetPointerFix>("Resource",
+    /// "ResourceImageSetPointer");
     ///          MyGUI::ResourceManager::getInstance().load("core.xml");
-    class ResourceImageSetPointerFix final :
-        public MyGUI::IPointer
+    class ResourceImageSetPointerFix final : public MyGUI::IPointer
     {
-        MYGUI_RTTI_DERIVED( ResourceImageSetPointerFix )
+        MYGUI_RTTI_DERIVED(ResourceImageSetPointerFix)
 
     public:
         ResourceImageSetPointerFix();
         virtual ~ResourceImageSetPointerFix();
 
-        void deserialization(MyGUI::xml::ElementPtr _node, MyGUI::Version _version) override;
+        void deserialization(MyGUI::xml::ElementPtr node, MyGUI::Version version) override;
 
-        void setImage(MyGUI::ImageBox* _image) override;
-        void setPosition(MyGUI::ImageBox* _image, const MyGUI::IntPoint& _point) override;
+        void setImage(MyGUI::ImageBox* image) override;
+        void setPosition(MyGUI::ImageBox* image, const MyGUI::IntPoint& point) override;
 
-        //and now for the whole point of this class, allow us to get
-        //the hot spot, the image and the size of the cursor.
+        // and now for the whole point of this class, allow us to get
+        // the hot spot, the image and the size of the cursor.
         MyGUI::ResourceImageSetPtr getImageSet();
         MyGUI::IntPoint getHotSpot();
         MyGUI::IntSize getSize();

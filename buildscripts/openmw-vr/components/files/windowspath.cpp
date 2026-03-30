@@ -2,21 +2,20 @@
 
 #if defined(_WIN32) || defined(__WINDOWS__)
 
+#include <array>
 #include <cstring>
+
+#define FAR
+#define NEAR
 
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <winreg.h>
 
-#include <boost/locale.hpp>
-namespace bconv = boost::locale::conv;
+#undef NEAR
+#undef FAR
 
 #include <components/debug/debuglog.hpp>
-
-/**
- * FIXME: Someone with Windows system should check this and correct if necessary
- * FIXME: MAX_PATH is irrelevant for extended-length paths, i.e. \\?\...
- */
 
 /**
  * \namespace Files
@@ -24,106 +23,87 @@ namespace bconv = boost::locale::conv;
 namespace Files
 {
 
-WindowsPath::WindowsPath(const std::string& application_name)
-    : mName(application_name)
-{
-    /*  Since on Windows boost::path.string() returns string of narrow
-        characters in local encoding, it is required to path::imbue()
-        with UTF-8 encoding (generated for empty name from boost::locale)
-        to handle Unicode in platform-agnostic way using std::string.
-
-        See boost::filesystem and boost::locale reference for details.
-    */
-    boost::filesystem::path::imbue(boost::locale::generator().generate(""));
-
-    boost::filesystem::path localPath = getLocalPath();
-    if (!SetCurrentDirectoryA(localPath.string().c_str()))
-        Log(Debug::Warning) << "Error " << GetLastError() << " when changing current directory";
-}
-
-boost::filesystem::path WindowsPath::getUserConfigPath() const
-{
-    boost::filesystem::path userPath(".");
-
-    WCHAR path[MAX_PATH + 1];
-    memset(path, 0, sizeof(path));
-
-    if(SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, nullptr, 0, path)))
+    WindowsPath::WindowsPath(const std::string& application_name)
+        : mName(application_name)
     {
-        userPath = boost::filesystem::path(bconv::utf_to_utf<char>(path));
     }
 
-    return userPath / "My Games" / mName;
-}
-
-boost::filesystem::path WindowsPath::getUserDataPath() const
-{
-    // Have some chaos, windows people!
-    return getUserConfigPath();
-}
-
-boost::filesystem::path WindowsPath::getGlobalConfigPath() const
-{
-    boost::filesystem::path globalPath(".");
-
-    WCHAR path[MAX_PATH + 1];
-    memset(path, 0, sizeof(path));
-
-    if(SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_PROGRAM_FILES | CSIDL_FLAG_CREATE, nullptr, 0, path)))
+    std::filesystem::path WindowsPath::getUserConfigPath() const
     {
-        globalPath = boost::filesystem::path(bconv::utf_to_utf<char>(path));
+        std::filesystem::path userPath = std::filesystem::current_path();
+
+        PWSTR cString;
+        HRESULT result = SHGetKnownFolderPath(FOLDERID_Documents, 0, nullptr, &cString);
+        if (SUCCEEDED(result))
+            userPath = std::filesystem::path(cString);
+        else
+            Log(Debug::Error) << "Error " << result << " when getting Documents path";
+
+        CoTaskMemFree(cString);
+
+        return userPath / "My Games" / mName;
     }
 
-    return globalPath / mName;
-}
-
-boost::filesystem::path WindowsPath::getLocalPath() const
-{
-    boost::filesystem::path localPath("./");
-    WCHAR path[MAX_PATH + 1];
-    memset(path, 0, sizeof(path));
-
-    if (GetModuleFileNameW(nullptr, path, MAX_PATH + 1) > 0)
+    std::filesystem::path WindowsPath::getUserDataPath() const
     {
-        localPath = boost::filesystem::path(bconv::utf_to_utf<char>(path)).parent_path() / "/";
+        // Have some chaos, windows people!
+        return getUserConfigPath();
     }
 
-    // lookup exe path
-    return localPath;
-}
-
-boost::filesystem::path WindowsPath::getGlobalDataPath() const
-{
-    return getGlobalConfigPath();
-}
-
-boost::filesystem::path WindowsPath::getCachePath() const
-{
-    return getUserConfigPath() / "cache";
-}
-
-boost::filesystem::path WindowsPath::getInstallPath() const
-{
-    boost::filesystem::path installPath("");
-
-    HKEY hKey;
-
-    LPCTSTR regkey = TEXT("SOFTWARE\\Bethesda Softworks\\Morrowind");
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, regkey, 0, KEY_READ | KEY_WOW64_32KEY, &hKey) == ERROR_SUCCESS)
+    std::filesystem::path WindowsPath::getGlobalConfigPath() const
     {
-        //Key existed, let's try to read the install dir
-        std::vector<char> buf(512);
-        int len = 512;
+        // The concept of a global config path is absurd on Windows.
+        // Always use local config instead.
+        return {};
+    }
 
-        if (RegQueryValueEx(hKey, TEXT("Installed Path"), nullptr, nullptr, (LPBYTE)&buf[0], (LPDWORD)&len) == ERROR_SUCCESS)
+    std::filesystem::path WindowsPath::getLocalPath() const
+    {
+        std::filesystem::path localPath = std::filesystem::current_path() / "";
+
+        WCHAR path[MAX_PATH + 1] = {};
+
+        if (GetModuleFileNameW(nullptr, path, MAX_PATH + 1) > 0)
         {
-            installPath = &buf[0];
+            localPath = std::filesystem::path(path).parent_path() / "";
         }
-        RegCloseKey(hKey);
+
+        // lookup exe path
+        return localPath;
     }
 
-    return installPath;
-}
+    std::filesystem::path WindowsPath::getGlobalDataPath() const
+    {
+        return getGlobalConfigPath();
+    }
+
+    std::filesystem::path WindowsPath::getCachePath() const
+    {
+        return getUserConfigPath() / "cache";
+    }
+
+    std::filesystem::path WindowsPath::getInstallPath() const
+    {
+        std::filesystem::path installPath{};
+
+        if (HKEY hKey; RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Bethesda Softworks\\Morrowind", 0,
+                           KEY_READ | KEY_WOW64_32KEY, &hKey)
+            == ERROR_SUCCESS)
+        {
+            // Key existed, let's try to read the install dir
+            std::array<wchar_t, 512> buf{};
+            DWORD len = static_cast<DWORD>(buf.size() * sizeof(wchar_t));
+
+            if (RegQueryValueExW(hKey, L"Installed Path", nullptr, nullptr, reinterpret_cast<LPBYTE>(buf.data()), &len)
+                == ERROR_SUCCESS)
+            {
+                installPath = std::filesystem::path(buf.data());
+            }
+            RegCloseKey(hKey);
+        }
+
+        return installPath;
+    }
 
 } /* namespace Files */
 

@@ -2,11 +2,12 @@
 
 #include <MyGUI_ScrollView.h>
 
-#include <components/esm/loadbook.hpp>
+#include <components/esm3/loadbook.hpp>
+#include <components/esm4/loadbook.hpp>
 #include <components/widgets/imagebutton.hpp>
 
 #include "../mwbase/environment.hpp"
-#include "../mwbase/world.hpp"
+#include "../mwbase/inputmanager.hpp"
 #include "../mwbase/windowmanager.hpp"
 
 #include "../mwmechanics/actorutil.hpp"
@@ -19,7 +20,7 @@
 namespace MWGui
 {
 
-    ScrollWindow::ScrollWindow ()
+    ScrollWindow::ScrollWindow()
         : BookWindowBase("openmw_scroll.layout")
         , mTakeButtonShow(true)
         , mTakeButtonAllowed(true)
@@ -38,23 +39,35 @@ namespace MWGui
         mCloseButton->eventKeyButtonPressed += MyGUI::newDelegate(this, &ScrollWindow::onKeyButtonPressed);
         mTakeButton->eventKeyButtonPressed += MyGUI::newDelegate(this, &ScrollWindow::onKeyButtonPressed);
 
+        mControllerScrollWidget = mTextView;
+        mControllerButtons.mB = "#{Interface:Close}";
+        mControllerButtons.mDpad = "#{Interface:ScrollDown}";
+
         center();
     }
 
-    void ScrollWindow::setPtr (const MWWorld::Ptr& scroll)
+    void ScrollWindow::setPtr(const MWWorld::Ptr& scroll)
     {
+        if (scroll.isEmpty() || (scroll.getType() != ESM::REC_BOOK && scroll.getType() != ESM::REC_BOOK4))
+            throw std::runtime_error("Invalid argument in ScrollWindow::setPtr");
         mScroll = scroll;
 
         MWWorld::Ptr player = MWMechanics::getPlayer();
         bool showTakeButton = scroll.getContainerStore() != &player.getClass().getContainerStore(player);
 
-        MWWorld::LiveCellRef<ESM::Book> *ref = mScroll.get<ESM::Book>();
+        const std::string* text;
+        if (scroll.getType() == ESM::REC_BOOK)
+            text = &scroll.get<ESM::Book>()->mBase->mText;
+        else
+            text = &scroll.get<ESM4::Book>()->mBase->mText;
+        bool shrinkTextAtLastTag = scroll.getType() == ESM::REC_BOOK;
 
         Formatting::BookFormatter formatter;
-        formatter.markupToWidget(mTextView, ref->mBase->mText, 390, mTextView->getHeight());
+        formatter.markupToWidget(mTextView, *text, 390, mTextView->getHeight(), shrinkTextAtLastTag);
         MyGUI::IntSize size = mTextView->getChildAt(0)->getSize();
 
-        // Canvas size must be expressed with VScroll disabled, otherwise MyGUI would expand the scroll area when the scrollbar is hidden
+        // Canvas size must be expressed with VScroll disabled, otherwise MyGUI would expand the scroll area when the
+        // scrollbar is hidden
         mTextView->setVisibleVScroll(false);
         if (size.height > mTextView->getSize().height)
             mTextView->setCanvasSize(mTextView->getWidth(), size.height);
@@ -62,14 +75,14 @@ namespace MWGui
             mTextView->setCanvasSize(mTextView->getWidth(), mTextView->getSize().height);
         mTextView->setVisibleVScroll(true);
 
-        mTextView->setViewOffset(MyGUI::IntPoint(0,0));
+        mTextView->setViewOffset(MyGUI::IntPoint(0, 0));
 
         setTakeButtonShow(showTakeButton);
 
         MWBase::Environment::get().getWindowManager()->setKeyFocusWidget(mCloseButton);
     }
 
-    void ScrollWindow::onKeyButtonPressed(MyGUI::Widget *sender, MyGUI::KeyCode key, MyGUI::Char character)
+    void ScrollWindow::onKeyButtonPressed(MyGUI::Widget* /*sender*/, MyGUI::KeyCode key, MyGUI::Char character)
     {
         int scroll = 0;
         if (key == MyGUI::KeyCode::ArrowUp)
@@ -93,18 +106,49 @@ namespace MWGui
         mTakeButton->setVisible(mTakeButtonShow && mTakeButtonAllowed);
     }
 
-    void ScrollWindow::onCloseButtonClicked (MyGUI::Widget* _sender)
+    void ScrollWindow::onCloseButtonClicked(MyGUI::Widget* /*sender*/)
     {
         MWBase::Environment::get().getWindowManager()->removeGuiMode(GM_Scroll);
     }
 
-    void ScrollWindow::onTakeButtonClicked (MyGUI::Widget* _sender)
+    void ScrollWindow::onTakeButtonClicked(MyGUI::Widget* /*sender*/)
     {
-        MWBase::Environment::get().getWindowManager()->playSound("Item Book Up");
+        MWBase::Environment::get().getWindowManager()->playSound(ESM::RefId::stringRefId("Item Book Up"));
 
         MWWorld::ActionTake take(mScroll);
-        take.execute (MWMechanics::getPlayer());
+        take.execute(MWMechanics::getPlayer());
 
-        MWBase::Environment::get().getWindowManager()->removeGuiMode(GM_Scroll, true);
+        MWBase::Environment::get().getWindowManager()->removeGuiMode(GM_Scroll);
+    }
+
+    void ScrollWindow::onClose()
+    {
+        if (Settings::gui().mControllerMenus)
+            MWBase::Environment::get().getInputManager()->setGamepadGuiCursorEnabled(true);
+        BookWindowBase::onClose();
+    }
+
+    ControllerButtons* ScrollWindow::getControllerButtons()
+    {
+        if (mTakeButton->getVisible())
+            mControllerButtons.mA = "#{Interface:Take}";
+        else
+            mControllerButtons.mA.clear();
+        return &mControllerButtons;
+    }
+
+    bool ScrollWindow::onControllerButtonEvent(const SDL_ControllerButtonEvent& arg)
+    {
+        if (arg.button == SDL_CONTROLLER_BUTTON_A)
+        {
+            if (mTakeButton->getVisible())
+                onTakeButtonClicked(mTakeButton);
+        }
+        else if (arg.button == SDL_CONTROLLER_BUTTON_B)
+            onCloseButtonClicked(mCloseButton);
+        else if (arg.button == SDL_CONTROLLER_BUTTON_DPAD_UP || arg.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN)
+            return false; // Fall through to keyboard
+
+        return true;
     }
 }

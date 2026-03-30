@@ -4,10 +4,9 @@ set(LAUNCHER
     sdlinit.cpp
     main.cpp
     maindialog.cpp
-    playpage.cpp
     textslotmsgbox.cpp
+    importpage.cpp
     settingspage.cpp
-    advancedpage.cpp
 
     utils/cellnameloader.cpp
     utils/profilescombobox.cpp
@@ -23,61 +22,32 @@ set(LAUNCHER_HEADER
     graphicspage.hpp
     sdlinit.hpp
     maindialog.hpp
-    playpage.hpp
     textslotmsgbox.hpp
+    importpage.hpp
     settingspage.hpp
-    advancedpage.hpp
 
     utils/cellnameloader.hpp
     utils/profilescombobox.hpp
     utils/textinputdialog.hpp
     utils/lineedit.hpp
     utils/openalutil.hpp
-)
-
-# Headers that must be pre-processed
-set(LAUNCHER_HEADER_MOC
-    datafilespage.hpp
-    graphicspage.hpp
-    maindialog.hpp
-    playpage.hpp
-    textslotmsgbox.hpp
-    settingspage.hpp
-    advancedpage.hpp
-
-    utils/cellnameloader.hpp
-    utils/textinputdialog.hpp
-    utils/profilescombobox.hpp
-    utils/lineedit.hpp
-    utils/openalutil.hpp
-
-)
-
-set(LAUNCHER_UI
-    ${CMAKE_SOURCE_DIR}/files/ui/datafilespage.ui
-    ${CMAKE_SOURCE_DIR}/files/ui/graphicspage.ui
-    ${CMAKE_SOURCE_DIR}/files/ui/mainwindow.ui
-    ${CMAKE_SOURCE_DIR}/files/ui/playpage.ui
-    ${CMAKE_SOURCE_DIR}/files/ui/contentselector.ui
-    ${CMAKE_SOURCE_DIR}/files/ui/settingspage.ui
-    ${CMAKE_SOURCE_DIR}/files/ui/advancedpage.ui
 )
 
 source_group(launcher FILES ${LAUNCHER} ${LAUNCHER_HEADER})
 
 set(QT_USE_QTGUI 1)
 
+set (LAUNCHER_RES ${CMAKE_SOURCE_DIR}/files/launcher/launcher.qrc)
+
 # Set some platform specific settings
 if(WIN32)
+    set(LAUNCHER_RES ${LAUNCHER_RES} ${CMAKE_SOURCE_DIR}/files/windows/QWindowsVistaDark/dark.qrc)
     set(GUI_TYPE WIN32)
     set(QT_USE_QTMAIN TRUE)
 endif(WIN32)
 
-QT5_ADD_RESOURCES(RCC_SRCS ${CMAKE_SOURCE_DIR}/files/launcher/launcher.qrc)
-QT5_WRAP_CPP(MOC_SRCS ${LAUNCHER_HEADER_MOC})
-QT5_WRAP_UI(UI_HDRS ${LAUNCHER_UI})
+QT_ADD_RESOURCES(RCC_SRCS ${LAUNCHER_RES})
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 if(NOT WIN32)
     include_directories(${LIBUNSHIELD_INCLUDE_DIR})
 endif(NOT WIN32)
@@ -88,25 +58,39 @@ openmw_add_executable(openmw-launcher
     ${LAUNCHER}
     ${LAUNCHER_HEADER}
     ${RCC_SRCS}
-    ${MOC_SRCS}
-    ${UI_HDRS}
 )
+
+add_dependencies(openmw-launcher qm-files)
 
 if (WIN32)
     INSTALL(TARGETS openmw-launcher RUNTIME DESTINATION ".")
 endif (WIN32)
 
 target_link_libraries(openmw-launcher
-    ${SDL2_LIBRARY_ONLY}
+    SDL2::SDL2
     ${OPENAL_LIBRARY}
-    components
+    components_qt
 )
 
-target_link_libraries(openmw-launcher Qt5::Widgets Qt5::Core)
+target_link_libraries(openmw-launcher Qt::Widgets Qt::Core Qt::Svg)
 
 if (BUILD_WITH_CODE_COVERAGE)
-  add_definitions (--coverage)
-  target_link_libraries(openmw-launcher gcov)
+    target_compile_options(openmw-launcher PRIVATE --coverage)
+    target_link_libraries(openmw-launcher gcov)
 endif()
 
+if(USE_QT)
+    set_property(TARGET openmw-launcher PROPERTY AUTOMOC ON)
+    set_property(TARGET openmw-launcher PROPERTY AUTOUIC ON)
+    set_property(TARGET openmw-launcher PROPERTY AUTOUIC_SEARCH_PATHS ui)
+endif(USE_QT)
 
+if (MSVC AND PRECOMPILE_HEADERS_WITH_MSVC)
+    target_precompile_headers(openmw-launcher PRIVATE
+        <boost/program_options/options_description.hpp>
+
+        <algorithm>
+        <string>
+        <vector>
+    )
+endif()
