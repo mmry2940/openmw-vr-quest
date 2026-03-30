@@ -15,3 +15,11 @@ output.json
 .ccls-cache
 app/nightly
 app/mainline
+
+# Log files
+logcat*.txt
+openmw_log.txt
+buildscripts/build_log.txt
+buildscripts/force_build.log
+buildscripts/recent*.log
+*.log
