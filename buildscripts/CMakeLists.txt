@@ -490,6 +490,8 @@ set(OPENMW_COMMON
 	-DOPENMW_USE_SYSTEM_ICU=OFF
 	-DOPENMW_ICU_HOST_BUILD_DIR=${CMAKE_BINARY_DIR}/icu-host-build
 	-DOPENMW_USE_SYSTEM_YAML_CPP=OFF
+	-DBoost_USE_STATIC_LIBS=ON
+	-DBoost_USE_STATIC_RUNTIME=ON
 )
 
 set(OPENMW_PATCH
@@ -502,53 +504,4 @@ set(OPENMW_PATCH
 	patch -d <SOURCE_DIR> -p1 -t -N < ${CMAKE_SOURCE_DIR}/patches/openmw/fix-build.patch &&
 	cp ${CMAKE_SOURCE_DIR}/patches/openmw/android_main.cpp <SOURCE_DIR>/apps/openmw/android_main.cpp
 )
-
-option(USE_LOCAL_OPENMW_VR "Use local buildscripts/openmw-vr source for OpenMW build" ON)
-option(ALLOW_OPENMW_UPSTREAM_FALLBACK "Allow fallback to upstream non-VR OpenMW source" OFF)
-set(OPENMW_LOCAL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/openmw-vr)
-
-if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
-	message(STATUS "OpenMW source: local openmw-vr (${OPENMW_LOCAL_SOURCE_DIR})")
-	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host
-
-		SOURCE_DIR ${OPENMW_LOCAL_SOURCE_DIR}
-		DOWNLOAD_COMMAND ""
-		UPDATE_COMMAND ""
-		PATCH_COMMAND ""
-
-		CONFIGURE_COMMAND ${wrapper_command} cmake <SOURCE_DIR>
-		${COMMON_CMAKE_ARGS}
 		${OPENMW_COMMON}
-		-DBUILD_OPENMW_VR=ON
-
-		BUILD_COMMAND $(MAKE)
-
-		INSTALL_COMMAND ""
-	)
-elseif(USE_LOCAL_OPENMW_VR AND NOT ALLOW_OPENMW_UPSTREAM_FALLBACK)
-	message(FATAL_ERROR
-		"USE_LOCAL_OPENMW_VR is ON but local source was not found at ${OPENMW_LOCAL_SOURCE_DIR}.\n"
-		"This project targets OpenMW-VR on Quest and blocks non-VR fallback by default.\n"
-		"Set -DALLOW_OPENMW_UPSTREAM_FALLBACK=ON only if you intentionally want a non-VR build."
-	)
-else()
-	message(STATUS "OpenMW source: upstream OpenMW ${OPENMW_VERSION}")
-	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host
-
-		URL https://github.com/OpenMW/openmw/archive/${OPENMW_VERSION}.tar.gz
-		URL_HASH ${OPENMW_HASH}
-		DOWNLOAD_DIR ${download_dir}
-
-		PATCH_COMMAND ${OPENMW_PATCH}
-
-		CONFIGURE_COMMAND ${wrapper_command} cmake <SOURCE_DIR>
-		${COMMON_CMAKE_ARGS}
-		${OPENMW_COMMON}
-
-		BUILD_COMMAND $(MAKE)
-
-		INSTALL_COMMAND ""
-	)
-endif()
