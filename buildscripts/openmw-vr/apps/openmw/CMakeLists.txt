@@ -3,6 +3,10 @@ set(OPENMW_SOURCES
     options.cpp
 )
 
+if (ANDROID)
+    list(APPEND OPENMW_SOURCES android_stdio64_compat.cpp)
+endif()
+
 if (BUILD_OPENMW_VR OR USE_OPENXR)
     list(APPEND OPENMW_SOURCES vrengine.cpp)
 endif()
@@ -189,6 +193,71 @@ target_link_libraries(openmw-lib
     components
 )
 
+if (ANDROID)
+    # Use whole-archive to force the linker to include all symbols from static libraries
+    # This is necessary to resolve collada-dom's dependencies on pcrecpp, libxml2, and boost
+    target_link_options(openmw-lib PRIVATE "LINKER:--whole-archive")
+
+    # Link in the order: dependencies first, then libraries that depend on them
+    if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/libboost_system.a")
+        target_link_libraries(openmw-lib "${CMAKE_INSTALL_PREFIX}/lib/libboost_system.a")
+    endif()
+
+    if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/libboost_filesystem.a")
+        target_link_libraries(openmw-lib "${CMAKE_INSTALL_PREFIX}/lib/libboost_filesystem.a")
+    endif()
+
+    if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/libpcre.a")
+        target_link_libraries(openmw-lib "${CMAKE_INSTALL_PREFIX}/lib/libpcre.a")
+    endif()
+
+    if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/libpcrecpp.a")
+        target_link_libraries(openmw-lib "${CMAKE_INSTALL_PREFIX}/lib/libpcrecpp.a")
+    endif()
+
+    if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/libxml2.a")
+        target_link_libraries(openmw-lib "${CMAKE_INSTALL_PREFIX}/lib/libxml2.a")
+    endif()
+
+    # NOW link the collada-dom static library which depends on the above
+    if(EXISTS "${CMAKE_INSTALL_PREFIX}/lib/libcollada-dom2.5-dp.a")
+        target_link_libraries(openmw-lib "${CMAKE_INSTALL_PREFIX}/lib/libcollada-dom2.5-dp.a")
+    endif()
+
+    # Close whole-archive section
+    target_link_options(openmw-lib PRIVATE "LINKER:--no-whole-archive")
+
+    # Also try CMake-based targets as fallback
+    if (TARGET Boost::filesystem)
+        target_link_libraries(openmw-lib Boost::filesystem)
+    endif()
+
+    if (TARGET Boost::system)
+        target_link_libraries(openmw-lib Boost::system)
+    endif()
+
+    find_library(MYGUI_OPENGLES_PLATFORM_LIBRARY NAMES MyGUI.OpenGLESPlatform PATHS "${CMAKE_INSTALL_PREFIX}/lib" NO_DEFAULT_PATH)
+    if (MYGUI_OPENGLES_PLATFORM_LIBRARY)
+        target_link_libraries(openmw-lib ${MYGUI_OPENGLES_PLATFORM_LIBRARY})
+    endif()
+
+    find_library(MINIZIP_LIBRARY NAMES minizip PATHS "${CMAKE_INSTALL_PREFIX}/lib" NO_DEFAULT_PATH)
+    if (MINIZIP_LIBRARY)
+        target_link_libraries(openmw-lib ${MINIZIP_LIBRARY})
+    else()
+        set(COLLADA_MINIZIP_LIBRARY
+            "${CMAKE_BINARY_DIR}/../../../collada-dom-prefix/src/collada-dom-build/dom/external-libs/minizip-1.1/libminizip.a")
+        if(EXISTS "${COLLADA_MINIZIP_LIBRARY}")
+            target_link_libraries(openmw-lib ${COLLADA_MINIZIP_LIBRARY})
+        endif()
+    endif()
+
+    find_library(FMT_LIBRARY NAMES fmt PATHS "${CMAKE_INSTALL_PREFIX}/lib" NO_DEFAULT_PATH)
+    if (FMT_LIBRARY)
+        target_link_libraries(openmw-lib ${FMT_LIBRARY})
+    endif()
+endif()
+
 if (MSVC AND PRECOMPILE_HEADERS_WITH_MSVC)
     target_precompile_headers(openmw-lib PRIVATE
         <boost/program_options/options_description.hpp>
@@ -215,7 +284,9 @@ if (MSVC AND PRECOMPILE_HEADERS_WITH_MSVC)
     )
 endif()
 
-add_definitions(-DMYGUI_DONT_USE_OBSOLETE=ON)
+if (NOT ANDROID)
+    add_definitions(-DMYGUI_DONT_USE_OBSOLETE=ON)
+endif()
 
 if (ANDROID)
     target_link_libraries(openmw-lib EGL android log z)

@@ -85,7 +85,7 @@ namespace LuaUtil::InputAction
             std::vector<Id> mDependencies;
         };
         std::vector<std::string> mKeys;
-        std::unordered_map<std::string, Id, Misc::StringUtils::StringHash, std::equal_to<>> mIds;
+        Misc::StringUtils::TransparentStringMap<Id> mIds;
         std::vector<Info> mInfo;
         std::vector<std::vector<LuaUtil::Callback>> mHandlers;
         std::vector<std::vector<Binding>> mBindings;
@@ -114,7 +114,7 @@ namespace LuaUtil::InputTrigger
         }
         std::optional<std::string> nextKey(std::string_view key) const
         {
-            auto it = mIds.find(std::string(key));
+            auto it = mIds.find(key);
             if (it == mIds.end() || ++it == mIds.end())
                 return std::nullopt;
             return it->first;
@@ -128,7 +128,7 @@ namespace LuaUtil::InputTrigger
     private:
         using Id = size_t;
         Id safeIdByKey(std::string_view key);
-        std::unordered_map<std::string, Id, Misc::StringUtils::StringHash, std::equal_to<>> mIds;
+        Misc::StringUtils::TransparentStringMap<Id> mIds;
         std::vector<Info> mInfo;
         std::vector<std::vector<LuaUtil::Callback>> mHandlers;
     };

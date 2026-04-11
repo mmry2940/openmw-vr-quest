@@ -13,7 +13,7 @@ std::string Files::pathToUnicodeString(std::filesystem::path&& path)
 
 std::filesystem::path Files::pathFromUnicodeString(std::string_view path)
 {
-    return std::filesystem::path(path);
+    return std::filesystem::path(std::string(path));
 }
 
 std::filesystem::path Files::pathFromUnicodeString(std::string&& path)

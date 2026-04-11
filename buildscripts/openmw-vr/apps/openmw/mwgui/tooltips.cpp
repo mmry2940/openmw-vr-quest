@@ -1,6 +1,6 @@
 #include "tooltips.hpp"
 
-#include <components/misc/format.hpp>
+#include <format>
 #include <iomanip>
 
 #include <MyGUI_Gui.h>

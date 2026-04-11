@@ -52,7 +52,7 @@ namespace L10n
 
     private:
         template <class T>
-        using StringMap = std::unordered_map<std::string, T, Misc::StringUtils::StringHash, std::equal_to<>>;
+        using StringMap = Misc::StringUtils::TransparentStringMap<T>;
         // icu::Locale isn't hashable (or comparable), so we use the string form instead, which is canonicalized
         StringMap<StringMap<icu::MessageFormat>> mBundles;
         const icu::Locale mFallbackLocale;

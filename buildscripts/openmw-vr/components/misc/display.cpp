@@ -1,6 +1,6 @@
 #include "display.hpp"
 
-#include <components/misc/format.hpp>
+#include <format>
 #include <numeric>
 #include <string>
 

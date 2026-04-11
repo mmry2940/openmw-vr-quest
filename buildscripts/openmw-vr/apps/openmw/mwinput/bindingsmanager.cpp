@@ -194,6 +194,16 @@ namespace MWInput
         mDragDrop = dragDrop;
     }
 
+    ICS::InputControlSystem& BindingsManager::ics()
+    {
+        return *mInputBinder;
+    }
+
+    const ICS::InputControlSystem& BindingsManager::ics() const
+    {
+        return *mInputBinder;
+    }
+
     BindingsManager::~BindingsManager()
     {
         saveBindings();
@@ -698,11 +708,6 @@ namespace MWInput
 
         if (previousValue <= 0.6 && currentValue > 0.6)
             manager->executeAction(action);
-    }
-
-    ICS::InputControlSystem& BindingsManager::ics()
-    {
-        return *mInputBinder;
     }
 
     void BindingsManager::saveBindings()

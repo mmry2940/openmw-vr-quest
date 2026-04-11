@@ -108,11 +108,12 @@ MWState::Character::Character(const std::filesystem::path& saves, const std::str
         {
             try
             {
-                addSlot(iter, game);
+                addSlot(iter.path(), game);
             }
             catch (const std::exception& e)
             {
-                Log(Debug::Warning) << "Failed to add slot for game \"" << game << "\" save " << iter << ": "
+                Log(Debug::Warning) << "Failed to add slot for game \"" << game << "\" save "
+                                    << iter.path().string() << ": "
                                     << e.what();
             }
         }

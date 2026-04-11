@@ -28,7 +28,7 @@
 #include <cassert>
 #include <cerrno>
 #include <filesystem>
-#include <components/misc/format.hpp>
+#include <format>
 #include <istream>
 #include <system_error>
 

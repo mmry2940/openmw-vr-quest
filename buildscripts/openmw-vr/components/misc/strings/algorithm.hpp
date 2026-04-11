@@ -8,6 +8,7 @@
 #include <functional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 
 namespace Misc::StringUtils
 {
@@ -112,6 +113,28 @@ namespace Misc::StringUtils
         using is_transparent = void;
         [[nodiscard]] size_t operator()(std::string_view sv) const { return std::hash<std::string_view>{}(sv); }
         [[nodiscard]] size_t operator()(const std::string& s) const { return std::hash<std::string>{}(s); }
+    };
+
+    // Backport of C++20 heterogeneous lookup for unordered_map with string keys.
+    // libc++ < 12 does not provide template find/count overloads in unordered_map
+    // even when the hash/comparator have is_transparent. This wrapper adds them.
+    template <typename Value, typename Hash = StringHash>
+    struct TransparentStringMap
+        : public std::unordered_map<std::string, Value, Hash, std::equal_to<std::string>>
+    {
+        using Base = std::unordered_map<std::string, Value, Hash, std::equal_to<std::string>>;
+        using Base::Base;
+        using Base::find;
+        using Base::count;
+
+        template <typename K>
+        typename Base::iterator find(const K& k) { return Base::find(std::string(k)); }
+
+        template <typename K>
+        typename Base::const_iterator find(const K& k) const { return Base::find(std::string(k)); }
+
+        template <typename K>
+        typename Base::size_type count(const K& k) const { return Base::count(std::string(k)); }
     };
 
     /** @brief Replaces all occurrences of a string in another string.

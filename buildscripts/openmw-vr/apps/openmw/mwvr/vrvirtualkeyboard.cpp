@@ -1,5 +1,6 @@
 #include "vrvirtualkeyboard.hpp"
 
+#include <MyGUI_EditBox.h>
 #include <MyGUI_InputManager.h>
 #include <MyGUI_LayerManager.h>
 

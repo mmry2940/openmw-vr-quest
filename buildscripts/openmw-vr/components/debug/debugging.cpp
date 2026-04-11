@@ -21,6 +21,10 @@
 #include <components/misc/strings/conversion.hpp>
 #include <components/misc/strings/lower.hpp>
 
+#if defined(__ANDROID__) || defined(ANDROID)
+#include <android/log.h>
+#endif
+
 #ifdef _WIN32
 #include <components/crashcatcher/windowscrashcatcher.hpp>
 #include <components/files/conversion.hpp>
@@ -475,12 +479,16 @@ namespace Debug
         }
         catch (const std::exception& e)
         {
+            Log(Debug::Error) << "Fatal error: " << e.what();
+
+#if defined(__ANDROID__) || defined(ANDROID)
+            __android_log_print(ANDROID_LOG_ERROR, "OpenMW", "Fatal error: %s", e.what());
+#endif
+
 #if (defined(__APPLE__) || defined(__linux) || defined(__unix) || defined(__posix))
             if (!isatty(fileno(stdin)))
 #endif
                 SDL_ShowSimpleMessageBox(0, (std::string(appName) + ": Fatal error").c_str(), e.what(), nullptr);
-
-            Log(Debug::Error) << "Fatal error: " << e.what();
 
             ret = 1;
         }

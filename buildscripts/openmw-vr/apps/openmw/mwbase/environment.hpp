@@ -60,7 +60,6 @@ namespace MWBase
         L10n::Manager* mL10nManager = nullptr;
         float mFrameRateLimit = 0;
         float mFrameDuration = 0;
-        bool mVrMode = false;
 
     public:
         Environment();
@@ -128,9 +127,6 @@ namespace MWBase
         float getFrameRateLimit() const { return mFrameRateLimit; }
 
         void setFrameRateLimit(float value) { mFrameRateLimit = value; }
-
-        bool getVrMode() const { return mVrMode; }
-        void setVrMode(bool value) { mVrMode = value; }
 
         float getFrameDuration() const { return mFrameDuration; }
 

@@ -178,16 +178,13 @@ namespace SDLUtil
                     // controller sensor data is received on demand
                     break;
                 case SDL_CONTROLLERTOUCHPADDOWN:
-                    if (mConListener)
-                        mConListener->touchpadPressed(1, TouchEvent(evt.ctouchpad));
+                    mConListener->touchpadPressed(1, TouchEvent(evt.ctouchpad));
                     break;
                 case SDL_CONTROLLERTOUCHPADMOTION:
-                    if (mConListener)
-                        mConListener->touchpadMoved(1, TouchEvent(evt.ctouchpad));
+                    mConListener->touchpadMoved(1, TouchEvent(evt.ctouchpad));
                     break;
                 case SDL_CONTROLLERTOUCHPADUP:
-                    if (mConListener)
-                        mConListener->touchpadReleased(1, TouchEvent(evt.ctouchpad));
+                    mConListener->touchpadReleased(1, TouchEvent(evt.ctouchpad));
                     break;
 #endif
                 case SDL_WINDOWEVENT:

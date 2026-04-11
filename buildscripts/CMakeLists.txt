@@ -60,6 +60,18 @@ set(FMT_HASH SHA256=3d794d3cf67633b34b2771eb9f073bde87e846e0d395d254df7b211ef1ec
 set(LZ4_VERSION 1.9.3)
 set(LZ4_HASH SHA256=030644df4611007ff7dc962d981f390361e6c97a34e5cbc393ddfbe019ffe2c1)
 
+# https://download.gnome.org/sources/libxml2/
+set(LIBXML2_VERSION 2.9.14)
+set(LIBXML2_HASH SHA256=60d74a257d1ccec0475e749cba2f21559e48139efba6ff28224357c7c798dfee)
+
+# https://www.pcre.org/
+set(PCRE_VERSION 8.45)
+set(PCRE_HASH SHA256=4dae6fdcd2bb0bb6c37b5f97c33c2be954da743985369cddac3546e3218bffb8)
+
+# https://github.com/rdiankov/collada-dom
+set(COLLADA_DOM_VERSION 2.5.0)
+set(COLLADA_DOM_HASH SHA256=3be672407a7aef60b64ce4b39704b32816b0b28f61ebffd4fbd02c8012901e0d)
+
 # https://github.com/OpenMW/openmw/commits/master
 set(OPENMW_VERSION f27d7c66ff61502a70b2f93bde6d8942c16ec1c3)
 set(OPENMW_HASH SHA256=f07e97bf49c4a9710a5d7b967792e9addc0b4c054ad24bbcdea1a1e5a1daf5e0)
@@ -118,6 +130,11 @@ endif()
 
 if ((${ARCH} STREQUAL "x86_64") OR (${ARCH} STREQUAL "x86"))
 	# ffmpeg fails to link with assembly optimizations on x86-64
+	set(ffmpeg_configure_flags ${ffmpeg_configure_flags} --disable-asm)
+endif()
+
+if (${ARCH} STREQUAL "arm64")
+	# Some arm64 asm objects can produce relocations incompatible with linking into libopenmw.so.
 	set(ffmpeg_configure_flags ${ffmpeg_configure_flags} --disable-asm)
 endif()
 
@@ -314,6 +331,9 @@ ExternalProject_Add(sdl2
 	COMMAND cp libs/${app_abi}/libSDL2.so ${prefix}/lib/
 	COMMAND cp libs/${app_abi}/libhidapi.so ${prefix}/lib/
 	COMMAND cp -r <SOURCE_DIR>/include ${prefix}/
+	COMMAND mkdir -p ${prefix}/lib/cmake/SDL2
+	COMMAND cp ${CMAKE_SOURCE_DIR}/patches/sdl2/SDL2Config.cmake ${prefix}/lib/cmake/SDL2/SDL2Config.cmake
+	COMMAND cp ${CMAKE_SOURCE_DIR}/patches/sdl2/SDL2ConfigVersion.cmake ${prefix}/lib/cmake/SDL2/SDL2ConfigVersion.cmake
 )
 
 ExternalProject_Add(bullet
@@ -398,6 +418,69 @@ ExternalProject_Add(lz4
 	INSTALL_COMMAND ${wrapper_command} $(MAKE) install
 	)
 
+ExternalProject_Add(libxml2
+	URL https://download.gnome.org/sources/libxml2/2.9/libxml2-${LIBXML2_VERSION}.tar.xz
+	URL_HASH ${LIBXML2_HASH}
+	DOWNLOAD_DIR ${download_dir}
+
+	CONFIGURE_COMMAND ${wrapper_command} <SOURCE_DIR>/configure
+	${COMMON_AUTOCONF_FLAGS}
+	--without-python
+	--without-http
+	--without-ftp
+	--without-html
+	--without-iconv
+	--without-readline
+
+	BUILD_COMMAND ${wrapper_command} $(MAKE)
+
+	INSTALL_COMMAND ${wrapper_command} $(MAKE) install
+)
+
+ExternalProject_Add(pcre
+	URL https://downloads.sourceforge.net/pcre/pcre-${PCRE_VERSION}.tar.bz2
+	URL_HASH ${PCRE_HASH}
+	DOWNLOAD_DIR ${download_dir}
+
+	CONFIGURE_COMMAND ${wrapper_command} <SOURCE_DIR>/configure
+	${COMMON_AUTOCONF_FLAGS}
+	--enable-pcrecpp
+	--enable-unicode-properties
+	--enable-utf8
+	--disable-jit
+
+	BUILD_COMMAND ${wrapper_command} $(MAKE)
+
+	INSTALL_COMMAND ${wrapper_command} $(MAKE) install
+)
+
+ExternalProject_Add(collada-dom
+	DEPENDS libxml2 pcre boost
+
+	URL https://github.com/rdiankov/collada-dom/archive/v${COLLADA_DOM_VERSION}.tar.gz
+	URL_HASH ${COLLADA_DOM_HASH}
+	DOWNLOAD_DIR ${download_dir}
+
+	PATCH_COMMAND patch -d <SOURCE_DIR> -p0 -t -N < ${CMAKE_SOURCE_DIR}/patches/collada-dom/static.patch
+
+	CONFIGURE_COMMAND ${wrapper_command} cmake <SOURCE_DIR>
+	${COMMON_CMAKE_ARGS}
+	-DOPT_COMPILE_TESTS=OFF
+	-DOPT_BUILD_VIEWER=OFF
+	-DOPT_BUILD_PACKAGES=OFF
+	-DOPT_COMPILE_FX=OFF
+	-DOPT_COMPILE_RT=OFF
+	-DOPT_COLLADA15=OFF
+	-DBOOST_ROOT=${prefix}
+	-DBoost_USE_STATIC_LIBS=ON
+	-DBoost_USE_STATIC_RUNTIME=ON
+	-DBoost_NO_SYSTEM_PATHS=ON
+
+	BUILD_COMMAND ${wrapper_command} $(MAKE)
+
+	INSTALL_COMMAND ${wrapper_command} $(MAKE) install
+)
+
 set(OSG_COMMON
 	-DOPENGL_PROFILE="GL1"
 	-DDYNAMIC_OPENTHREADS=OFF
@@ -409,6 +492,17 @@ set(OSG_COMMON
 	-DBUILD_OSG_PLUGIN_JPEG=ON
 	-DBUILD_OSG_PLUGIN_PNG=ON
 	-DBUILD_OSG_PLUGIN_FREETYPE=ON
+	-DBUILD_OSG_PLUGIN_DAE=ON
+	-DCOLLADA_FOUND=YES
+	-DCOLLADA_USE_STATIC=ON
+	-DCOLLADA_DOM_2_4_OR_LATER=TRUE
+	-DCOLLADA_INCLUDE_DIR=${prefix}/include/collada-dom2.5
+	-DCOLLADA_STATIC_LIBRARY=${prefix}/lib/libcollada-dom2.5-dp.a
+	-DCOLLADA_LIBXML_LIBRARY=${prefix}/lib/libxml2.a
+	-DCOLLADA_PCRECPP_LIBRARY=${prefix}/lib/libpcrecpp.a
+	-DCOLLADA_PCRE_LIBRARY=${prefix}/lib/libpcre.a
+	-DCOLLADA_BOOST_FILESYSTEM_LIBRARY=${prefix}/lib/libboost_filesystem.a
+	-DCOLLADA_BOOST_SYSTEM_LIBRARY=${prefix}/lib/libboost_system.a
 	-DJPEG_INCLUDE_DIR=${prefix}/include/
 	-DPNG_INCLUDE_DIR=${prefix}/include/
 	-DFREETYPE_DIR=${prefix}
@@ -440,7 +534,7 @@ set(OSG_PATCH
 )
 
 ExternalProject_Add(osg
-	DEPENDS libjpeg-turbo libpng gl4es freetype2
+	DEPENDS libjpeg-turbo libpng gl4es freetype2 collada-dom
 
 	URL https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-${OSG_VERSION}.tar.gz
 	https://github.com/xyzz/openmw-deps/releases/download/v0/OpenSceneGraph-${OSG_VERSION}.tar.gz
@@ -508,6 +602,7 @@ ExternalProject_Add(fmt
 	BUILD_COMMAND ""
 	INSTALL_COMMAND mkdir -p ${prefix}/include
 	COMMAND cp -r <SOURCE_DIR>/include/fmt ${prefix}/include/
+	COMMAND cp ${CMAKE_SOURCE_DIR}/patches/fmt/format.h ${prefix}/include/format
 )
 
 # Build ICU 70.1 for the host (native Linux) so the cross-compile ICU build

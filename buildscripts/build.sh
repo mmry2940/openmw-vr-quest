@@ -188,19 +188,34 @@ mkdir -p ../app/src/main/jniLibs/$ABI/
 # In VR builds the JNI entry points are linked into libopenmw_vr.so, so prefer
 # that binary and copy it as libopenmw.so for Android runtime loading.
 OPENMW_VR_SO=$(find build/$ARCH/openmw-prefix/ -iname "libopenmw_vr.so" | head -n 1)
+OPENMW_SO=$(find build/$ARCH/openmw-prefix/ -iname "libopenmw.so" | head -n 1)
+OPENMW_BUILD_CACHE="build/$ARCH/openmw-prefix/src/openmw-build/CMakeCache.txt"
+BUILD_OPENMW_VR_ENABLED="false"
+if [[ -f "$OPENMW_BUILD_CACHE" ]] && grep -q "^BUILD_OPENMW_VR:.*=ON$" "$OPENMW_BUILD_CACHE"; then
+	BUILD_OPENMW_VR_ENABLED="true"
+fi
 SELECTED_OPENMW_SO=""
 if [[ -n "$OPENMW_VR_SO" ]]; then
 	cp "$OPENMW_VR_SO" ../app/src/main/jniLibs/$ABI/libopenmw.so
 	SELECTED_OPENMW_SO="$OPENMW_VR_SO"
 else
-	if [[ "$REQUIRE_VR_RUNTIME" = "true" ]]; then
+	# Some OpenMW-VR trees produce libopenmw.so even with BUILD_OPENMW_VR=ON.
+	# Treat that as a valid VR runtime when strict VR mode is requested.
+	if [[ "$REQUIRE_VR_RUNTIME" = "true" && "$BUILD_OPENMW_VR_ENABLED" = "true" && -n "$OPENMW_SO" ]]; then
+		echo "INFO: BUILD_OPENMW_VR=ON and runtime produced as libopenmw.so"
+		echo "INFO: Using libopenmw.so as VR runtime artifact"
+		cp "$OPENMW_SO" ../app/src/main/jniLibs/$ABI/libopenmw.so
+		SELECTED_OPENMW_SO="$OPENMW_SO"
+	elif [[ "$REQUIRE_VR_RUNTIME" = "true" ]]; then
 		echo "ERROR: libopenmw_vr.so was not produced."
 		echo "Refusing to package a non-VR runtime by default."
 		echo "Use --allow-non-vr only if this fallback is intentional."
 		exit 1
 	fi
-	find build/$ARCH/openmw-prefix/ -iname "libopenmw.so" -exec cp "{}" ../app/src/main/jniLibs/$ABI/libopenmw.so \;
-	SELECTED_OPENMW_SO=$(find build/$ARCH/openmw-prefix/ -iname "libopenmw.so" | head -n 1)
+	if [[ -n "$OPENMW_SO" ]]; then
+		cp "$OPENMW_SO" ../app/src/main/jniLibs/$ABI/libopenmw.so
+		SELECTED_OPENMW_SO="$OPENMW_SO"
+	fi
 fi
 
 # copy over libs we compiled
@@ -211,7 +226,13 @@ if [[ -n "$OPENXR_LOADER_SO" ]]; then
 fi
 
 # copy over libc++_shared
-find ./toolchain/$ARCH/sysroot/usr/lib/$NDK_TRIPLET -iname "libc++_shared.so" -exec cp "{}" ../app/src/main/jniLibs/$ABI/ \;
+# Prefer the NDK sysroot runtime to keep libc++ symbols aligned with the compiler toolchain.
+NDK_LIBCXX_SHARED="./toolchain/ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/$NDK_TRIPLET/libc++_shared.so"
+if [[ -f "$NDK_LIBCXX_SHARED" ]]; then
+	cp "$NDK_LIBCXX_SHARED" ../app/src/main/jniLibs/$ABI/
+else
+	find ./toolchain/$ARCH/sysroot/usr/lib/$NDK_TRIPLET -iname "libc++_shared.so" -exec cp "{}" ../app/src/main/jniLibs/$ABI/ \;
+fi
 
 if [[ $DEPLOY_RESOURCES = "true" ]]; then
 	echo "==> Deploying resources"

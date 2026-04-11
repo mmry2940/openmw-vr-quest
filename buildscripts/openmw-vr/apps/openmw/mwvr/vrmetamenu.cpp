@@ -103,7 +103,7 @@ namespace MWVR
 
     void VrMetaMenu::close()
     {
-        MWBase::Environment::get().getWindowManager()->removeGuiMode(MWGui::GM_VrMetaMenu);
+        MWBase::Environment::get().getWindowManager()->exitCurrentGuiMode();
     }
 
     void VrMetaMenu::onButtonClicked(MyGUI::Widget *sender)

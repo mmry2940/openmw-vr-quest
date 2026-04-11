@@ -6,9 +6,12 @@
 #include <string>
 #include <vector>
 
-#include <extern/oics/ICSInputControlSystem.h>
-
 #include <components/sdlutil/events.hpp>
+
+namespace ICS
+{
+    class InputControlSystem;
+}
 
 namespace MWInput
 {
@@ -66,9 +69,10 @@ namespace MWInput
 
         void actionValueChanged(int action, float currentValue, float previousValue);
 
-        ICS::InputControlSystem& ics();
-
         void saveBindings();
+
+        ICS::InputControlSystem& ics();
+        const ICS::InputControlSystem& ics() const;
 
     private:
         void setupSDLKeyMappings();

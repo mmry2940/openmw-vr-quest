@@ -2,7 +2,6 @@
 #define MWLUA_IDCOLLECTIONBINDINGS_H
 
 #include <functional>
-#include <utility>
 
 #include <components/esm/refid.hpp>
 #include <components/lua/luastate.hpp>
@@ -11,10 +10,10 @@ namespace MWLua
 {
     struct Identity
     {
-        template <class T>
-        constexpr T&& operator()(T&& value) const noexcept
+        template <typename T>
+        constexpr T&& operator()(T&& t) const noexcept
         {
-            return std::forward<T>(value);
+            return std::forward<T>(t);
         }
     };
 

@@ -1,7 +1,7 @@
 #include "interpreter.hpp"
 
 #include <cassert>
-#include <components/misc/format.hpp>
+#include <format>
 #include <stdexcept>
 #include <string>
 

@@ -28,8 +28,10 @@ class VrEntryActivity : MainActivity() {
             }
 
             autoStartHandled = true
-            Log.d(TAG, "VrEntryActivity.$source: auto-starting via MainActivity pipeline")
-            checkStartGame()
+            Log.d(TAG, "VrEntryActivity.$source: auto-starting directly to native engine (bypassing validation)")
+            // Skip checkStartGame() validation and go directly to startGame()
+            // This allows VR mode to launch even if game files aren't pre-configured
+            startGame()
             return
         }
 

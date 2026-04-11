@@ -58,14 +58,6 @@
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/luamanager.hpp"
-
-#ifdef USE_OPENXR
-#include "../mwvr/vrenvironment.hpp"
-#include "../mwvr/vrinputmanager.hpp"
-#include "../mwvr/vrviewer.hpp"
-#include "../mwvr/vrsession.hpp"
-#include "../mwvr/vrtracking.hpp"
-#endif
 #include "../mwbase/mechanicsmanager.hpp"
 #include "../mwbase/scriptmanager.hpp"
 #include "../mwbase/soundmanager.hpp"
@@ -318,7 +310,9 @@ namespace MWWorld
             viewer, rootNode, mResourceSystem, workQueue, *mNavigator, mGroundcoverStore, unrefQueue);
         mProjectileManager = std::make_unique<ProjectileManager>(
             mRendering->getLightRoot()->asGroup(), mResourceSystem, mRendering.get(), mPhysics.get());
+#if !defined(__ANDROID__) && !defined(ANDROID)
         mRendering->preloadCommonAssets();
+#endif
 
         mWeatherManager = std::make_unique<MWWorld::WeatherManager>(*mRendering, mStore);
 
@@ -995,10 +989,6 @@ namespace MWWorld
         else
             mWorldScene->changeToInteriorCell(destinationCell->getNameId(), position, adjustPlayerPos, changeEvent);
         addContainerScripts(getPlayerPtr(), getPlayerPtr().getCell());
-#ifdef USE_OPENXR
-        auto* xrInput = MWVR::Environment::get().getInputManager();
-        if (xrInput) xrInput->requestRecenter(false);
-#endif
     }
 
     float World::getMaxActivationDistance() const

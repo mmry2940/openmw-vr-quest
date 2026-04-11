@@ -1,6 +1,6 @@
 #include "labels.hpp"
 
-#include <components/misc/format.hpp>
+#include <format>
 
 #include <components/esm3/dialoguecondition.hpp>
 #include <components/esm3/loadalch.hpp>

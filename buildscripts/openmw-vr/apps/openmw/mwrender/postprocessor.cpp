@@ -773,7 +773,7 @@ namespace MWRender
                 return technique;
 
         std::string name;
-        if (mTechniqueFiles.contains(VFS::Path::Normalized(path)))
+        if (mTechniqueFiles.find(VFS::Path::Normalized(path)) != mTechniqueFiles.end())
             name = mVFS->getStem(path);
         else
             name = path.stem();
@@ -850,11 +850,13 @@ namespace MWRender
 
     void PostProcessor::disableDynamicShaders()
     {
-        const auto oldSize = mTechniques.size();
-        std::erase_if(mTechniques, [](const auto& technique) { return technique->getDynamic(); });
-        const auto erased = oldSize - mTechniques.size();
+        const auto prevSize = mTechniques.size();
+        mTechniques.erase(
+            std::remove_if(mTechniques.begin(), mTechniques.end(),
+                [](const auto& technique) { return technique->getDynamic(); }),
+            mTechniques.end());
 
-        if (erased)
+        if (mTechniques.size() != prevSize)
             dirtyTechniques();
     }
 

@@ -23,7 +23,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <fstream>
 #include <filesystem>
 #include <map>
 #include <set>
@@ -239,20 +238,6 @@ namespace EsmLoader
                 }
 
                 const Files::MultiDirCollection& collection = fileCollections.getCollection(extension);
-
-                // Skip ESM4 files (TES4/FO3/FNV/FO4): NavMeshTool only handles ESM3 data.
-                // ESM4 files start with "TES4" instead of "TES3".
-                {
-                    const std::filesystem::path filePath = collection.getPath(file);
-                    std::ifstream peek(filePath, std::ios::binary);
-                    char magic[4] = {};
-                    peek.read(magic, 4);
-                    if (std::string_view(magic, 4) == "TES4")
-                    {
-                        Log(Debug::Warning) << "Skipping ESM4 content file (not supported by NavMeshTool): " << file;
-                        continue;
-                    }
-                }
 
                 const ESM::ReadersCache::BusyItem reader = readers.get(i);
                 reader->setEncoder(encoder);

@@ -1,7 +1,5 @@
 #include "localscripts.hpp"
 
-#include <algorithm>
-
 #include <components/debug/debuglog.hpp>
 #include <components/esm3/loadcont.hpp>
 #include <components/esm3/loadcrea.hpp>

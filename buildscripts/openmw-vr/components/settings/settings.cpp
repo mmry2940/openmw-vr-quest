@@ -322,7 +322,7 @@ namespace Settings
 
     void Manager::setString(std::string_view setting, std::string_view category, const std::string& value)
     {
-        auto found = mUserSettings.find(std::make_pair(category, setting));
+        auto found = mUserSettings.find(std::make_pair(std::string(category), std::string(setting)));
         if (found != mUserSettings.end())
         {
             if (found->second == value)

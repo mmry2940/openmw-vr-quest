@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <bitset>
 #include <cassert>
-#include <components/misc/format.hpp>
+#include <format>
 #include <sstream>
 
 #include <components/misc/strings/algorithm.hpp>

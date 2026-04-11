@@ -37,15 +37,6 @@ namespace SDLUtil
             , mPressure(arg.pressure)
         {
         }
-#else
-        explicit TouchEvent(const SDL_ControllerButtonEvent&)
-            : mDevice(0)
-            , mFinger(0)
-            , mX(0.f)
-            , mY(0.f)
-            , mPressure(0.f)
-        {
-        }
 #endif
     };
 

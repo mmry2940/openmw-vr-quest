@@ -1,0 +1,30 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Writer Reviewer: HTTP Server",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ai/writer_reviewer_workflow/main.py",
+      "cwd": "${workspaceFolder}/ai/writer_reviewer_workflow",
+      "envFile": "${workspaceFolder}/ai/writer_reviewer_workflow/.env",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Writer Reviewer: CLI",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ai/writer_reviewer_workflow/main.py",
+      "cwd": "${workspaceFolder}/ai/writer_reviewer_workflow",
+      "envFile": "${workspaceFolder}/ai/writer_reviewer_workflow/.env",
+      "args": [
+        "--cli",
+        "--prompt",
+        "Write a concise announcement for a new hiking app release."
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

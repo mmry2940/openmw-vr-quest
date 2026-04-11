@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <filesystem>
-#include <components/misc/format.hpp>
+#include <format>
 #include <fstream>
 
 #include <zlib.h>

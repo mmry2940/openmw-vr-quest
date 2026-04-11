@@ -1,6 +1,6 @@
 #include "utf8.hpp"
 
-#include <components/misc/format.hpp>
+#include <format>
 
 namespace
 {

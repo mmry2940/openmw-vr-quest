@@ -9,12 +9,6 @@
 
 #include "../mwbase/environment.hpp"
 
-#ifdef USE_OPENXR
-#include "../mwvr/vrenvironment.hpp"
-#include "../mwvr/vrtracking.hpp"
-#include "../mwvr/vrinputmanager.hpp"
-#endif
-
 #include "../mwworld/esmstore.hpp"
 
 #include "actor.hpp"
@@ -136,21 +130,6 @@ namespace MWPhysics
     {
         // Reset per-frame data
         actor.mWalkingOnWater = false;
-
-#ifdef USE_OPENXR
-        if (actor.mIsPlayer)
-        {
-            auto tm = MWVR::Environment::get().getTrackingManager();
-            if (tm)
-            {
-                float pitch = 0.f, yaw = 0.f;
-                tm->movementAngles(yaw, pitch);
-                actor.mRotation.x() += pitch;
-                actor.mRotation.y() += yaw;
-            }
-        }
-#endif
-
         // Anything to collide with?
         if (actor.mSkipCollisionDetection)
         {

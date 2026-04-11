@@ -106,10 +106,10 @@ namespace L10n
 
     const icu::MessageFormat* MessageBundles::findMessage(std::string_view key, std::string_view localeName) const
     {
-        auto iter = mBundles.find(std::string(localeName));
+        auto iter = mBundles.find(localeName);
         if (iter != mBundles.end())
         {
-            auto message = iter->second.find(std::string(key));
+            auto message = iter->second.find(key);
             if (message != iter->second.end())
             {
                 return &(message->second);

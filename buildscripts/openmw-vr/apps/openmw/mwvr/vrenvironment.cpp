@@ -38,11 +38,21 @@ void MWVR::Environment::cleanup()
     if (mOpenXRManager)
         delete mOpenXRManager;
     mOpenXRManager = nullptr;
+    if (mTrackingManager)
+        delete mTrackingManager;
+    mTrackingManager = nullptr;
+    if (mPlayerAnimation)
+        delete mPlayerAnimation;
+    mPlayerAnimation = nullptr;
 }
 
 MWVR::Environment& MWVR::Environment::get()
 {
-    assert(sThis);
+    if (!sThis)
+    {
+        static Environment singleton;
+        (void)singleton;
+    }
     return *sThis;
 }
 

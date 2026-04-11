@@ -273,7 +273,12 @@ namespace MWVR
         XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
         XrFrameState frameState{ XR_TYPE_FRAME_STATE };
 
-        CHECK_XRCMD(xrWaitFrame(mSession, &frameWaitInfo, &frameState));
+        try {
+            CHECK_XRCMD(xrWaitFrame(mSession, &frameWaitInfo, &frameState));
+        } catch (const std::exception& e) {
+            __android_log_print(ANDROID_LOG_FATAL, "OpenMWXRDiag", "xrWaitFrame failed: %s", e.what());
+            throw;
+        }
         mFrameState = frameState;
 
         FrameInfo frameInfo;

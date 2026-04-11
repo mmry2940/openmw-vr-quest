@@ -1,7 +1,7 @@
 #ifndef OPENMW_COMPONENTS_FX_TYPES_HPP
 #define OPENMW_COMPONENTS_FX_TYPES_HPP
 
-#include <components/misc/format.hpp>
+#include <format>
 #include <optional>
 #include <variant>
 

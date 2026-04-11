@@ -15,10 +15,6 @@
 
 #include "mwbase/environment.hpp"
 
-#ifdef USE_OPENXR
-#include "mwvr/vrenvironment.hpp"
-#endif
-
 namespace Resource
 {
     class ResourceSystem;
@@ -147,9 +143,6 @@ namespace OMW
         std::unique_ptr<MWLua::Worker> mLuaWorker;
         std::unique_ptr<L10n::Manager> mL10nManager;
         MWBase::Environment mEnvironment;
-#ifdef USE_OPENXR
-        MWVR::Environment mXrEnvironment;
-#endif
         ToUTF8::FromType mEncoding;
         std::unique_ptr<ToUTF8::Utf8Encoder> mEncoder;
         Files::PathContainer mDataDirs;
@@ -204,11 +197,10 @@ namespace OMW
         /// Prepare engine for game play
         void prepareEngine();
 
+        void initVr();
+
         void createWindow();
         void setWindowIcon();
-#ifdef USE_OPENXR
-        void initVr();
-#endif
 
     public:
         Engine(Files::ConfigurationManager& configurationManager);

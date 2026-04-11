@@ -124,16 +124,6 @@
 #include "videowidget.hpp"
 #include "waitdialog.hpp"
 
-#ifdef USE_OPENXR
-#include "../mwvr/vrmetamenu.hpp"
-#include "../mwvr/vrenvironment.hpp"
-#include "../mwvr/vrgui.hpp"
-#include "../mwvr/vrvirtualkeyboard.hpp"
-#include "../mwvr/vrviewer.hpp"
-#include "../mwvr/vrsession.hpp"
-#include "../mwvr/vrtracking.hpp"
-#endif
-
 namespace MWGui
 {
     namespace
@@ -260,10 +250,6 @@ namespace MWGui
             "Resource", "ResourceImageSetPointer");
         MyGUI::FactoryManager::getInstance().registerFactory<AutoSizedResourceSkin>(
             "Resource", "AutoSizedResourceSkin");
-#ifdef USE_OPENXR
-        if (MWBase::Environment::get().getVrMode())
-            MWVR::VRGUIManager::registerMyGUIFactories();
-#endif
         MyGUI::ResourceManager::getInstance().load("core.xml");
 
         const bool keyboardNav = Settings::gui().mKeyboardNavigation;
@@ -332,15 +318,6 @@ namespace MWGui
 
         mDragAndDrop = std::make_unique<DragAndDrop>();
         mItemTransfer = std::make_unique<ItemTransfer>(*this);
-#ifdef USE_OPENXR
-        {
-            auto vrMetaMenu = std::make_unique<MWVR::VrMetaMenu>(w, h);
-            mVrMetaMenu = vrMetaMenu.get();
-            mWindows.push_back(std::move(vrMetaMenu));
-            mGuiModeStates[GM_VrMetaMenu] = GuiModeState(mVrMetaMenu);
-            mVirtualKeyboardManager = std::make_unique<MWVR::VirtualKeyboardManager>();
-        }
-#endif
 
         auto recharge = std::make_unique<Recharge>();
         mGuiModeStates[GM_Recharge] = GuiModeState(recharge.get());
@@ -2085,11 +2062,6 @@ namespace MWGui
         setKeyFocusWidget(mVideoWidget);
 
         mVideoBackground->setVisible(true);
-#ifdef USE_OPENXR
-        auto* vrGuiManager = MWVR::Environment::get().getGUIManager();
-        if (vrGuiManager)
-            vrGuiManager->insertLayer(mVideoBackground->getLayer()->getName());
-#endif
 
         bool cursorWasVisible = mCursorVisible;
         setCursorVisible(false);
@@ -2140,10 +2112,6 @@ namespace MWGui
         // Restore normal rendering
         updateVisible();
 
-#ifdef USE_OPENXR
-        if (vrGuiManager)
-            vrGuiManager->removeLayer(mVideoBackground->getLayer()->getName());
-#endif
         mVideoBackground->setVisible(false);
     }
 

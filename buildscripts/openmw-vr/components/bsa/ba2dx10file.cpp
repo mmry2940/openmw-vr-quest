@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cstring>
 #include <filesystem>
-#include <components/misc/format.hpp>
+#include <format>
 #include <istream>
 
 #include <zlib.h>

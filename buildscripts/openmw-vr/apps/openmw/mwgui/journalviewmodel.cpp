@@ -1,6 +1,5 @@
 #include "journalviewmodel.hpp"
 
-#include <algorithm>
 #include <map>
 
 #include <MyGUI_LanguageManager.h>
@@ -213,9 +212,10 @@ namespace MWGui
                 if (!visitedQuests.insert(questName).second)
                     continue;
 
-                bool isFinished = std::find_if(journal->getQuests().begin(), journal->getQuests().end(), [&](const auto& pair) {
+                const auto& quests = journal->getQuests();
+                bool isFinished = std::find_if(quests.begin(), quests.end(), [&](const auto& pair) {
                     return pair.second.isFinished() && Misc::StringUtils::ciEqual(questName, pair.second.getName());
-                }) != journal->getQuests().end();
+                }) != quests.end();
 
                 if (activeOnly && isFinished)
                     continue;

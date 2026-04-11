@@ -390,9 +390,9 @@ namespace MWVR
         auto* gc = state->getGraphicsContext();
         auto* gl = osg::GLExtensions::Get(state->getContextID(), false);
 
-        auto* traits = SDLUtil::GraphicsWindowSDL2::findContext(*mViewer)->getTraits();
-        int screenWidth = traits->width;
-        int screenHeight = traits->height;
+        auto* traits = gc ? gc->getTraits() : nullptr;
+        int screenWidth = traits ? traits->width : mFramebuffer->width();
+        int screenHeight = traits ? traits->height : mFramebuffer->height();
 
         mMsaaResolveTexture->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
 

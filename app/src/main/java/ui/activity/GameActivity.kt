@@ -95,7 +95,14 @@ class GameActivity : SDLActivity() {
         }
 
         System.loadLibrary("GL")
-        System.loadLibrary("openxr_loader")
+        try {
+            System.loadLibrary("openxr_loader")
+            Log.i("OpenMW", "Loaded libopenxr_loader.so from app package")
+        } catch (e: UnsatisfiedLinkError) {
+            // Some builds rely on native OpenXR bootstrap and do not package this loader.
+            // Do not crash here; let native initialization decide runtime availability.
+            Log.w("OpenMW", "OpenXR loader not packaged; continuing without explicit Java load", e)
+        }
         System.loadLibrary("openmw")
     }
 
@@ -202,12 +209,12 @@ class GameActivity : SDLActivity() {
             val runtimeJson = File(runtimeDir, "active_runtime.aarch64.json")
             val json = JSONObject()
             val runtime = JSONObject()
-            runtime.put("library_path", "libopenxr_forwardloader.so")
+            runtime.put("library_path", "libopenxr_loader.so")
             json.put("file_format_version", "1.0.0")
             json.put("runtime", runtime)
             runtimeJson.writeText(json.toString())
             setOpenXrRuntimeJson(runtimeJson.absolutePath)
-            Log.i("OpenMW", "OpenXR runtime bootstrap: Quest Forward Loader -> " + runtimeJson.absolutePath)
+            Log.i("OpenMW", "OpenXR runtime bootstrap: packaged loader -> " + runtimeJson.absolutePath)
         } catch (e: Exception) {
             Log.e("OpenMW", "Failed to configure OpenXR runtime JSON", e)
         }

@@ -4,7 +4,7 @@
 #include <cassert>
 #include <chrono>
 #include <filesystem>
-#include <components/misc/format.hpp>
+#include <format>
 #include <fstream>
 #include <regex>
 #include <set>

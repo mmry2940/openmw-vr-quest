@@ -147,7 +147,7 @@ namespace MWVR
             mXRInput->getActionSet(ActionSet::Haptics).applyHaptics(TrackedLimb::RIGHT_HAND, intensity);
     }
 
-    void VRInputManager::processChangedSettings(const std::set<std::pair<std::string, std::string>>& changed)
+    void VRInputManager::processChangedSettings(const Settings::CategorySettingVector& changed)
     {
         MWInput::InputManager::processChangedSettings(changed);
 
@@ -594,7 +594,7 @@ namespace MWVR
                     mActionManager->executeAction(actionCode);
                     break;
                 case A_VrMetaMenu:
-                    MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_VrMetaMenu);
+                    mActionManager->toggleMainMenu();
                     break;
                 case MWInput::A_Inventory:
                     wm->toggleVisible(MWGui::GW_Inventory);

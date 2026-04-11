@@ -1,7 +1,7 @@
 #include "record.hpp"
 #include "labels.hpp"
 
-#include <components/misc/format.hpp>
+#include <format>
 #include <iostream>
 #include <numeric>
 #include <sstream>

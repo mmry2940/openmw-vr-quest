@@ -1,8 +1,7 @@
 #include "technique.hpp"
 
-#include <algorithm>
 #include <array>
-#include <components/misc/format.hpp>
+#include <format>
 #include <string>
 #include <utility>
 

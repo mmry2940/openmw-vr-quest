@@ -23,3 +23,4 @@ buildscripts/build_log.txt
 buildscripts/force_build.log
 buildscripts/recent*.log
 *.log
+.env

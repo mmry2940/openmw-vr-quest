@@ -49,6 +49,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStreamReader
+import java.util.*
 
 import file.utils.CopyFilesFromAssets
 import mods.ModType
@@ -332,6 +333,7 @@ open class MainActivity : AppCompatActivity() {
         File(Constants.USER_CONFIG).mkdirs()
         if (!File(Constants.USER_OPENMW_CFG).exists())
             File(Constants.USER_OPENMW_CFG).writeText("# This is the user openmw.cfg. Feel free to modify it as you wish.\n")
+        ensureVRSettingsCfg()
 
         // set version stamp
         File(Constants.VERSION_STAMP).writeText(BuildConfig.VERSION_CODE.toString())
@@ -465,18 +467,30 @@ open class MainActivity : AppCompatActivity() {
                     reinstallStaticFiles()
                 }
 
-                val inst = GameInstaller(prefs.getString("game_files", "")!!)
+                val gameFilesPath = prefs.getString("game_files", "")!!
+                val inst = GameInstaller(gameFilesPath)
 
-                // Regenerate the fallback file in case user edits their Morrowind.ini
-                inst.convertIni(prefs.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF)!!)
+                // Only convert INI if game files are configured
+                if (gameFilesPath.isNotEmpty()) {
+                    // Regenerate the fallback file in case user edits their Morrowind.ini
+                    inst.convertIni(prefs.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF)!!)
+                }
 
                 generateOpenmwCfg()
 
                 // openmw.cfg: data, resources
                 file.Writer.write(Constants.OPENMW_CFG, "resources", Constants.RESOURCES)
-                file.Writer.write(Constants.OPENMW_CFG, "data", "\"" + inst.findDataFiles() + "\"")
+                // Only write data path if game files are configured
+                if (gameFilesPath.isNotEmpty()) {
+                    file.Writer.write(Constants.OPENMW_CFG, "data", "\"" + inst.findDataFiles() + "\"")
+                }
+                file.Writer.write(Constants.OPENMW_CFG, "user-data", "\"" + Constants.USER_FILE_STORAGE + "\"")
 
                 file.Writer.write(Constants.OPENMW_CFG, "encoding", prefs!!.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF)!!)
+
+                // Add VR Debug and VR settings to prevent crashes
+                ensureVRDebugSettings(Constants.OPENMW_CFG)
+                ensureVRSettings(Constants.OPENMW_CFG)
 
                 configureDefaultsBin(mapOf(
                         "scaling factor" to "%.2f".format(Locale.ROOT, scaling),
@@ -533,6 +547,8 @@ open class MainActivity : AppCompatActivity() {
                         "companion w" to "0.75",
                         "companion h" to "0.375"
                 ))
+
+                ensureVRSettingsCfg()
 
                 runOnUiThread {
                     obtainFixedScreenResolution()
@@ -644,6 +660,102 @@ open class MainActivity : AppCompatActivity() {
             }
 
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun ensureVRDebugSettings(openmwCfgPath: String) {
+        try {
+            val configFile = File(openmwCfgPath)
+            val currentContent = if (configFile.exists()) configFile.readText() else ""
+            
+            // Check if [VR Debug] section already exists with continue on errors setting
+            if (currentContent.contains("[VR Debug]") && currentContent.contains("continue on errors")) {
+                return
+            }
+            
+            val updatedContent = if (currentContent.contains("[VR Debug]")) {
+                // Section exists, just add the setting if missing
+                currentContent.replace("[VR Debug]", "[VR Debug]\ncontinue on errors=true")
+            } else {
+                // Add the section at the end
+                currentContent.trimEnd() + "\n\n[VR Debug]\ncontinue on errors=true\n"
+            }
+            
+            configFile.writeText(updatedContent)
+            Log.d(TAG, "ensureVRDebugSettings: Added VR Debug settings to openmw.cfg")
+        } catch (e: Exception) {
+            Log.e(TAG, "ensureVRDebugSettings: Failed to update config", e)
+        }
+    }
+
+    private fun ensureVRSettings(openmwCfgPath: String) {
+        try {
+            val configFile = File(openmwCfgPath)
+            val currentContent = if (configFile.exists()) configFile.readText() else ""
+
+            if (currentContent.contains("[VR]")) {
+                return
+            }
+
+            val updatedContent = currentContent.trimEnd() + "\n\n[VR]\nseated play=false\n"
+            configFile.writeText(updatedContent)
+            Log.d(TAG, "ensureVRSettings: Added VR section to openmw.cfg")
+        } catch (e: Exception) {
+            Log.e(TAG, "ensureVRSettings: Failed to update config", e)
+        }
+    }
+
+    private fun ensureVRSettingsCfg() {
+        try {
+            val settingsFile = File(Constants.USER_CONFIG, "settings.cfg")
+            val currentContent = if (settingsFile.exists()) settingsFile.readText() else ""
+            val requiredSettings = linkedMapOf(
+                "seated play" to "false",
+                "hand directed movement" to "false",
+                "haptics enabled" to "true",
+                "Prefer DirectX swapchains" to "false",
+                "Prefer sRGB swapchains" to "false",
+                "real height" to "1.75",
+                "realistic combat minimum swing velocity" to "1.8",
+                "realistic combat maximum swing velocity" to "4.5",
+                "left eye resolution x" to "recommended",
+                "left eye resolution y" to "recommended",
+                "right eye resolution x" to "recommended",
+                "right eye resolution y" to "recommended",
+                "left hand hud position" to "wrist"
+            )
+
+            val existingValues = mutableSetOf<String>()
+            var inVrSection = false
+            currentContent.lineSequence().forEach { rawLine ->
+                val line = rawLine.trim()
+                when {
+                    line.startsWith("[") && line.endsWith("]") -> inVrSection = line.equals("[VR]", ignoreCase = true)
+                    inVrSection && line.contains("=") -> existingValues += line.substringBefore("=").trim().lowercase(Locale.ROOT)
+                }
+            }
+
+            val missingEntries = requiredSettings.filterKeys { it.lowercase(Locale.ROOT) !in existingValues }
+            if (missingEntries.isEmpty()) {
+                return
+            }
+
+            val builder = StringBuilder(currentContent)
+            if (builder.isNotEmpty() && !builder.endsWith("\n")) {
+                builder.append('\n')
+            }
+            if (!currentContent.contains("[VR]")) {
+                builder.append("\n[VR]\n")
+            }
+            missingEntries.forEach { (key, value) ->
+                builder.append(key).append('=').append(value).append('\n')
+            }
+
+            settingsFile.parentFile?.mkdirs()
+            settingsFile.writeText(builder.toString())
+            Log.d(TAG, "ensureVRSettingsCfg: Added missing VR defaults to settings.cfg")
+        } catch (e: Exception) {
+            Log.e(TAG, "ensureVRSettingsCfg: Failed to update settings.cfg", e)
         }
     }
 

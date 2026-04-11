@@ -87,14 +87,6 @@
 #include "vismask.hpp"
 #include "water.hpp"
 
-#ifdef USE_OPENXR
-#include "../mwvr/vranimation.hpp"
-#include "../mwvr/vrpointer.hpp"
-#include "../mwvr/vrviewer.hpp"
-#include "../mwvr/vrenvironment.hpp"
-#include "../mwvr/vrcamera.hpp"
-#endif
-
 namespace MWRender
 {
     class PerViewUniformStateUpdater final : public SceneUtil::StateSetUpdater
@@ -527,12 +519,7 @@ namespace MWRender
         mWater = std::make_unique<Water>(
             sceneRoot->getParent(0), sceneRoot, mResourceSystem, mViewer->getIncrementalCompileOperation());
 
-#ifdef USE_OPENXR
-        mCamera = std::make_unique<MWVR::VRCamera>(mViewer->getCamera());
-        mUserPointer = std::make_shared<MWVR::UserPointer>(rootNode.get());
-#else
         mCamera = std::make_unique<Camera>(mViewer->getCamera());
-#endif
 
         mScreenshotManager = std::make_unique<ScreenshotManager>(viewer);
 
@@ -1328,14 +1315,8 @@ namespace MWRender
 
     void RenderingManager::renderPlayer(const MWWorld::Ptr& player)
     {
-#ifdef USE_OPENXR
-        MWVR::Environment::get().setPlayerAnimation(new MWVR::VRAnimation(player,
-            player.getRefData().getBaseNode(), mResourceSystem, false, mUserPointer));
-        mPlayerAnimation = MWVR::Environment::get().getPlayerAnimation();
-#else
         mPlayerAnimation = new NpcAnimation(player, player.getRefData().getBaseNode(), mResourceSystem, 0,
             NpcAnimation::VM_Normal, mFirstPersonFieldOfView);
-#endif
 
         mCamera->setAnimation(mPlayerAnimation.get());
         mCamera->attachTo(player);
@@ -1843,11 +1824,4 @@ namespace MWRender
     {
         mNavMesh->setMode(value);
     }
-
-#ifdef USE_OPENXR
-    MWVR::UserPointer& RenderingManager::userPointer()
-    {
-        return *mUserPointer;
-    }
-#endif
 }

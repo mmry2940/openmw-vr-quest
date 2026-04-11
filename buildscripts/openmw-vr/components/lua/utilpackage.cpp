@@ -79,7 +79,7 @@ namespace LuaUtil
         void addSwizzleFields(sol::usertype<T>& type)
         {
             // Generate mapping of swizzle characters to their getter functions
-            const auto components = []() {
+            auto components = []() {
                 std::array<std::pair<char, float (*)(const T&)>, T::num_components + 2> arr;
 
                 // 0/1 Components

@@ -83,11 +83,6 @@ namespace Debug
     struct DebugDrawer;
 }
 
-namespace MWVR
-{
-    class UserPointer;
-}
-
 namespace MWRender
 {
     class StateUpdater;
@@ -275,10 +270,6 @@ namespace MWRender
         bool pagingUnlockCache();
         void getPagedRefnums(const osg::Vec4i& activeGrid, std::vector<ESM::RefNum>& out);
 
-#ifdef USE_OPENXR
-        MWVR::UserPointer& userPointer();
-#endif
-
         void updateProjectionMatrix();
 
         void setScreenRes(int width, int height);
@@ -344,9 +335,6 @@ namespace MWRender
         osg::ref_ptr<SceneUtil::PositionAttitudeTransform> mPlayerNode;
         std::unique_ptr<Camera> mCamera;
         osg::ref_ptr<Debug::DebugDrawer> mDebugDraw;
-#ifdef USE_OPENXR
-        std::shared_ptr<MWVR::UserPointer> mUserPointer;
-#endif
 
         osg::ref_ptr<StateUpdater> mStateUpdater;
         osg::ref_ptr<SharedUniformStateUpdater> mSharedUniformStateUpdater;

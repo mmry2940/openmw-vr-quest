@@ -290,7 +290,7 @@ namespace Files
 
     void ConfigurationManager::processPath(std::filesystem::path& path, const std::filesystem::path& basePath) const
     {
-        const auto str = path.string();
+        const auto str = path.u8string();
 
         if (str.empty() || str[0] != '?')
         {
@@ -462,14 +462,14 @@ namespace Files
             static_cast<std::filesystem::path&>(value) = std::filesystem::path(intermediate);
             if (istream && !istream.eof() && istream.peek() != EOF)
             {
-                std::string remainder{ std::istreambuf_iterator(istream), {} };
+                std::string remainder{ std::istreambuf_iterator<char>(istream), {} };
                 Log(Debug::Warning) << "Trailing data in path setting. Used '" << value << "' but '" << remainder
                                     << "' remained";
             }
         }
         else
         {
-            std::string intermediate{ std::istreambuf_iterator(istream), {} };
+            std::string intermediate{ std::istreambuf_iterator<char>(istream), {} };
             static_cast<std::filesystem::path&>(value) = std::filesystem::path(intermediate);
         }
         return istream;
