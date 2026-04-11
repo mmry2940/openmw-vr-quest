@@ -37,6 +37,8 @@ public:
 
     Log& operator<<(const std::filesystem::path& rhs);
 
+    Log& operator<<(const std::filesystem::directory_entry& rhs);
+
     Log& operator<<(const std::u8string& rhs);
 
     Log& operator<<(std::u8string_view rhs);

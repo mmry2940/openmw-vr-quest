@@ -123,8 +123,12 @@ namespace DetourNavigator
     template <typename OutputIterator>
     Status findSmoothPath(const dtNavMeshQuery& navMeshQuery, const osg::Vec3f& halfExtents, const osg::Vec3f& start,
         const osg::Vec3f& end, const Flags includeFlags, const AreaCosts& areaCosts, const DetourSettings& settings,
+<<<<<<< HEAD
         float endTolerance, const ToNavMeshCoordinatesSpan<const osg::Vec3f>& checkpoints,
         OutputIterator out)
+=======
+        float endTolerance, const ToNavMeshCoordinatesSpan<const osg::Vec3f>& checkpoints, OutputIterator out)
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
     {
         dtQueryFilter queryFilter;
         queryFilter.setIncludeFlags(includeFlags);

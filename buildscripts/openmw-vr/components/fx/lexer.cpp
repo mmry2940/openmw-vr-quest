@@ -3,7 +3,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
-#include <format>
+#include <components/misc/format.hpp>
 
 #include <components/misc/strings/algorithm.hpp>
 
@@ -305,7 +305,11 @@ namespace Fx
                 ++endPtr;
             }
 
+<<<<<<< HEAD
             std::string_view literal(mHead, static_cast<std::size_t>(endPtr - mHead));
+=======
+            std::string_view literal(mHead, static_cast<std::string_view::size_type>(endPtr - mHead));
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
             mHead = endPtr;
 
             // Disallow -inf, -nan, and values that cannot be represented as doubles

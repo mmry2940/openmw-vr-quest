@@ -4,7 +4,10 @@
 #include "../mwgui/windowbase.hpp"
 
 #include <MyGUI_Button.h>
+<<<<<<< HEAD
 #include <MyGUI_EditBox.h>
+=======
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
 
 #include <map>
 #include <memory>

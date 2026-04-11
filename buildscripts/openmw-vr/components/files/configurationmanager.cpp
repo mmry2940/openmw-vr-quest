@@ -290,7 +290,7 @@ namespace Files
 
     void ConfigurationManager::processPath(std::filesystem::path& path, const std::filesystem::path& basePath) const
     {
-        const auto str = path.u8string();
+        const auto str = path.string();
 
         if (str.empty() || str[0] != '?')
         {
@@ -469,7 +469,11 @@ namespace Files
         }
         else
         {
+<<<<<<< HEAD
             std::string intermediate{ std::istreambuf_iterator<char>(istream), {} };
+=======
+            std::string intermediate{ std::istreambuf_iterator(istream), {} };
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
             static_cast<std::filesystem::path&>(value) = std::filesystem::path(intermediate);
         }
         return istream;

@@ -43,6 +43,11 @@ Log& Log::operator<<(const std::filesystem::path& rhs)
     return *this;
 }
 
+Log& Log::operator<<(const std::filesystem::directory_entry& rhs)
+{
+    return operator<<(rhs.path());
+}
+
 Log& Log::operator<<(const std::u8string& rhs)
 {
     if (mShouldLog)

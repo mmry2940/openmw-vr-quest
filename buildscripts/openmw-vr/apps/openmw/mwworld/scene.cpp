@@ -1082,7 +1082,11 @@ namespace MWWorld
 
     bool Scene::isCellActive(const CellStore& cell)
     {
+<<<<<<< HEAD
         return mActiveCells.find(const_cast<CellStore*>(&cell)) != mActiveCells.end();
+=======
+        return mActiveCells.contains(const_cast<CellStore*>(&cell));
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
     }
 
     Ptr Scene::searchPtrViaActorId(int actorId)

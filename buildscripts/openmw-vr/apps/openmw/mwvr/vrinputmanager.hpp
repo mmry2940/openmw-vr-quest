@@ -72,7 +72,11 @@ namespace MWVR
 
         void applyHapticsLeftHand(float intensity);
         void applyHapticsRightHand(float intensity);
+<<<<<<< HEAD
         void processChangedSettings(const Settings::CategorySettingVector& changed) override;
+=======
+        void processChangedSettings(const std::set< std::pair<std::string, std::string> >& changed) override;
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
 
         void throwDocumentError(TiXmlElement* element, std::string error);
         std::string requireAttribute(TiXmlElement* element, std::string attribute);

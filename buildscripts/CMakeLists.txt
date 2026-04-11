@@ -607,6 +607,7 @@ ExternalProject_Add(fmt
 	BUILD_COMMAND ""
 	INSTALL_COMMAND mkdir -p ${prefix}/include
 	COMMAND cp -r <SOURCE_DIR>/include/fmt ${prefix}/include/
+<<<<<<< HEAD
 	COMMAND cp ${CMAKE_SOURCE_DIR}/patches/fmt/format.h ${prefix}/include/format
 )
 
@@ -632,6 +633,10 @@ if (BUILD_OPENMW_MP)
 	)
 endif ()
 
+=======
+)
+
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
 # Build ICU 70.1 for the host (native Linux) so the cross-compile ICU build
 # inside OpenMW's extern/ can use the host tools (genrb, icupkg, etc.).
 # We explicitly unset NDK env vars (CC, CXX, AR, etc.) so autotools picks up
@@ -721,7 +726,11 @@ set(OPENMW_LOCAL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/openmw-vr)
 if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
 	message(STATUS "OpenMW source: local openmw-vr (${OPENMW_LOCAL_SOURCE_DIR})")
 	ExternalProject_Add(openmw
+<<<<<<< HEAD
 		DEPENDS ${OPENMW_DEPENDENCIES}
+=======
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3 fmt
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
 
 		SOURCE_DIR ${OPENMW_LOCAL_SOURCE_DIR}
 		DOWNLOAD_COMMAND ""
@@ -746,7 +755,11 @@ elseif(USE_LOCAL_OPENMW_VR AND NOT ALLOW_OPENMW_UPSTREAM_FALLBACK)
 else()
 	message(STATUS "OpenMW source: upstream OpenMW ${OPENMW_VERSION}")
 	ExternalProject_Add(openmw
+<<<<<<< HEAD
 		DEPENDS ${OPENMW_DEPENDENCIES}
+=======
+		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3 fmt
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
 
 		URL https://github.com/OpenMW/openmw/archive/${OPENMW_VERSION}.tar.gz
 		URL_HASH ${OPENMW_HASH}

@@ -83,6 +83,11 @@ namespace Debug
     struct DebugDrawer;
 }
 
+namespace MWVR
+{
+    class UserPointer;
+}
+
 namespace MWRender
 {
     class StateUpdater;

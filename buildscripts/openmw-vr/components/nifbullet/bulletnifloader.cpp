@@ -1,5 +1,6 @@
 #include "bulletnifloader.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <sstream>
 #include <tuple>
@@ -86,7 +87,12 @@ namespace NifBullet
         if (Misc::StringUtils::ciEqual(node.mName, "Bounding Box"))
         {
             if (node.mBounds.mType == Nif::BoundingVolume::Type::BOX_BV
+<<<<<<< HEAD
                 && std::all_of(std::begin(node.mBounds.mBox.mExtents._v), std::end(node.mBounds.mBox.mExtents._v), [](float extent) { return extent > 0.f; }))
+=======
+                && std::all_of(std::begin(node.mBounds.mBox.mExtents._v), std::end(node.mBounds.mBox.mExtents._v),
+                    [](float extent) { return extent > 0.f; }))
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
             {
                 mShape->mCollisionBox.mExtents = node.mBounds.mBox.mExtents;
                 mShape->mCollisionBox.mCenter = node.mBounds.mBox.mCenter;

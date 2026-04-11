@@ -304,7 +304,11 @@ namespace ESM4
         if ((mHeader.mFlags & Rec_ESM) == 0 || (mHeader.mFlags & Rec_Localized) == 0)
             return;
 
+<<<<<<< HEAD
         const std::string prefix = mCtx.filename.stem().filename().u8string();
+=======
+        const std::string prefix = mCtx.filename.stem().filename().string();
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
 
         buildLStringIndex(LocalizedStringType::Strings, prefix);
         buildLStringIndex(LocalizedStringType::ILStrings, prefix);

@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <extern/oics/ICSInputControlSystem.h>
+
 #include <components/sdlutil/events.hpp>
 
 namespace ICS
@@ -68,6 +70,8 @@ namespace MWInput
         SDL_Scancode getKeyBinding(int actionId);
 
         void actionValueChanged(int action, float currentValue, float previousValue);
+
+        ICS::InputControlSystem& ics();
 
         void saveBindings();
 

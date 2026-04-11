@@ -57,9 +57,15 @@ namespace MWWorld
                 mESMVersions[index] = reader->getVer();
                 mStore.load(*reader, listener, mDialogue);
 
+                const std::string readerName = Files::pathToUnicodeString(reader->getName());
                 if (!mMasterFileFormat.has_value()
+<<<<<<< HEAD
                     && (Misc::StringUtils::ciEndsWith(reader->getName().u8string(), ".esm")
                         || Misc::StringUtils::ciEndsWith(reader->getName().u8string(), ".omwgame")))
+=======
+                    && (Misc::StringUtils::ciEndsWith(readerName, ".esm")
+                        || Misc::StringUtils::ciEndsWith(readerName, ".omwgame")))
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
                     mMasterFileFormat = reader->getFormatVersion();
                 break;
             }

@@ -500,11 +500,19 @@ namespace MWInput
         int controllerType = ControllerManager::getControllerType();
 
         bool isXbox = controllerType == SDL_CONTROLLER_TYPE_XBOX360 || controllerType == SDL_CONTROLLER_TYPE_XBOXONE;
+    #if defined(SDL_CONTROLLER_TYPE_PS5)
         bool isPsx = controllerType == SDL_CONTROLLER_TYPE_PS3 || controllerType == SDL_CONTROLLER_TYPE_PS4
+<<<<<<< HEAD
 #if SDL_VERSION_ATLEAST(2, 0, 14)
             || controllerType == SDL_CONTROLLER_TYPE_PS5
 #endif
             ;
+=======
+            || controllerType == SDL_CONTROLLER_TYPE_PS5;
+    #else
+        bool isPsx = controllerType == SDL_CONTROLLER_TYPE_PS3 || controllerType == SDL_CONTROLLER_TYPE_PS4;
+    #endif
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
         bool isSwitch = controllerType == SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO;
 
         switch (button)

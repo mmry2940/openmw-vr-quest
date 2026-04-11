@@ -594,7 +594,11 @@ namespace MWVR
                     mActionManager->executeAction(actionCode);
                     break;
                 case A_VrMetaMenu:
+<<<<<<< HEAD
                     mActionManager->toggleMainMenu();
+=======
+                    MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_VrMetaMenu);
+>>>>>>> 3ecc687e950b13580a4e709d17a2dd7170894a4e
                     break;
                 case MWInput::A_Inventory:
                     wm->toggleVisible(MWGui::GW_Inventory);

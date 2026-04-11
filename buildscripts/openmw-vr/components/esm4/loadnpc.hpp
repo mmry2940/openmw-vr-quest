@@ -176,8 +176,9 @@ namespace ESM4
         ESM::FormId mId; // from the header
         std::uint32_t mFlags; // from the header, see enum type RecordFlag for details
 
-        bool mIsTES4;
-        bool mIsFONV;
+        bool mIsTES4 = false;
+        bool mIsFO3 = false;
+        bool mIsFONV = false;
         bool mIsFO4 = false;
 
         std::string mEditorId;
