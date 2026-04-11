@@ -11,6 +11,7 @@ DEPLOY_RESOURCES="true"
 LTO="false"
 BUILD_TYPE="release"
 REQUIRE_VR_RUNTIME="true"
+BUILD_OPENMW_MP="false"
 CFLAGS="-fPIC"
 CXXFLAGS="-fPIC -frtti -fexceptions"
 LDFLAGS=""
@@ -25,7 +26,8 @@ usage() {
 	echo "	--ccache: use ccache to speed up repeated builds"
 	echo "	--debug: produce a debug build without optimizations"
 	echo "	--release: produce a release build with optimizations (default)"
-	echo "	--allow-non-vr: allow fallback to non-VR libopenmw.so if VR runtime is missing"
+	echo "\t--allow-non-vr: allow fallback to non-VR libopenmw.so if VR runtime is missing"
+	echo "\t--mp: enable TES3MP/OpenMW-MP client build support"
 	exit 0
 }
 
@@ -64,6 +66,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--allow-non-vr)
 			REQUIRE_VR_RUNTIME="false"
+			shift
+			;;
+		--mp)
+			BUILD_OPENMW_MP="true"
 			shift
 			;;
 		--no-resources)
@@ -117,6 +123,7 @@ echo "Build configuration:"
 echo " - Architecture: $ARCH"
 echo " - Build type: $BUILD_TYPE"
 echo " - AddressSanitizer: $ASAN"
+echo " - OpenMW-MP: $BUILD_OPENMW_MP"
 echo ""
 echo " ------------------------------------------------------------------------------ "
 echo ""
@@ -173,6 +180,7 @@ cmake ../.. \
 	-DBOOST_ARCH=$BOOST_ARCH \
 	-DBOOST_ADDRESS_MODEL=$BOOST_ADDRESS_MODEL \
 	-DFFMPEG_CPU=$FFMPEG_CPU \
+	-DBUILD_OPENMW_MP=$([[ "$BUILD_OPENMW_MP" = "true" ]] && echo ON || echo OFF) \
 	-DALLOW_OPENMW_UPSTREAM_FALLBACK=$([[ "$REQUIRE_VR_RUNTIME" = "false" ]] && echo ON || echo OFF)
 make -j1
 

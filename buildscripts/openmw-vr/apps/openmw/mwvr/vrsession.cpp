@@ -119,6 +119,11 @@ namespace MWVR
                     frameMeta->mShouldRender ? 1 : 0);
             }
         }
+        else
+        {
+            gc->swapBuffersImplementation();
+            return;
+        }
 
         if (frameMeta->mShouldSyncFrameLoop)
         {
@@ -128,10 +133,10 @@ namespace MWVR
                 std::array<CompositionLayerProjectionView, 2> layerStack{};
                 layerStack[(int)Side::LEFT_SIDE].subImage = viewer.subImage(Side::LEFT_SIDE);
                 layerStack[(int)Side::RIGHT_SIDE].subImage = viewer.subImage(Side::RIGHT_SIDE);
-                layerStack[(int)Side::LEFT_SIDE].pose = frameMeta->mViews[(int)ReferenceSpace::STAGE][(int)Side::LEFT_SIDE].pose;
-                layerStack[(int)Side::RIGHT_SIDE].pose = frameMeta->mViews[(int)ReferenceSpace::STAGE][(int)Side::RIGHT_SIDE].pose;
-                layerStack[(int)Side::LEFT_SIDE].fov = frameMeta->mViews[(int)ReferenceSpace::STAGE][(int)Side::LEFT_SIDE].fov;
-                layerStack[(int)Side::RIGHT_SIDE].fov = frameMeta->mViews[(int)ReferenceSpace::STAGE][(int)Side::RIGHT_SIDE].fov;
+                layerStack[(int)Side::LEFT_SIDE].pose = frameMeta->mViews[(int)ReferenceSpace::VIEW][(int)Side::LEFT_SIDE].pose;
+                layerStack[(int)Side::RIGHT_SIDE].pose = frameMeta->mViews[(int)ReferenceSpace::VIEW][(int)Side::RIGHT_SIDE].pose;
+                layerStack[(int)Side::LEFT_SIDE].fov = frameMeta->mViews[(int)ReferenceSpace::VIEW][(int)Side::LEFT_SIDE].fov;
+                layerStack[(int)Side::RIGHT_SIDE].fov = frameMeta->mViews[(int)ReferenceSpace::VIEW][(int)Side::RIGHT_SIDE].fov;
 
                 if (frameMeta->mFrameNo <= 10 || (frameMeta->mFrameNo % 300) == 0)
                 {
@@ -214,7 +219,7 @@ namespace MWVR
 
         mCondition.notify_all();
 
-        if (phase == FramePhase::Draw && frame->mShouldSyncFrameLoop)
+        if (phase == FramePhase::Draw && frame && frame->mShouldSyncFrameLoop)
         {
             Environment::get().getManager()->beginFrame();
         }

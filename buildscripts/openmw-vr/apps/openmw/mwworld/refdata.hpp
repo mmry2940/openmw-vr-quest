@@ -144,6 +144,10 @@ namespace MWWorld
         bool hasChanged() const;
         ///< Has this RefData changed since it was originally loaded?
 
+        // TES3MP compatibility helpers. Count lives in CellRef in modern OpenMW.
+        int getCount() const { return 1; }
+        void setCount(int) {}
+
         const ESM::AnimationState& getAnimationState() const;
         ESM::AnimationState& getAnimationState();
     };

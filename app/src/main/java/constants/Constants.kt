@@ -25,9 +25,9 @@ object Constants {
     val HIDE_CONTROLS = "pref_hide_controls"
 
     // TODO: the comment below is outdated
-    // Base path: [/sdcard]/Android/data/[com.libopenmw.openmw]/
+    // Base path: [/sdcard]/Android/data/[com.omw.vr]/
     // * /sdcard - in theory, can be different, haven't seen any on modern android though
-    // * com.libopenmw.openmw - our application id
+    // * com.omw.vr - our application id
     //
     // $base/share - savedata, shouldn't touch this
     // $base/resources - resource files from openmw, ok to overwrite
@@ -37,22 +37,22 @@ object Constants {
     // e.g. /sdcard/omw
     var USER_FILE_STORAGE = ""
 
-    // e.g. /data/data/is.xyz.omw/files/config/defaults.bin
+    // e.g. /data/data/com.omw.vr/files/config/defaults.bin
     var DEFAULTS_BIN = ""
 
-    // e.g. /data/data/is.xyz.omw/files/config/openmw.cfg
+    // e.g. /data/data/com.omw.vr/files/config/openmw.cfg
     var OPENMW_CFG = ""
 
-    // e.g. /data/data/is.xyz.omw/files/config/openmw.base.cfg
+    // e.g. /data/data/com.omw.vr/files/config/openmw.base.cfg
     var OPENMW_BASE_CFG = ""
 
-    // e.g. /data/data/is.xyz.omw/files/config/openmw.fallback.cfg
+    // e.g. /data/data/com.omw.vr/files/config/openmw.fallback.cfg
     var OPENMW_FALLBACK_CFG = ""
 
-    // e.g. /data/data/is.xyz.omw/files/resources
+    // e.g. /data/data/com.omw.vr/files/resources
     var RESOURCES = ""
 
-    // e.g. /data/data/is.xyz.omw/files/config
+    // e.g. /data/data/com.omw.vr/files/config
     var GLOBAL_CONFIG = ""
 
     // e.g. /sdcard/omw/config
@@ -62,6 +62,6 @@ object Constants {
     var USER_OPENMW_CFG = ""
 
     // Contains app version code for currently deployed resources; redeployed on mismatch
-    // e.g. /data/data/is.xyz.omw/files/stamp
+    // e.g. /data/data/com.omw.vr/files/stamp
     var VERSION_STAMP = ""
 }

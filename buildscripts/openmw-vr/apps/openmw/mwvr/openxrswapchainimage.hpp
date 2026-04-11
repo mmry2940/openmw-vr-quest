@@ -20,7 +20,8 @@ namespace MWVR
         OpenXRSwapchainImage();
         virtual ~OpenXRSwapchainImage() {};
 
-        virtual void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y) = 0;
+        virtual void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y,
+            const unsigned char* sourcePixels = nullptr, int sourceWidth = 0, int sourceHeight = 0) = 0;
     };
 }
 

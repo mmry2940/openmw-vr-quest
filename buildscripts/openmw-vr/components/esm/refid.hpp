@@ -113,6 +113,9 @@ namespace ESM
         // Returns a reference to the value of StringRefId if it's the underlying value or throws an exception.
         const std::string& getRefIdString() const;
 
+        // TES3MP compatibility helper for legacy call sites.
+        const char* c_str() const { return getRefIdString().c_str(); }
+
         // Returns a string with serialized underlying value.
         std::string toString() const;
 

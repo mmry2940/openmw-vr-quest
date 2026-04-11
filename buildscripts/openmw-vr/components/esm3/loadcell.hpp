@@ -179,6 +179,9 @@ namespace ESM
         std::string getDescription() const;
         ///< Return a short string describing the cell (mostly used for debugging/logging purpose)
 
+        // TES3MP compatibility helper.
+        std::string getShortDescription() const { return getDescription(); }
+
         /* Get the next reference in this cell, if any. Returns false when
            there are no more references in the cell.
 

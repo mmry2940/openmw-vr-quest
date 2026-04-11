@@ -289,6 +289,15 @@ namespace MWWorld
         ResolutionHandle resolveTemporarily();
         void unresolve();
 
+        // TES3MP compatibility helper.
+        void setResolved(bool value)
+        {
+            if (value)
+                resolve();
+            else
+                unresolve();
+        }
+
         friend class ContainerStoreIteratorBase<Ptr>;
         friend class ContainerStoreIteratorBase<ConstPtr>;
         friend class ResolutionListener;

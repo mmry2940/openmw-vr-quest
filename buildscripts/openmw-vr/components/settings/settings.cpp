@@ -188,7 +188,8 @@ namespace Settings
             Settings::StaticValues::init();
 
         for (const auto& [key, value] : originalDefaultSettings)
-            if (!sInitialized.contains(key))
+            if (!sInitialized.contains(key)
+                && key.first != "VR" && key.first != "VR Debug")
                 throw std::runtime_error("Default setting [" + key.first + "] " + key.second + " is not initialized");
 
         return settingspath;

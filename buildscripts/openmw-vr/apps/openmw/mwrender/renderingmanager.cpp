@@ -1615,6 +1615,11 @@ namespace MWRender
         return getWorldspaceChunkMgr(worldspace).mTerrain->getHeightAt(pos);
     }
 
+    void RenderingManager::setCamera(std::unique_ptr<Camera> camera)
+    {
+        mCamera = std::move(camera);
+    }
+
     void RenderingManager::overrideFieldOfView(float val)
     {
         if (mFieldOfViewOverridden != true || mFieldOfViewOverride != val)

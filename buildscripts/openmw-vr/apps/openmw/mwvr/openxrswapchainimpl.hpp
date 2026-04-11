@@ -34,7 +34,8 @@ namespace MWVR
             int samples() const { return mSamples; };
 
             void acquire(osg::GraphicsContext* gc);
-            void blitAndRelease(osg::GraphicsContext* gc, VRFramebuffer& readBuffer);
+            void blitAndRelease(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+                const unsigned char* sourcePixels = nullptr, int sourceWidth = 0, int sourceHeight = 0);
             void checkAcquired() const;
 
         protected:
@@ -59,7 +60,8 @@ namespace MWVR
         ~OpenXRSwapchainImpl();
 
         void beginFrame(osg::GraphicsContext* gc);
-        void endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer);
+        void endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+            const unsigned char* sourcePixels = nullptr, int sourceWidth = 0, int sourceHeight = 0);
 
         bool isAcquired() const;
         XrSwapchain xrSwapchain(void) const;
@@ -75,7 +77,8 @@ namespace MWVR
         void operator=(const OpenXRSwapchainImpl&) = delete;
 
         void acquire(osg::GraphicsContext* gc);
-        void release(osg::GraphicsContext* gc, VRFramebuffer& readBuffer);
+        void release(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+            const unsigned char* sourcePixels = nullptr, int sourceWidth = 0, int sourceHeight = 0);
         void checkAcquired() const;
 
     private:

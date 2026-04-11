@@ -71,6 +71,7 @@
 #include "mwworld/datetimemanager.hpp"
 #include "mwworld/worldimp.hpp"
 
+#include "mwrender/renderingmanager.hpp"
 #include "mwrender/vismask.hpp"
 
 #include "mwclass/classes.hpp"
@@ -84,6 +85,19 @@
 #include "mwstate/statemanagerimp.hpp"
 
 #include "profile.hpp"
+
+#ifdef BUILD_OPENMW_MP
+#include "mwmp/Main.hpp"
+#include "mwmp/GUIController.hpp"
+#endif
+
+#if defined(USE_OPENXR)
+#include "mwvr/vrinputmanager.hpp"
+#include "mwvr/vrviewer.hpp"
+#include "mwvr/vrgui.hpp"
+#include "mwvr/vrcamera.hpp"
+#include "mwvr/vrenvironment.hpp"
+#endif
 
 namespace
 {
@@ -212,12 +226,14 @@ bool OMW::Engine::frame(unsigned frameNumber, float frametime)
         {
             ScopedProfile<UserStatsType::Sound> profile(frameStart, frameNumber, *timer, *stats);
 
+#if !defined(USE_OPENXR)
             if (!mWindowManager->isWindowVisible())
             {
                 mSoundManager->pausePlayback();
                 return false;
             }
             else
+#endif
                 mSoundManager->resumePlayback();
 
             // sound
@@ -239,6 +255,10 @@ bool OMW::Engine::frame(unsigned frameNumber, float frametime)
         }
 
         bool paused = mWorld->getTimeManager()->isPaused();
+
+#ifdef BUILD_OPENMW_MP
+        mwmp::Main::frame(frametime);
+#endif
 
         {
             ScopedProfile<UserStatsType::Script> profile(frameStart, frameNumber, *timer, *stats);
@@ -401,6 +421,11 @@ OMW::Engine::~Engine()
     if (mScreenCaptureOperation != nullptr)
         mScreenCaptureOperation->stop();
 
+#ifdef BUILD_OPENMW_MP
+    if (mwmp::Main::isInitialized())
+        mwmp::Main::get().getGUIController()->cleanUp();
+#endif
+
     mMechanicsManager = nullptr;
     mDialogueManager = nullptr;
     mJournal = nullptr;
@@ -416,6 +441,10 @@ OMW::Engine::~Engine()
     mL10nManager = nullptr;
 
     mScriptContext = nullptr;
+
+#ifdef BUILD_OPENMW_MP
+    mwmp::Main::destroy();
+#endif
 
     mUnrefQueue = nullptr;
     mWorkQueue = nullptr;
@@ -684,6 +713,24 @@ void OMW::Engine::createWindow()
         realizeOperations->add(new Stereo::InitializeStereoOperation(settings));
     }
 
+#if defined(USE_OPENXR)
+    initVr();
+    // Add VR configureXR to the existing realize sequence rather than replacing it.
+    // VRViewer no longer calls setRealizeOperation to avoid dropping the
+    // OperationSequence that contains IdentifyOpenGLOperation, format selection, etc.
+    {
+        struct VRConfigureOperation : public osg::GraphicsOperation {
+            VRConfigureOperation() : osg::GraphicsOperation("VRConfigureOperation", false) {}
+            void operator()(osg::GraphicsContext* gc) override {
+                Log(Debug::Info) << "VRConfigureOperation: running configureXR";
+                MWVR::Environment::get().getViewer()->configureXR(gc);
+                Log(Debug::Info) << "VRConfigureOperation: configureXR complete";
+            }
+        };
+        realizeOperations->add(new VRConfigureOperation());
+    }
+#endif
+
     mViewer->realize();
     mGlMaxTextureImageUnits = identifyOp->getMaxTextureImageUnits();
 
@@ -729,10 +776,6 @@ void OMW::Engine::prepareEngine()
     mViewer->setSceneData(rootNode);
 
     createWindow();
-
-#if defined(USE_OPENXR)
-    initVr();
-#endif
 
     mVFS = std::make_unique<VFS::Manager>();
 
@@ -825,8 +868,30 @@ void OMW::Engine::prepareEngine()
         Version::getOpenmwVersionDescription(), shadersSupported, mCfgMgr);
     mEnvironment.setWindowManager(*mWindowManager);
 
+#if defined(USE_OPENXR)
+    {
+        const auto xrinputuserdefault = mCfgMgr.getUserConfigPath() / "xrcontrollersuggestions.xml";
+        const auto xrinputlocaldefault = mCfgMgr.getLocalPath() / "xrcontrollersuggestions.xml";
+
+        std::filesystem::path xrControllerSuggestions;
+        if (std::filesystem::exists(xrinputuserdefault))
+            xrControllerSuggestions = xrinputuserdefault;
+        else if (std::filesystem::exists(xrinputlocaldefault))
+            xrControllerSuggestions = xrinputlocaldefault;
+        else if (!mCfgMgr.getGlobalPath().empty())
+        {
+            const auto xrinputglobaldefault = mCfgMgr.getGlobalPath() / "xrcontrollersuggestions.xml";
+            if (std::filesystem::exists(xrinputglobaldefault))
+                xrControllerSuggestions = xrinputglobaldefault;
+        }
+
+        mInputManager = std::make_unique<MWVR::VRInputManager>(mWindow, mViewer, mScreenCaptureHandler, keybinderUser,
+            keybinderUserExists, userGameControllerdb, gameControllerdb, mGrab, xrControllerSuggestions);
+    }
+#else
     mInputManager = std::make_unique<MWInput::InputManager>(mWindow, mViewer, mScreenCaptureHandler, keybinderUser,
         keybinderUserExists, userGameControllerdb, gameControllerdb, mGrab);
+#endif
     mEnvironment.setInputManager(*mInputManager);
 
     // Create sound system
@@ -865,6 +930,25 @@ void OMW::Engine::prepareEngine()
     mEnvironment.setWorldScene(mWorld->getWorldScene());
     mWorld->setupPlayer();
     mWorld->setRandomSeed(mRandomSeed);
+
+#if defined(USE_OPENXR)
+    {
+        Log(Debug::Info) << "VR post-init: setting up VRGUIManager, callbacks, VRCamera";
+        auto& xrEnvironment = MWVR::Environment::get();
+        osg::Group* sceneRoot = dynamic_cast<osg::Group*>(mViewer->getSceneData());
+        Log(Debug::Info) << "VR post-init: sceneRoot=" << (sceneRoot ? "valid" : "NULL");
+        xrEnvironment.setGUIManager(new MWVR::VRGUIManager(mViewer, mResourceSystem.get(), sceneRoot));
+        Log(Debug::Info) << "VR post-init: calling configureCallbacks";
+        xrEnvironment.getViewer()->configureCallbacks();
+        Log(Debug::Info) << "VR post-init: configureCallbacks done, xrConfigured=" << xrEnvironment.getViewer()->xrConfigured();
+
+        // Replace the flat-screen Camera with VRCamera for head tracking
+        auto vrCamera = std::make_unique<MWVR::VRCamera>(mViewer->getCamera());
+        // TODO: Workaround. Needed to stop camera from querying the world object before it is created.
+        vrCamera->setShouldTrackPlayerCharacter(true);
+        mWorld->getRenderingManager()->setCamera(std::move(vrCamera));
+    }
+#endif
 
     const MWWorld::Store<ESM::GameSetting>* gmst = &mWorld->getStore().get<ESM::GameSetting>();
     mL10nManager->setGmstLoader(
@@ -963,7 +1047,16 @@ void OMW::Engine::go()
 
     mEnvironment.setFrameRateLimit(Settings::video().mFramerateLimit);
 
+#ifdef BUILD_OPENMW_MP
+    if (!mwmp::Main::init(mContentFiles, mFileCollections))
+        return;
+#endif
+
     prepareEngine();
+
+#ifdef BUILD_OPENMW_MP
+    mwmp::Main::postInit();
+#endif
 
 #ifdef _WIN32
     const auto* statsFile = _wgetenv(L"OPENMW_OSG_STATS_FILE");

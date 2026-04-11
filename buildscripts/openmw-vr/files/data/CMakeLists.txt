@@ -218,6 +218,7 @@ set(BUILTIN_DATA_FILES
     mygui/openmw_mainmenu.skin.xml
     mygui/openmw_map_window.layout
     mygui/openmw_map_window.skin.xml
+    mygui/openmw_map_window_vr.layout
     mygui/openmw_messagebox.layout
     mygui/openmw_pointer.xml
     mygui/openmw_progress.skin.xml

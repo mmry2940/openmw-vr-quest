@@ -33,6 +33,7 @@ option(BUILD_LAUNCHER           "Build Launcher" ON)
 option(BUILD_WIZARD             "Build Installation Wizard" ON)
 option(BUILD_MWINIIMPORTER      "Build MWiniImporter" ON)
 option(BUILD_OPENCS             "Build OpenMW Construction Set" ON)
+option(BUILD_OPENMW_MP          "Enable TES3MP/OpenMW-MP client source integration" OFF)
 option(BUILD_ESSIMPORTER        "Build ESS (Morrowind save game) importer" ON)
 option(BUILD_BSATOOL            "Build BSA extractor" ON)
 option(BUILD_ESMTOOL            "Build ESM inspector" ON)
@@ -53,6 +54,10 @@ if (BUILD_LAUNCHER OR BUILD_OPENCS OR BUILD_WIZARD OR BUILD_OPENCS_TESTS)
     set(USE_QT TRUE)
 else()
     set(USE_QT FALSE)
+endif()
+
+if (BUILD_OPENMW_MP AND NOT BUILD_OPENMW)
+    message(FATAL_ERROR "BUILD_OPENMW_MP requires BUILD_OPENMW to be enabled")
 endif()
 
 # If the user doesn't supply a CMAKE_BUILD_TYPE via command line, choose one for them.
@@ -247,6 +252,11 @@ else()
 endif()
 
 find_package(LZ4 REQUIRED)
+
+if (BUILD_OPENMW_MP)
+    find_package(RakNet REQUIRED)
+    include_directories(${RakNet_INCLUDES})
+endif()
 
 if (USE_QT)
     find_package(QT REQUIRED COMPONENTS Core NAMES Qt6)

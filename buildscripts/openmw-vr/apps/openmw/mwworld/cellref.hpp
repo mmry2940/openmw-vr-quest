@@ -29,6 +29,10 @@ namespace MWWorld
         // Note: Currently unused for items in containers
         ESM::RefNum getRefNum() const noexcept;
 
+        // TES3MP compatibility: OpenMW no longer tracks a separate mpNum.
+        int getMpNum() const { return 0; }
+        void setMpNum(int) {}
+
         // Returns RefNum.
         // If RefNum is not set, assigns a generated one and changes the "lastAssignedRefNum" counter.
         ESM::RefNum getOrAssignRefNum(ESM::RefNum& lastAssignedRefNum);
@@ -257,6 +261,10 @@ namespace MWWorld
         }
 
         void setCount(int value);
+
+        // TES3MP compatibility helpers.
+        int getGoldValue() const { return getCount(); }
+        void setGoldValue(int) {}
 
         // Write the content of this CellRef into the given ObjectState
         void writeState(ESM::ObjectState& state) const;

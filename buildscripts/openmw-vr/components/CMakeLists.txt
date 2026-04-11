@@ -383,6 +383,70 @@ add_component_dir (version
     version
     )
 
+if (BUILD_OPENMW_MP)
+    add_component_dir (openmw-mp
+        TimedLog Utils ErrorMessages NetworkMessages Version
+        )
+
+    add_component_dir (openmw-mp/Base
+        BaseActor BaseObject BasePacketProcessor BasePlayer BaseStructs BaseSystem BaseWorldstate
+        )
+
+    add_component_dir (openmw-mp/Controllers
+        SystemPacketController PlayerPacketController ActorPacketController ObjectPacketController WorldstatePacketController
+        )
+
+    add_component_dir (openmw-mp/Master
+        MasterData PacketMasterQuery PacketMasterUpdate PacketMasterAnnounce BaseMasterPacket ProxyMasterPacket
+        )
+
+    add_component_dir (openmw-mp/Packets
+        BasePacket PacketPreInit
+        )
+
+    add_component_dir (openmw-mp/Packets/Actor
+        ActorPacket
+        PacketActorList PacketActorAuthority PacketActorTest PacketActorAI PacketActorAnimFlags PacketActorAnimPlay
+        PacketActorAttack PacketActorCast PacketActorCellChange PacketActorDeath PacketActorEquipment PacketActorPosition
+        PacketActorSpeech PacketActorSpellsActive PacketActorStatsDynamic
+        )
+
+    add_component_dir (openmw-mp/Packets/System
+        SystemPacket
+        PacketSystemHandshake
+        )
+
+    add_component_dir (openmw-mp/Packets/Player
+        PlayerPacket
+        PacketChatMessage PacketGUIBoxes PacketGameSettings
+        PacketPlayerBaseInfo PacketPlayerCharGen PacketPlayerAlly PacketPlayerAnimFlags PacketPlayerAnimPlay
+        PacketPlayerAttack PacketPlayerAttribute PacketPlayerBehavior PacketPlayerBook PacketPlayerBounty
+        PacketPlayerCast PacketPlayerCellChange PacketPlayerCellState PacketPlayerClass PacketPlayerCooldowns
+        PacketPlayerDeath PacketPlayerEquipment PacketPlayerFaction PacketPlayerInput PacketPlayerInventory
+        PacketPlayerItemUse PacketPlayerJail PacketPlayerJournal PacketPlayerLevel PacketPlayerMiscellaneous
+        PacketPlayerMomentum PacketPlayerPosition PacketPlayerQuickKeys PacketPlayerReputation PacketPlayerRest
+        PacketPlayerResurrect PacketPlayerShapeshift PacketPlayerSkill PacketPlayerSpeech PacketPlayerSpellbook
+        PacketPlayerSpellsActive PacketPlayerStatsDynamic PacketPlayerTopic
+        )
+
+    add_component_dir (openmw-mp/Packets/Object
+        ObjectPacket
+        PacketDoorDestination PacketDoorState
+        PacketConsoleCommand PacketContainer PacketObjectActivate PacketObjectAnimPlay PacketObjectAttach
+        PacketObjectDelete PacketObjectDialogueChoice PacketObjectHit PacketObjectLock PacketObjectMove PacketObjectPlace
+        PacketObjectRestock PacketObjectRotate PacketObjectScale PacketObjectSound PacketObjectSpawn PacketObjectState
+        PacketObjectTrap PacketMusicPlay PacketVideoPlay PacketClientScriptLocal PacketScriptMemberShort
+        PacketObjectMiscellaneous
+        )
+
+    add_component_dir (openmw-mp/Packets/Worldstate
+        WorldstatePacket
+        PacketCellCreate PacketCellReset PacketClientScriptGlobal PacketClientScriptSettings PacketRecordDynamic
+        PacketWorldCollisionOverride PacketWorldDestinationOverride PacketWorldKillCount PacketWorldMap
+        PacketWorldRegionAuthority PacketWorldTime PacketWorldWeather
+        )
+endif()
+
 add_component_dir (fallback
     fallback validate
     )

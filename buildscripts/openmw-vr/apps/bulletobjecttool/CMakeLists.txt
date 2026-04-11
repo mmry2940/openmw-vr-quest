@@ -27,6 +27,7 @@ if (ANDROID)
         "${CMAKE_INSTALL_PREFIX}/lib/libcollada-dom2.5-dp.a"
         "${CMAKE_BINARY_DIR}/../../../collada-dom-prefix/src/collada-dom-build/dom/external-libs/minizip-1.1/libminizip.a"
         "-Wl,--end-group"
+        log
     )
 endif()
 

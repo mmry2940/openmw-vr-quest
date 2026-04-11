@@ -21,9 +21,10 @@ namespace MWVR {
         return impl().beginFrame(gc);
     }
 
-    void OpenXRSwapchain::endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer)
+    void OpenXRSwapchain::endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+        const unsigned char* sourcePixels, int sourceWidth, int sourceHeight)
     {
-        return impl().endFrame(gc, readBuffer);
+        return impl().endFrame(gc, readBuffer, sourcePixels, sourceWidth, sourceHeight);
     }
 
     int OpenXRSwapchain::width() const

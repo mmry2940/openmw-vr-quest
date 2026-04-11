@@ -24,6 +24,9 @@
 
 #include <components/sdlutil/sdlgraphicswindow.hpp>
 
+#include <vector>
+#include <cstring>
+
 #ifdef __ANDROID__
 #include <android/log.h>
 #endif
@@ -53,7 +56,11 @@ namespace MWVR
         , mOpenXRConfigured(false)
         , mCallbacksConfigured(false)
     {
-        mViewer->setRealizeOperation(new RealizeOperation());
+        // NOTE: Do not call mViewer->setRealizeOperation() here.
+        // engine.cpp sets up an OperationSequence with essential init operations
+        // (IdentifyOpenGLOperation, GetGLExtensionsOperation, depth/color format
+        // selection, stereo init). Replacing it here would skip all of those.
+        // Instead, engine.cpp adds configureXR to the existing sequence.
     }
 
     VRViewer::~VRViewer(void)
@@ -97,6 +104,7 @@ namespace MWVR
     void VRViewer::configureXR(osg::GraphicsContext* gc)
     {
         std::unique_lock<std::mutex> lock(mMutex);
+        Log(Debug::Info) << "VRViewer::configureXR entered, mOpenXRConfigured=" << mOpenXRConfigured;
 
         if (mOpenXRConfigured)
         {
@@ -105,6 +113,7 @@ namespace MWVR
 
 
         auto* xr = Environment::get().getManager();
+        Log(Debug::Info) << "VRViewer::configureXR calling xr->realize(gc)";
         xr->realize(gc);
 
         // Set up swapchain config
@@ -427,6 +436,8 @@ namespace MWVR
             unsigned char leftPixel[4] = { 0, 0, 0, 0 };
             unsigned char rightPixel[4] = { 0, 0, 0, 0 };
 
+            while (glGetError() != GL_NO_ERROR) {}
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
             glReadPixels(leftSampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, leftPixel);
             GLenum leftReadErr = glGetError();
             glReadPixels(rightSampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, rightPixel);
@@ -457,6 +468,52 @@ namespace MWVR
                 rightPixel[2],
                 rightPixel[3],
                 static_cast<unsigned int>(rightReadErr));
+        }
+
+        std::vector<unsigned char> gammaPixels;
+        const unsigned char* sourcePixels = nullptr;
+        int sourceWidth = mGammaResolveTexture->width();
+        int sourceHeight = mGammaResolveTexture->height();
+        static unsigned int sCaptureDiagFrame = 0;
+        ++sCaptureDiagFrame;
+        const bool shouldLogCapture = (sCaptureDiagFrame <= 8) || ((sCaptureDiagFrame % 300) == 0);
+        if (sourceWidth > 0 && sourceHeight > 0)
+        {
+            gammaPixels.resize(static_cast<size_t>(sourceWidth) * static_cast<size_t>(sourceHeight) * 4u);
+            GLint savedReadFbo = 0;
+            GLint savedDrawFbo = 0;
+            glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &savedReadFbo);
+            glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &savedDrawFbo);
+
+            mGammaResolveTexture->bindFramebuffer(gc, GL_READ_FRAMEBUFFER_EXT);
+            mGammaResolveTexture->bindFramebuffer(gc, GL_DRAW_FRAMEBUFFER_EXT);
+            while (glGetError() != GL_NO_ERROR) {}
+            glPixelStorei(GL_PACK_ALIGNMENT, 1);
+            glReadPixels(0, 0, sourceWidth, sourceHeight, GL_RGBA, GL_UNSIGNED_BYTE, gammaPixels.data());
+            const GLenum captureErr = glGetError();
+            if (captureErr == GL_NO_ERROR)
+                sourcePixels = gammaPixels.data();
+
+            gl->glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, static_cast<GLuint>(savedReadFbo));
+            gl->glBindFramebuffer(GL_DRAW_FRAMEBUFFER_EXT, static_cast<GLuint>(savedDrawFbo));
+
+            if (shouldLogCapture)
+            {
+                const int sampleY = sourceHeight / 2;
+                const int leftX = sourceWidth / 4;
+                const int rightX = (sourceWidth * 3) / 4;
+                const int li = ((sampleY * sourceWidth) + leftX) * 4;
+                const int ri = ((sampleY * sourceWidth) + rightX) * 4;
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                    "VRViewer capture #%u err=0x%x srcPixels=%d size=%dx%d L=%u,%u,%u,%u R=%u,%u,%u,%u",
+                    sCaptureDiagFrame,
+                    static_cast<unsigned int>(captureErr),
+                    sourcePixels ? 1 : 0,
+                    sourceWidth,
+                    sourceHeight,
+                    gammaPixels[li + 0], gammaPixels[li + 1], gammaPixels[li + 2], gammaPixels[li + 3],
+                    gammaPixels[ri + 0], gammaPixels[ri + 1], gammaPixels[ri + 2], gammaPixels[ri + 3]);
+            }
         }
 
         //// Since OpenXR does not include native support for mirror textures, we have to generate them ourselves
@@ -502,8 +559,10 @@ namespace MWVR
         ++sSwapEndCount;
         if (sSwapEndCount <= 6 || (sSwapEndCount % 600) == 0)
             __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag", "VRViewer: calling swapchain[0/1]->endFrame #%u", sSwapEndCount);
-        mSwapchain[0]->endFrame(gc, *mGammaResolveTexture);
-        mSwapchain[1]->endFrame(gc, *mGammaResolveTexture);
+
+        // Bulk CPU capture is currently unreliable on this GL4ES path; use direct FBO reads in swapchain blit.
+        mSwapchain[0]->endFrame(gc, *mGammaResolveTexture, nullptr, 0, 0);
+        mSwapchain[1]->endFrame(gc, *mGammaResolveTexture, nullptr, 0, 0);
         gl->glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     }
 
@@ -535,8 +594,15 @@ namespace MWVR
         if (mRenderingReady)
             return;
 
-        Environment::get().getSession()->beginPhase(VRSession::FramePhase::Draw);
-        if (Environment::get().getSession()->getFrame(VRSession::FramePhase::Draw)->mShouldRender)
+        auto* session = Environment::get().getSession();
+        if (!session)
+            return;
+
+        // Bootstrap the VR frame if no Update frame exists yet
+        session->beginFrame();
+        session->beginPhase(VRSession::FramePhase::Draw);
+        auto& drawFrame = session->getFrame(VRSession::FramePhase::Draw);
+        if (drawFrame && drawFrame->mShouldRender)
         {
             mSwapchain[0]->beginFrame(info.getState()->getGraphicsContext());
             mSwapchain[1]->beginFrame(info.getState()->getGraphicsContext());
@@ -556,10 +622,13 @@ namespace MWVR
 
     void VRViewer::preDrawCallback(osg::RenderInfo& info)
     {
-        if (Environment::get().getSession()->getFrame(VRSession::FramePhase::Draw)->mShouldRender)
+        auto* session = Environment::get().getSession();
+        if (!session)
+            return;
+        auto& drawFrame = session->getFrame(VRSession::FramePhase::Draw);
+        if (drawFrame && drawFrame->mShouldRender)
         {
             mFramebuffer->bindFramebuffer(info.getState()->getGraphicsContext(), GL_FRAMEBUFFER_EXT);
-            //mSwapchain->framebuffer()->bindFramebuffer(info.getState()->getGraphicsContext(), GL_FRAMEBUFFER_EXT);
         }
     }
 
@@ -572,7 +641,11 @@ namespace MWVR
     void VRViewer::finalDrawCallback(osg::RenderInfo& info)
     {
         auto* session = Environment::get().getSession();
+        if (!session)
+            return;
         auto* frameMeta = session->getFrame(VRSession::FramePhase::Draw).get();
+        if (!frameMeta)
+            return;
 
         if (frameMeta->mShouldSyncFrameLoop)
         {
@@ -586,6 +659,11 @@ namespace MWVR
     void VRViewer::swapBuffersCallback(osg::GraphicsContext* gc)
     {
         auto* session = Environment::get().getSession();
+        if (!session)
+        {
+            gc->swapBuffersImplementation();
+            return;
+        }
         session->swapBuffers(gc, *this);
         mRenderingReady = false;
     }

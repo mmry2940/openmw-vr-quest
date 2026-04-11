@@ -76,9 +76,14 @@ set(COLLADA_DOM_HASH SHA256=3be672407a7aef60b64ce4b39704b32816b0b28f61ebffd4fbd0
 set(OPENMW_VERSION f27d7c66ff61502a70b2f93bde6d8942c16ec1c3)
 set(OPENMW_HASH SHA256=f07e97bf49c4a9710a5d7b967792e9addc0b4c054ad24bbcdea1a1e5a1daf5e0)
 
+# https://github.com/TES3MP/CrabNet/commits/main
+set(CRABNET_VERSION 19e66190e83f53bcdcbcd6513238ed2e54878a21)
+
 # End of configurable options
 
 project(openmw-android)
+
+option(BUILD_OPENMW_MP "Build TES3MP/OpenMW-MP client support" OFF)
 
 include(ExternalProject)
 
@@ -605,6 +610,28 @@ ExternalProject_Add(fmt
 	COMMAND cp ${CMAKE_SOURCE_DIR}/patches/fmt/format.h ${prefix}/include/format
 )
 
+if (BUILD_OPENMW_MP)
+	ExternalProject_Add(crabnet
+		GIT_REPOSITORY https://github.com/TES3MP/CrabNet.git
+		GIT_TAG ${CRABNET_VERSION}
+		GIT_SHALLOW TRUE
+		UPDATE_DISCONNECTED TRUE
+
+		PATCH_COMMAND patch -p1 -N --no-backup-if-mismatch < ${CMAKE_SOURCE_DIR}/patches/crabnet-android-no-asm-io.patch || true
+
+		CONFIGURE_COMMAND ${wrapper_command} cmake <SOURCE_DIR>
+		${COMMON_CMAKE_ARGS}
+		-DCMAKE_POSITION_INDEPENDENT_CODE=ON
+		-DCRABNET_ENABLE_DLL=OFF
+		-DCRABNET_ENABLE_SAMPLES=OFF
+		-DCRABNET_ENABLE_STATIC=ON
+
+		BUILD_COMMAND ${wrapper_command} $(MAKE)
+
+		INSTALL_COMMAND ${wrapper_command} $(MAKE) install
+	)
+endif ()
+
 # Build ICU 70.1 for the host (native Linux) so the cross-compile ICU build
 # inside OpenMW's extern/ can use the host tools (genrb, icupkg, etc.).
 # We explicitly unset NDK env vars (CC, CXX, AR, etc.) so autotools picks up
@@ -656,6 +683,26 @@ set(OPENMW_COMMON
 	-DSQLite3_LIBRARY=${prefix}/lib/libsqlite3.a
 )
 
+set(OPENMW_DEPENDENCIES
+	boost
+	openal
+	osg
+	mygui
+	ffmpeg
+	sdl2
+	bullet
+	lz4
+	icu_host
+	luajit
+	sqlite3
+	fmt
+)
+
+if (BUILD_OPENMW_MP)
+	list(APPEND OPENMW_DEPENDENCIES crabnet)
+	list(APPEND OPENMW_COMMON -DBUILD_OPENMW_MP=ON)
+endif ()
+
 set(OPENMW_PATCH
 	patch -d <SOURCE_DIR> -p1 -t -N < ${CMAKE_SOURCE_DIR}/patches/openmw/gamma.patch &&
 	patch -d <SOURCE_DIR> -p1 -t -N < ${CMAKE_SOURCE_DIR}/patches/openmw/0001-loadingscreen-disable-for-now.patch &&
@@ -674,7 +721,7 @@ set(OPENMW_LOCAL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/openmw-vr)
 if(USE_LOCAL_OPENMW_VR AND EXISTS ${OPENMW_LOCAL_SOURCE_DIR}/CMakeLists.txt)
 	message(STATUS "OpenMW source: local openmw-vr (${OPENMW_LOCAL_SOURCE_DIR})")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3 fmt
+		DEPENDS ${OPENMW_DEPENDENCIES}
 
 		SOURCE_DIR ${OPENMW_LOCAL_SOURCE_DIR}
 		DOWNLOAD_COMMAND ""
@@ -699,7 +746,7 @@ elseif(USE_LOCAL_OPENMW_VR AND NOT ALLOW_OPENMW_UPSTREAM_FALLBACK)
 else()
 	message(STATUS "OpenMW source: upstream OpenMW ${OPENMW_VERSION}")
 	ExternalProject_Add(openmw
-		DEPENDS boost openal osg mygui ffmpeg sdl2 bullet lz4 icu_host luajit sqlite3 fmt
+		DEPENDS ${OPENMW_DEPENDENCIES}
 
 		URL https://github.com/OpenMW/openmw/archive/${OPENMW_VERSION}.tar.gz
 		URL_HASH ${OPENMW_HASH}

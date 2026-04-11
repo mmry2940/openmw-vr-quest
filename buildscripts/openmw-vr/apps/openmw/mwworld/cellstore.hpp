@@ -186,6 +186,45 @@ namespace MWWorld
         Ptr searchViaActorId(int id);
         ///< Will return an empty Ptr if cell is not loaded.
 
+        // TES3MP compatibility helpers. mpNum is ignored because modern OpenMW
+        // does not expose a separate mpNum in CellRef.
+        Ptr searchExact(int refNum, int mpNum, const std::string& refId, bool includeDeleted = false)
+        {
+            (void)mpNum;
+
+            if (!refId.empty())
+            {
+                MWWorld::Ptr byId = search(ESM::RefId::stringRefId(refId));
+                if (!byId.isEmpty())
+                {
+                    if (refNum == 0 || byId.getCellRef().getRefNum().mIndex == refNum)
+                        return byId;
+                }
+            }
+
+            MWWorld::Ptr found;
+            forEach(
+                [&](MWWorld::Ptr ptr)
+                {
+                    const bool refNumMatch = (refNum == 0 || ptr.getCellRef().getRefNum().mIndex == refNum);
+                    const bool refIdMatch = (refId.empty() || ptr.getCellRef().getRefId().getRefIdString() == refId);
+                    if (refNumMatch && refIdMatch)
+                    {
+                        found = ptr;
+                        return false;
+                    }
+                    return true;
+                },
+                includeDeleted);
+
+            return found;
+        }
+
+        Ptr searchExact(int refNum, int mpNum)
+        {
+            return searchExact(refNum, mpNum, std::string());
+        }
+
         float getWaterLevel() const;
 
         bool movedHere(const MWWorld::Ptr& ptr) const;

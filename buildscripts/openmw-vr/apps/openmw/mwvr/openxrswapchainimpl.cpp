@@ -52,10 +52,11 @@ namespace MWVR {
 
     int swapCount = 0;
 
-    void OpenXRSwapchainImpl::endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer)
+    void OpenXRSwapchainImpl::endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+        const unsigned char* sourcePixels, int sourceWidth, int sourceHeight)
     {
         checkAcquired();
-        release(gc, readBuffer);
+        release(gc, readBuffer, sourcePixels, sourceWidth, sourceHeight);
     }
 
     void OpenXRSwapchainImpl::acquire(osg::GraphicsContext* gc)
@@ -94,17 +95,18 @@ namespace MWVR {
         mFormallyAcquired = true;
     }
 
-    void OpenXRSwapchainImpl::release(osg::GraphicsContext* gc, VRFramebuffer& readBuffer)
+    void OpenXRSwapchainImpl::release(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+        const unsigned char* sourcePixels, int sourceWidth, int sourceHeight)
     {
         // The openxr runtime may fail to acquire/release.
         // Do not release a swapchain before having successfully acquire it.
         if (mShouldRelease)
         {
-            mSwapchain->blitAndRelease(gc, readBuffer);
+            mSwapchain->blitAndRelease(gc, readBuffer, sourcePixels, sourceWidth, sourceHeight);
             mShouldRelease = mSwapchain->isAcquired();
             if (mSwapchainDepth)
             {
-                mSwapchainDepth->blitAndRelease(gc, readBuffer);
+                mSwapchainDepth->blitAndRelease(gc, readBuffer, sourcePixels, sourceWidth, sourceHeight);
                 mShouldRelease = mSwapchainDepth->isAcquired();
             }
         }
@@ -224,7 +226,8 @@ namespace MWVR {
             mIsReady = XR_SUCCEEDED(CHECK_XRCMD(xrWaitSwapchainImage(mSwapchain, &waitInfo)));
         }
     }
-    void OpenXRSwapchainImpl::SwapchainPrivate::blitAndRelease(osg::GraphicsContext* gc, VRFramebuffer& readBuffer)
+    void OpenXRSwapchainImpl::SwapchainPrivate::blitAndRelease(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+        const unsigned char* sourcePixels, int sourceWidth, int sourceHeight)
     {
         auto xr = Environment::get().getManager();
 
@@ -242,7 +245,8 @@ namespace MWVR {
         XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
         if (mIsReady)
         {
-            mImages[mAcquiredIndex]->blit(gc, readBuffer, mConfig.offsetWidth, mConfig.offsetHeight);
+            mImages[mAcquiredIndex]->blit(gc, readBuffer, mConfig.offsetWidth, mConfig.offsetHeight,
+                sourcePixels, sourceWidth, sourceHeight);
 
             mIsReady = !XR_SUCCEEDED(CHECK_XRCMD(xrReleaseSwapchainImage(mSwapchain, &releaseInfo)));
             if (!mIsReady)

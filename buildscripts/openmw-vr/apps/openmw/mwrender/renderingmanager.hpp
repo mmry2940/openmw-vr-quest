@@ -234,6 +234,7 @@ namespace MWRender
 
         // camera stuff
         Camera* getCamera() { return mCamera.get(); }
+        void setCamera(std::unique_ptr<Camera> camera);
 
         /// temporarily override the field of view with given value.
         void overrideFieldOfView(float val);

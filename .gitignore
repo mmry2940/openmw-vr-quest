@@ -24,3 +24,7 @@ buildscripts/force_build.log
 buildscripts/recent*.log
 *.log
 .env
+.continue/*
+.vscode/*
+.venv
+

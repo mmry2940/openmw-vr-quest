@@ -33,6 +33,9 @@
 #include <openxr/openxr_reflection.h>
 
 #include <stdexcept>
+#include <algorithm>
+#include <cstring>
+#include <vector>
 
 #define GLERR if(auto err = glGetError() != GL_NO_ERROR) Log(Debug::Verbose) << __FILE__ << "." << __LINE__ << ": " << glGetError()
 
@@ -68,7 +71,8 @@ namespace MWVR {
             }
         }
 
-        void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y) override
+        void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y,
+            const unsigned char*, int, int) override
         {
             mFramebuffer->bindFramebuffer(gc, GL_FRAMEBUFFER_EXT);
             readBuffer.blit(gc, offset_x, offset_y, offset_x + mFramebuffer->width(), offset_y + mFramebuffer->height(), 0, 0, mFramebuffer->width(), mFramebuffer->height(), mBufferBits, GL_NEAREST);
@@ -141,6 +145,12 @@ namespace {
         typedef void     (*PFNBlitFramebuffer)(GLint,GLint,GLint,GLint,GLint,GLint,GLint,GLint,GLbitfield,GLenum);
         typedef GLenum   (*PFNGetError)();
         typedef void     (*PFNGetIntegerv)(GLenum, GLint*);
+        typedef void     (*PFNClearColor)(GLfloat, GLfloat, GLfloat, GLfloat);
+        typedef void     (*PFNClear)(GLbitfield);
+        typedef void     (*PFNReadPixels)(GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, void*);
+        typedef void     (*PFNBindTexture)(GLenum, GLuint);
+        typedef void     (*PFNPixelStorei)(GLenum, GLint);
+        typedef void     (*PFNTexSubImage2D)(GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const void*);
 
         PFNGenFramebuffers         genFramebuffers = nullptr;
         PFNDeleteFramebuffers      deleteFramebuffers = nullptr;
@@ -151,6 +161,12 @@ namespace {
         PFNBlitFramebuffer         blitFramebuffer = nullptr;
         PFNGetError                getError = nullptr;
         PFNGetIntegerv             getIntegerv = nullptr;
+        PFNClearColor              clearColor = nullptr;
+        PFNClear                   clear = nullptr;
+        PFNReadPixels              readPixels = nullptr;
+        PFNBindTexture             bindTexture = nullptr;
+        PFNPixelStorei             pixelStorei = nullptr;
+        PFNTexSubImage2D           texSubImage2D = nullptr;
 
         bool init() {
             if (genFramebuffers) return true;
@@ -163,6 +179,12 @@ namespace {
             blitFramebuffer         = (PFNBlitFramebuffer)        eglGetProcAddress("glBlitFramebuffer");
             getError                = (PFNGetError)               eglGetProcAddress("glGetError");
             getIntegerv             = (PFNGetIntegerv)            eglGetProcAddress("glGetIntegerv");
+            clearColor              = (PFNClearColor)             eglGetProcAddress("glClearColor");
+            clear                   = (PFNClear)                  eglGetProcAddress("glClear");
+            readPixels              = (PFNReadPixels)             eglGetProcAddress("glReadPixels");
+            bindTexture             = (PFNBindTexture)            eglGetProcAddress("glBindTexture");
+            pixelStorei             = (PFNPixelStorei)            eglGetProcAddress("glPixelStorei");
+            texSubImage2D           = (PFNTexSubImage2D)          eglGetProcAddress("glTexSubImage2D");
             return genFramebuffers != nullptr;
         }
     };
@@ -183,6 +205,7 @@ namespace {
             , mWidth(swapchainCreateInfo.width)
             , mHeight(swapchainCreateInfo.height)
             , mNativeFBO(0)
+            , mNativeReadFBO(0)
         {
             if (!sNativeGLES.init())
             {
@@ -205,52 +228,55 @@ namespace {
 
             // Create a native GLES3 FBO, bypassing GL4ES
             sNativeGLES.genFramebuffers(1, &mNativeFBO);
+            sNativeGLES.genFramebuffers(1, &mNativeReadFBO);
             sNativeGLES.bindFramebuffer(GL_FRAMEBUFFER, mNativeFBO);
 
             // Clear any pending errors
             while (sNativeGLES.getError() != GL_NO_ERROR) {}
 
-            // Try GL_TEXTURE_2D first (most common for arraySize=1)
-            sNativeGLES.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                GL_TEXTURE_2D, mXrImage.image, 0);
-            GLenum err1 = sNativeGLES.getError();
-            GLenum status1 = sNativeGLES.checkFramebufferStatus(GL_FRAMEBUFFER);
-
-            if (status1 != GL_FRAMEBUFFER_COMPLETE)
+            // Prefer layered attachment on Quest runtimes; they frequently expose swapchain
+            // images as array-backed textures even with arraySize=1.
+            GLenum errLayer = GL_INVALID_OPERATION;
+            GLenum statusLayer = 0;
+            if (sNativeGLES.framebufferTextureLayer)
             {
-                // Detach and try as a 2D_ARRAY layer 0 (some runtimes return layered textures)
-                sNativeGLES.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                    GL_TEXTURE_2D, 0, 0);  // detach
+                sNativeGLES.framebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                    mXrImage.image, 0, 0);
+                errLayer = sNativeGLES.getError();
+                statusLayer = sNativeGLES.checkFramebufferStatus(GL_FRAMEBUFFER);
+            }
+
+            if (statusLayer != GL_FRAMEBUFFER_COMPLETE)
+            {
+                // Layered attach failed; retry as classic 2D texture target.
+                sNativeGLES.framebufferTextureLayer ? sNativeGLES.framebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 0, 0, 0)
+                                                    : sNativeGLES.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
                 while (sNativeGLES.getError() != GL_NO_ERROR) {}
 
-                if (sNativeGLES.framebufferTextureLayer)
-                {
-                    sNativeGLES.framebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                        mXrImage.image, 0, 0);
-                    GLenum err2 = sNativeGLES.getError();
-                    GLenum status2 = sNativeGLES.checkFramebufferStatus(GL_FRAMEBUFFER);
+                sNativeGLES.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                    GL_TEXTURE_2D, mXrImage.image, 0);
+                GLenum err2D = sNativeGLES.getError();
+                GLenum status2D = sNativeGLES.checkFramebufferStatus(GL_FRAMEBUFFER);
 
-                    __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
-                        "GLES native FBO init: tex=%u TEX2D err=0x%x status=0x%x LAYER err=0x%x status=0x%x fbo=%u",
-                        mXrImage.image, err1, status1, err2, status2, mNativeFBO);
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                    "GLES native FBO init: tex=%u LAYER err=0x%x status=0x%x TEX2D err=0x%x status=0x%x fbo=%u",
+                    mXrImage.image,
+                    static_cast<unsigned int>(errLayer),
+                    static_cast<unsigned int>(statusLayer),
+                    static_cast<unsigned int>(err2D),
+                    static_cast<unsigned int>(status2D),
+                    mNativeFBO);
 
-                    if (status2 != GL_FRAMEBUFFER_COMPLETE)
-                    {
-                        __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag",
-                            "GLES native FBO: BOTH attachment methods failed for tex=%u!", mXrImage.image);
-                    }
-                }
-                else
+                if (status2D != GL_FRAMEBUFFER_COMPLETE)
                 {
                     __android_log_print(ANDROID_LOG_ERROR, "OpenMWXRDiag",
-                        "GLES native FBO: TEX2D failed (err=0x%x status=0x%x) and no glFramebufferTextureLayer available",
-                        err1, status1);
+                        "GLES native FBO: BOTH attachment methods failed for tex=%u!", mXrImage.image);
                 }
             }
             else
             {
                 __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
-                    "GLES native FBO init: tex=%u TEX2D OK fbo=%u", mXrImage.image, mNativeFBO);
+                    "GLES native FBO init: tex=%u LAYER OK fbo=%u", mXrImage.image, mNativeFBO);
             }
 
             // Restore previous FBO
@@ -261,59 +287,184 @@ namespace {
         {
             if (mNativeFBO && sNativeGLES.deleteFramebuffers)
                 sNativeGLES.deleteFramebuffers(1, &mNativeFBO);
+            if (mNativeReadFBO && sNativeGLES.deleteFramebuffers)
+                sNativeGLES.deleteFramebuffers(1, &mNativeReadFBO);
         }
 
-        void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y) override
+        void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y,
+            const unsigned char* sourcePixels, int sourceWidth, int sourceHeight) override
         {
             if (!mNativeFBO || mBufferBits != GL_COLOR_BUFFER_BIT)
                 return;
 
-            // Save currently bound FBO
-            GLint savedFBO = 0;
-            sNativeGLES.getIntegerv(GL_FRAMEBUFFER_BINDING, &savedFBO);
-
-            // Bind read (source: gamma-resolve, a native GLES FBO) and draw (dest: XR swapchain)
-            // readBuffer.framebufferId() returns the native GLES FBO ID (GL4ES uses native IDs)
-            sNativeGLES.bindFramebuffer(GL_READ_FRAMEBUFFER, readBuffer.framebufferId());
-            sNativeGLES.bindFramebuffer(GL_DRAW_FRAMEBUFFER, mNativeFBO);
-
-            // Blit from the gamma-resolve region to the full swapchain image
-            const int srcX0 = offset_x;
-            const int srcY0 = offset_y;
-            const int srcX1 = offset_x + static_cast<int>(mWidth);
-            const int srcY1 = offset_y + static_cast<int>(mHeight);
-            sNativeGLES.blitFramebuffer(srcX0, srcY0, srcX1, srcY1,
-                                        0, 0, static_cast<int>(mWidth), static_cast<int>(mHeight),
-                                        GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            const int width = static_cast<int>(mWidth);
+            const int height = static_cast<int>(mHeight);
+            const int pixelCount = width * height;
+            if (pixelCount <= 0)
+                return;
 
             static unsigned int sBlitFrame = 0;
             ++sBlitFrame;
-            const bool shouldLog = (sBlitFrame <= 6) || ((sBlitFrame % 300) == 0);
-            if (shouldLog)
-            {
-                GLenum blitErr = sNativeGLES.getError();
-                // Read center pixel from the swapchain destination to confirm pixels arrived
-                sNativeGLES.bindFramebuffer(GL_READ_FRAMEBUFFER, mNativeFBO);
-                const int sampleX = static_cast<int>(mWidth) / 2;
-                const int sampleY = static_cast<int>(mHeight) / 2;
-                unsigned char pixel[4] = { 0, 0, 0, 0 };
-                // Use glReadPixels (goes through GL4ES but that's fine for diagnostics)
-                glReadPixels(sampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-                GLenum readErr = sNativeGLES.getError();
+            const bool shouldLog = (sBlitFrame <= 8) || ((sBlitFrame % 300) == 0);
 
-                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
-                    "GLES native blit #%u tex=%u fbo=%u blitErr=0x%x sample(%d,%d)=%u,%u,%u,%u readErr=0x%x srcOff=%d,%d size=%ux%u",
-                    sBlitFrame, mXrImage.image, mNativeFBO,
-                    static_cast<unsigned int>(blitErr),
-                    sampleX, sampleY,
-                    pixel[0], pixel[1], pixel[2], pixel[3],
-                    static_cast<unsigned int>(readErr),
-                    offset_x, offset_y,
-                    mWidth, mHeight);
+            unsigned char* pixelData = new unsigned char[pixelCount * 4];
+            GLenum srcStatus = GL_FRAMEBUFFER_COMPLETE;
+            GLenum readErr = GL_NO_ERROR;
+            auto* gl = osg::GLExtensions::Get(gc->getState()->getContextID(), true);
+
+            const bool hasExternalPixels = sourcePixels != nullptr
+                && sourceWidth >= (offset_x + width)
+                && sourceHeight >= (offset_y + height)
+                && offset_x >= 0
+                && offset_y >= 0;
+
+            bool useDirectReadFallback = false;
+            if (hasExternalPixels)
+            {
+                for (int y = 0; y < height; ++y)
+                {
+                    const unsigned char* srcRow = sourcePixels
+                        + ((offset_y + y) * sourceWidth + offset_x) * 4;
+                    unsigned char* dstRow = pixelData + (y * width * 4);
+                    std::memcpy(dstRow, srcRow, static_cast<size_t>(width) * 4u);
+                }
+
+                const int probeIdx = ((height / 2) * width + (width / 2)) * 4;
+                const bool extLooksBlack = pixelData[probeIdx + 0] == 0
+                    && pixelData[probeIdx + 1] == 0
+                    && pixelData[probeIdx + 2] == 0;
+                if (extLooksBlack)
+                {
+                    unsigned char probe[4] = { 0, 0, 0, 0 };
+                    gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, readBuffer.framebufferId());
+                    while (glGetError() != GL_NO_ERROR) {}
+                    glReadPixels(offset_x + (width / 2), offset_y + (height / 2), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, probe);
+                    const GLenum probeErr = glGetError();
+                    if (probeErr == GL_NO_ERROR && (probe[0] != 0 || probe[1] != 0 || probe[2] != 0))
+                        useDirectReadFallback = true;
+                }
             }
 
-            // Restore the FBO that was current before (GL4ES is unaffected — it tracks its own state)
-            sNativeGLES.bindFramebuffer(GL_FRAMEBUFFER, static_cast<GLuint>(savedFBO));
+            if (!hasExternalPixels || useDirectReadFallback)
+            {
+                gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, readBuffer.framebufferId());
+                srcStatus = gl->glCheckFramebufferStatus(GL_READ_FRAMEBUFFER);
+                if (srcStatus != GL_FRAMEBUFFER_COMPLETE)
+                {
+                    if (shouldLog)
+                        __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                            "VRSwapchain copy #%u source incomplete status=0x%x",
+                            sBlitFrame, static_cast<unsigned int>(srcStatus));
+                    delete[] pixelData;
+                    return;
+                }
+
+                constexpr int kTileW = 512;
+                constexpr int kTileH = 128;
+                std::vector<unsigned char> tile(static_cast<size_t>(kTileW) * static_cast<size_t>(kTileH) * 4u);
+
+                for (int y = 0; y < height && readErr == GL_NO_ERROR; y += kTileH)
+                {
+                    const int tileH = std::min(kTileH, height - y);
+                    for (int x = 0; x < width && readErr == GL_NO_ERROR; x += kTileW)
+                    {
+                        const int tileW = std::min(kTileW, width - x);
+                        glReadPixels(offset_x + x, offset_y + y, tileW, tileH, GL_RGBA, GL_UNSIGNED_BYTE, tile.data());
+                        readErr = glGetError();
+                        if (readErr != GL_NO_ERROR)
+                            break;
+
+                        for (int row = 0; row < tileH; ++row)
+                        {
+                            unsigned char* dst = pixelData
+                                + ((static_cast<size_t>(y + row) * static_cast<size_t>(width) + static_cast<size_t>(x)) * 4u);
+                            const unsigned char* src = tile.data()
+                                + ((static_cast<size_t>(row) * static_cast<size_t>(tileW)) * 4u);
+                            std::memcpy(dst, src, static_cast<size_t>(tileW) * 4u);
+                        }
+                    }
+                }
+            }
+
+            if (readErr != GL_NO_ERROR)
+            {
+                if (shouldLog)
+                    __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                        "VRSwapchain copy #%u glReadPixels err=0x%x",
+                        sBlitFrame, static_cast<unsigned int>(readErr));
+                delete[] pixelData;
+                return;
+            }
+
+            const int srcSampleX = width / 2;
+            const int srcSampleY = height / 2;
+            const int srcSampleIdx = ((srcSampleY * width) + srcSampleX) * 4;
+            const unsigned char srcR = pixelData[srcSampleIdx + 0];
+            const unsigned char srcG = pixelData[srcSampleIdx + 1];
+            const unsigned char srcB = pixelData[srcSampleIdx + 2];
+            const unsigned char srcA = pixelData[srcSampleIdx + 3];
+
+            if (!sNativeGLES.bindTexture || !sNativeGLES.pixelStorei || !sNativeGLES.texSubImage2D)
+            {
+                delete[] pixelData;
+                return;
+            }
+
+            GLint savedDrawFbo = 0;
+            GLint savedReadFbo = 0;
+            sNativeGLES.getIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &savedDrawFbo);
+            sNativeGLES.getIntegerv(GL_READ_FRAMEBUFFER_BINDING, &savedReadFbo);
+
+            sNativeGLES.bindFramebuffer(GL_FRAMEBUFFER, mNativeFBO);
+            const GLenum dstStatus = sNativeGLES.checkFramebufferStatus(GL_FRAMEBUFFER);
+            if (dstStatus != GL_FRAMEBUFFER_COMPLETE)
+            {
+                if (shouldLog)
+                    __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                        "VRSwapchain copy #%u dest incomplete status=0x%x",
+                        sBlitFrame, static_cast<unsigned int>(dstStatus));
+                sNativeGLES.bindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(savedDrawFbo));
+                sNativeGLES.bindFramebuffer(GL_READ_FRAMEBUFFER, static_cast<GLuint>(savedReadFbo));
+                delete[] pixelData;
+                return;
+            }
+
+            sNativeGLES.bindTexture(GL_TEXTURE_2D, mXrImage.image);
+            sNativeGLES.pixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            sNativeGLES.texSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixelData);
+            const GLenum texSubErr = sNativeGLES.getError();
+
+            if (shouldLog)
+            {
+                sNativeGLES.bindFramebuffer(GL_READ_FRAMEBUFFER, mNativeFBO);
+                const int sampleX = width / 2;
+                const int sampleY = height / 2;
+                unsigned char sample[4] = { 0, 0, 0, 0 };
+                if (sNativeGLES.readPixels)
+                    sNativeGLES.readPixels(sampleX, sampleY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, sample);
+                const GLenum verifyErr = sNativeGLES.getError();
+
+                __android_log_print(ANDROID_LOG_WARN, "OpenMWXRDiag",
+                    "VRSwapchain copy #%u tex=%u dstFbo=%u srcFbo=%u offs=%d,%d ext=%d src=0x%x dst=0x%x readErr=0x%x texErr=0x%x srcSample=%u,%u,%u,%u dstSample=%u,%u,%u,%u verifyErr=0x%x",
+                    sBlitFrame,
+                    mXrImage.image,
+                    mNativeFBO,
+                    readBuffer.framebufferId(),
+                    offset_x,
+                    offset_y,
+                    hasExternalPixels ? 1 : 0,
+                    static_cast<unsigned int>(srcStatus),
+                    static_cast<unsigned int>(dstStatus),
+                    static_cast<unsigned int>(readErr),
+                    static_cast<unsigned int>(texSubErr),
+                    srcR, srcG, srcB, srcA,
+                    sample[0], sample[1], sample[2], sample[3],
+                    static_cast<unsigned int>(verifyErr));
+            }
+
+            sNativeGLES.bindFramebuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLuint>(savedDrawFbo));
+            sNativeGLES.bindFramebuffer(GL_READ_FRAMEBUFFER, static_cast<GLuint>(savedReadFbo));
+            delete[] pixelData;
         }
 
         XrSwapchainImageOpenGLESKHR mXrImage;
@@ -321,6 +472,7 @@ namespace {
         uint32_t mWidth;
         uint32_t mHeight;
         GLuint   mNativeFBO;
+        GLuint   mNativeReadFBO;
     };
 #endif
 
@@ -390,7 +542,8 @@ namespace {
             glDeleteTextures(1, &mGlTextureName);
         }
 
-        void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y) override
+        void blit(osg::GraphicsContext* gc, VRFramebuffer& readBuffer, int offset_x, int offset_y,
+            const unsigned char*, int, int) override
         {
             // Blit readBuffer into directx texture, while flipping the Y axis.
             auto* xr = Environment::get().getManager();

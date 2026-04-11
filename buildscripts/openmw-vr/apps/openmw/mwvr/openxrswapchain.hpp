@@ -22,7 +22,8 @@ namespace MWVR
         void beginFrame(osg::GraphicsContext* gc);
 
         //! Finalize render
-        void endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer);
+        void endFrame(osg::GraphicsContext* gc, VRFramebuffer& readBuffer,
+            const unsigned char* sourcePixels = nullptr, int sourceWidth = 0, int sourceHeight = 0);
 
         //! Whether subchain is currently acquired (true) or released (false)
         bool isAcquired() const;

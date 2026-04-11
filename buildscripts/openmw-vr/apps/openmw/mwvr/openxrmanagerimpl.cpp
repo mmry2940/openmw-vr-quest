@@ -317,19 +317,20 @@ namespace MWVR
         static uint32_t sEndFrameCount = 0;
         std::array<XrCompositionLayerProjectionView, 2> compositionLayerProjectionViews{};
         XrCompositionLayerProjection layer{};
+        std::array<const XrCompositionLayerBaseHeader*, 1> xrLayerStack{};
         std::array<XrCompositionLayerDepthInfoKHR, 2> compositionLayerDepth{};
         XrFrameEndInfo frameEndInfo{ XR_TYPE_FRAME_END_INFO };
         frameEndInfo.displayTime = frameInfo.runtimePredictedDisplayTime;
         frameEndInfo.environmentBlendMode = mEnvironmentBlendMode;
-        if (layerStack)
+        if (layerStack && frameInfo.runtimeRequestsRender)
         {
             compositionLayerProjectionViews[(int)Side::LEFT_SIDE] = toXR((*layerStack)[(int)Side::LEFT_SIDE]);
             compositionLayerProjectionViews[(int)Side::RIGHT_SIDE] = toXR((*layerStack)[(int)Side::RIGHT_SIDE]);
             layer.type = XR_TYPE_COMPOSITION_LAYER_PROJECTION;
-            layer.space = mReferenceSpaceStage;
+            layer.space = mReferenceSpaceView;
             layer.viewCount = 2;
             layer.views = compositionLayerProjectionViews.data();
-            auto* xrLayerStack = reinterpret_cast<XrCompositionLayerBaseHeader*>(&layer);
+            xrLayerStack[0] = reinterpret_cast<const XrCompositionLayerBaseHeader*>(&layer);
 
             if (xrExtensionIsEnabled(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME))
             {
@@ -348,7 +349,7 @@ namespace MWVR
                 }
             }
             frameEndInfo.layerCount = 1;
-            frameEndInfo.layers = &xrLayerStack;
+            frameEndInfo.layers = xrLayerStack.data();
         }
         else
         {
