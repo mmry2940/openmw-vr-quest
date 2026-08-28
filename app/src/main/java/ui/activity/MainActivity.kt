@@ -74,7 +74,12 @@ open class MainActivity : AppCompatActivity() {
         fragmentManager.beginTransaction()
             .replace(R.id.content_frame, FragmentSettings()).commit()
 
-        setSupportActionBar(findViewById(R.id.main_toolbar))
+        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.main_toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
 
         if (prefs.getString("bugsnag_consent", "")!! == "") {
             askBugsnagConsent()

@@ -1,109 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray">
+    android:background="@drawable/bg_launcher_gradient">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="20dp">
-
-        <TextView
-            android:id="@+id/launcher_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="OpenMW VR"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:layout_marginBottom="30dp" />
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@android:color/black"
-            android:padding="15dp"
-            android:layout_marginBottom="20dp">
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="36dp"
+            android:paddingBottom="40dp"
+            android:gravity="center_horizontal">
+
+            <!-- Hero Header Section -->
+            <ImageView
+                android:id="@+id/launcher_hero_icon"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
+                android:src="@drawable/ic_morrowind_emblem"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/app_name"
+                android:layout_marginBottom="16dp" />
 
             <TextView
-                android:id="@+id/game_data_label"
-                android:layout_width="match_parent"
+                android:id="@+id/launcher_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Game Data Location:"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_marginBottom="8dp" />
+                android:text="OpenMW VR"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@color/gold_accent"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.03" />
 
             <TextView
-                android:id="@+id/game_data_path"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="(not configured)"
-                android:textSize="12sp"
-                android:textColor="@android:color/holo_orange_light"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:layout_marginBottom="12dp" />
+                android:text="The Elder Scrolls III: Morrowind"
+                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="28dp" />
 
-            <Button
-                android:id="@+id/select_data_button"
+            <!-- Game Data Status Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_game_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Select Game Data"
-                android:textSize="14sp"
-                android:background="@android:color/holo_blue_dark"
-                android:textColor="@android:color/white"
-                android:padding="12dp" />
+                android:layout_marginBottom="18dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
 
-            <Button
-                android:id="@+id/manage_mods_button"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/game_data_status_icon"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_folder_open_24"
+                            app:tint="@color/gold_accent"
+                            android:contentDescription="Folder" />
+
+                        <TextView
+                            android:id="@+id/game_data_label"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text="Game Data Location"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/game_data_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Required"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/status_warning"
+                            android:background="@drawable/bg_launcher_gradient"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/game_data_path"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="(not configured - please select folder)"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:maxLines="2"
+                        android:ellipsize="middle"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="14dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/select_data_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Select Game Folder"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        app:icon="@drawable/ic_folder_open_24"
+                        app:iconTint="@color/text_primary"
+                        app:iconGravity="textStart"
+                        app:backgroundTint="@color/btn_action_surface"
+                        app:strokeColor="@color/surface_card_stroke"
+                        app:strokeWidth="1dp"
+                        app:cornerRadius="10dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Secondary Actions Grid / Row -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Manage Mods / Content Files"
-                android:textSize="14sp"
-                android:background="@android:color/holo_blue_light"
-                android:textColor="@android:color/white"
-                android:padding="12dp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/manage_mods_button"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="Mods"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    app:icon="@drawable/ic_extension_24"
+                    app:iconTint="@color/gold_accent"
+                    app:iconGravity="textStart"
+                    app:backgroundTint="@color/surface_card"
+                    app:strokeColor="@color/surface_card_stroke"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/settings_button"
+                    android:layout_width="0dp"
+                    android:layout_height="52dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="Settings"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    app:icon="@drawable/ic_settings_24"
+                    app:iconTint="@color/gold_accent"
+                    app:iconGravity="textStart"
+                    app:backgroundTint="@color/surface_card"
+                    app:strokeColor="@color/surface_card_stroke"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="12dp" />
+
+            </LinearLayout>
+
+            <!-- Primary Launch Action -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/launch_game_button"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:text="Launch Morrowind VR"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:letterSpacing="0.02"
+                app:icon="@drawable/ic_play_arrow_24"
+                app:iconTint="@color/text_primary"
+                app:iconGravity="textStart"
+                app:iconSize="24dp"
+                app:backgroundTint="@color/colorPrimary"
+                app:strokeColor="@color/gold_accent"
+                app:strokeWidth="1dp"
+                app:cornerRadius="16dp"
+                app:elevation="4dp" />
+
+            <!-- Live Status Feedback Message -->
+            <TextView
+                android:id="@+id/status_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="13sp"
+                android:textColor="@color/gold_accent"
+                android:gravity="center"
+                android:layout_marginTop="18dp" />
 
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <Button
-            android:id="@+id/settings_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Settings"
-            android:textSize="14sp"
-            android:background="@android:color/darker_gray"
-            android:textColor="@android:color/white"
-            android:padding="14dp"
-            android:layout_marginTop="12dp" />
-
-        <Button
-            android:id="@+id/launch_game_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Launch Game"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:background="@android:color/holo_green_dark"
-            android:textColor="@android:color/white"
-            android:padding="16dp"
-            android:layout_marginTop="12dp" />
-
-        <TextView
-            android:id="@+id/status_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="12sp"
-            android:textColor="@android:color/holo_orange_light"
-            android:gravity="center"
-            android:layout_marginTop="30dp" />
-    </LinearLayout>
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

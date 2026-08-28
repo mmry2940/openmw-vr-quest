@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_launcher_gradient"
     tools:context="ui.activity.ModsActivity">
 
     <LinearLayout
@@ -16,7 +17,7 @@
             android:id="@+id/mods_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorPrimary"
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
@@ -24,6 +25,10 @@
         <com.google.android.material.tabs.TabLayout
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:background="@color/surface_card"
+            app:tabIndicatorColor="@color/gold_accent"
+            app:tabSelectedTextColor="@color/gold_accent"
+            app:tabTextColor="@color/text_secondary"
             app:tabTextAppearance="@style/MyCustomTextAppearance"
             android:id="@+id/tabLayout">
 
@@ -41,17 +46,22 @@
         <ViewFlipper
             android:id="@+id/flipper"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingTop="8dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_mods"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list_resources"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp" />
         </ViewFlipper>
 
     </LinearLayout>
@@ -62,8 +72,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:contentDescription="@string/import_mod"
-        app:srcCompat="@android:drawable/ic_menu_add"
-        app:tint="@android:color/white" />
+        android:src="@drawable/ic_folder_open_24"
+        app:tint="@color/text_primary"
+        app:backgroundTint="@color/colorPrimary"
+        android:contentDescription="@string/import_mod" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

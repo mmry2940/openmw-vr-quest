@@ -87,7 +87,22 @@ class LauncherActivity : AppCompatActivity() {
     private fun updateGameDataDisplay() {
         val gameDataPath = prefs.getString("game_files", "")!!
         val pathDisplay = findViewById<TextView>(R.id.game_data_path)
-        pathDisplay.text = if (gameDataPath.isEmpty()) "(not configured)" else gameDataPath
+        val badge = findViewById<TextView>(R.id.game_data_badge)
+        val statusIcon = findViewById<android.widget.ImageView>(R.id.game_data_status_icon)
+        
+        if (gameDataPath.isEmpty()) {
+            pathDisplay.text = "(not configured - tap button below)"
+            pathDisplay.setTextColor(getColor(R.color.text_secondary))
+            badge.text = "Required"
+            badge.setTextColor(getColor(R.color.status_warning))
+            statusIcon.setImageResource(R.drawable.ic_folder_open_24)
+        } else {
+            pathDisplay.text = gameDataPath
+            pathDisplay.setTextColor(getColor(R.color.text_primary))
+            badge.text = "Configured"
+            badge.setTextColor(getColor(R.color.status_ready))
+            statusIcon.setImageResource(R.drawable.ic_check_circle_24)
+        }
         Log.d(TAG, "updateGameDataDisplay: path='$gameDataPath'")
     }
     
