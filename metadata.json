@@ -1,0 +1,8 @@
+{
+  "name": "OpenMW VR",
+  "description": "OpenMW VR Android and Meta Quest launcher",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

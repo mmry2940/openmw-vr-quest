@@ -149,9 +149,11 @@ class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener 
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        updatePreference(findPreference(key), key)
-        updateGammaState()
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key != null) {
+            updatePreference(findPreference(key), key)
+            updateGammaState()
+        }
     }
 
     private fun updatePreference(preference: Preference?, key: String) {
