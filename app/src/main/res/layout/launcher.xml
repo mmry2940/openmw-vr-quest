@@ -139,6 +139,90 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- VR Height & Eye Calibration Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_vr_calibration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@drawable/ic_vr_headset_24"
+                            app:tint="@color/gold_accent"
+                            android:contentDescription="VR Calibration" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text="VR Calibration"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/vr_calibration_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="175 cm • 64 mm"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/gold_accent"
+                            android:background="@drawable/bg_launcher_gradient"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/vr_calibration_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Calibrate player standing height, seated mode, and eye separation (IPD)."
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_vr_calibration"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Calibrate VR Height &amp; Eyes"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary"
+                        app:icon="@drawable/ic_vr_headset_24"
+                        app:iconTint="@color/text_primary"
+                        app:iconGravity="textStart"
+                        app:backgroundTint="@color/btn_action_surface"
+                        app:strokeColor="@color/surface_card_stroke"
+                        app:strokeWidth="1dp"
+                        app:cornerRadius="10dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- Secondary Actions Grid / Row -->
             <LinearLayout
                 android:layout_width="match_parent"

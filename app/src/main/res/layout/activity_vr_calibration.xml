@@ -1,0 +1,829 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_card"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back_24"
+            app:navigationContentDescription="Back"
+            app:title="VR Calibration"
+            app:titleTextColor="@color/text_primary"
+            app:subtitle="Height &amp; Eye Offset"
+            app:subtitleTextColor="@color/text_secondary" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="48dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Interactive Visual Preview Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_vr_headset_24"
+                            app:tint="@color/gold_accent"
+                            android:contentDescription="VR preview" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="Real-Time Alignment Preview"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/preview_badge_stance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Standing"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/gold_accent"
+                            android:background="@drawable/bg_launcher_gradient"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:paddingTop="3dp"
+                            android:paddingBottom="3dp" />
+                    </LinearLayout>
+
+                    <!-- Custom Visual Canvas -->
+                    <ui.views.VrCalibrationPreviewView
+                        android:id="@+id/vr_preview_canvas"
+                        android:layout_width="match_parent"
+                        android:layout_height="170dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="10dp" />
+
+                    <!-- Live Summary Values -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:weightSum="3"
+                        android:gravity="center">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:text="PLAYER HEIGHT"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_secondary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                            <TextView
+                                android:id="@+id/txt_summary_height"
+                                android:text="175 cm (5'9&quot;)"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/gold_accent"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="24dp"
+                            android:background="@color/surface_card_stroke" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:text="EYE IPD"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_secondary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                            <TextView
+                                android:id="@+id/txt_summary_ipd"
+                                android:text="64.0 mm"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/gold_accent"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="24dp"
+                            android:background="@color/surface_card_stroke" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center">
+                            <TextView
+                                android:text="VERTICAL OFFSET"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_secondary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                            <TextView
+                                android:id="@+id/txt_summary_v_offset"
+                                android:text="0.0 cm"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/gold_accent"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Player Height Section -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_height_24"
+                            app:tint="@color/gold_accent"
+                            android:contentDescription="Height" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="VR Player Height"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/txt_height_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="175 cm  •  5 ft 9 in"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/gold_accent" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Scale your in-game world perception to your true physical height."
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Stance Toggle Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_mode_standing"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:text="Standing Mode"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_primary"
+                            app:backgroundTint="@color/colorPrimary"
+                            app:strokeColor="@color/gold_accent"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_mode_seated"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="6dp"
+                            android:text="Seated Mode"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp" />
+                    </LinearLayout>
+
+                    <!-- Continuous Slider -->
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/slider_height"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:valueFrom="100.0"
+                        android:valueTo="220.0"
+                        android:stepSize="1.0"
+                        android:value="175.0"
+                        app:thumbColor="@color/gold_accent"
+                        app:trackColorActive="@color/gold_accent"
+                        app:trackColorInactive="@color/surface_card_stroke" />
+
+                    <!-- Fine-tune increment buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginBottom="12dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_height_minus_5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="-5 cm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginEnd="4dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_height_minus_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="-1 cm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginEnd="6dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_height_plus_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="+1 cm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginStart="6dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_height_plus_5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="+5 cm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginStart="4dp" />
+                    </LinearLayout>
+
+                    <!-- Quick Preset Chips -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quick Presets:"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="6dp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_height_120"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="Seated (120 cm)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_height_165"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="165 cm (5'5&quot;)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_height_175"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="175 cm (5'9&quot;)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_height_185"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="185 cm (6'1&quot;)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_height_195"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="195 cm (6'5&quot;)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Eye Offset / IPD Section -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_visibility_24"
+                            app:tint="@color/gold_accent"
+                            android:contentDescription="Eye offset" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="Eye Offset &amp; IPD Separation"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/txt_ipd_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="64.0 mm"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/gold_accent" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Adjust stereo camera separation distance to match your headset interpupillary distance."
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- IPD Slider -->
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/slider_ipd"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:valueFrom="55.0"
+                        android:valueTo="75.0"
+                        android:stepSize="0.5"
+                        android:value="64.0"
+                        app:thumbColor="@color/gold_accent"
+                        app:trackColorActive="@color/gold_accent"
+                        app:trackColorInactive="@color/surface_card_stroke" />
+
+                    <!-- Fine-tune increment buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginBottom="12dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ipd_minus_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="-1.0 mm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginEnd="4dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ipd_minus_05"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="-0.5 mm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginEnd="6dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ipd_plus_05"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="+0.5 mm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginStart="6dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ipd_plus_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="+1.0 mm"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginStart="4dp" />
+                    </LinearLayout>
+
+                    <!-- IPD Preset Chips -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Standard Headset Presets:"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="6dp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_ipd_58"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="Narrow (58 mm)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_ipd_63"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="Quest Mode 2 (63 mm)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_ipd_65"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="Average (65 mm)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_ipd_68"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="Quest Mode 3 (68 mm)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp"
+                                android:layout_marginEnd="6dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chip_ipd_72"
+                                android:layout_width="wrap_content"
+                                android:layout_height="36dp"
+                                android:text="Wide (72 mm)"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_primary"
+                                app:backgroundTint="@color/btn_action_surface"
+                                app:strokeColor="@color/surface_card_stroke"
+                                app:strokeWidth="1dp"
+                                app:cornerRadius="16dp" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Vertical Eye Height Offset Section -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_tune_24"
+                            app:tint="@color/gold_accent"
+                            android:contentDescription="Vertical Offset" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="Vertical Horizon / Eye Offset"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/txt_v_offset_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0.0 cm"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/gold_accent" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Nudge in-game camera eye level up or down relative to head tracking baseline."
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Vertical Offset Slider -->
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/slider_v_offset"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:valueFrom="-10.0"
+                        android:valueTo="10.0"
+                        android:stepSize="0.5"
+                        android:value="0.0"
+                        app:thumbColor="@color/gold_accent"
+                        app:trackColorActive="@color/gold_accent"
+                        app:trackColorInactive="@color/surface_card_stroke" />
+
+                    <!-- Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_v_offset_minus_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="-1.0 cm (Lower)"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginEnd="6dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_v_offset_zero"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Center (0.0 cm)"
+                            android:textSize="11sp"
+                            android:textColor="@color/gold_accent"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_v_offset_plus_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="+1.0 cm (Raise)"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_secondary"
+                            app:backgroundTint="@color/btn_action_surface"
+                            app:strokeColor="@color/surface_card_stroke"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            android:layout_marginStart="6dp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Bottom Action Buttons -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_calibration"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:text="Save &amp; Apply Calibration"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                app:icon="@drawable/ic_check_circle_24"
+                app:iconTint="@color/text_primary"
+                app:iconGravity="textStart"
+                app:backgroundTint="@color/colorPrimary"
+                app:strokeColor="@color/gold_accent"
+                app:strokeWidth="1dp"
+                app:cornerRadius="12dp"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_reset_calibration"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Reset to Recommended Defaults"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                app:icon="@drawable/ic_restart_alt_24"
+                app:iconTint="@color/text_secondary"
+                app:iconGravity="textStart"
+                app:backgroundTint="@color/btn_action_surface"
+                app:strokeColor="@color/surface_card_stroke"
+                app:strokeWidth="1dp"
+                app:cornerRadius="10dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

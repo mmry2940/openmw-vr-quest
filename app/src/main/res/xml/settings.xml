@@ -31,12 +31,14 @@
             android:hint="1.0"
             />
 
-        <EditTextPreference
+        <ListPreference
             android:key="pref_uiScaling"
             android:title="@string/pref_uiScaling"
-            android:dialogTitle="@string/pref_uiScaling"
-            android:inputType="numberDecimal"
-            android:hint="1.5"
+            android:dialogTitle="@string/pref_uiScaling_dialog_title"
+            android:entries="@array/pref_uiScaling_entries"
+            android:entryValues="@array/pref_uiScaling_values"
+            android:defaultValue=""
+            android:summary="%s"
             />
 
         <ListPreference
@@ -66,6 +68,27 @@
             android:title="@string/pref_screen_keeper"/>
     </PreferenceCategory>
 
+
+    <PreferenceCategory android:title="@string/activity_vr_calibration">
+        <ListPreference
+            android:key="pref_vr_stance"
+            android:title="@string/pref_vr_stance_title"
+            android:dialogTitle="@string/pref_vr_stance_dialog_title"
+            android:entries="@array/pref_vr_stance_entries"
+            android:entryValues="@array/pref_vr_stance_values"
+            android:defaultValue="standing"
+            android:summary="%s" />
+
+        <Preference
+            android:key="pref_open_vr_calibration"
+            android:title="@string/vr_calibration_title"
+            android:summary="Fine-tune standing/seated height, visual preview, and IPD separation">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.openmw.vr"
+                android:targetClass="ui.activity.VrCalibrationActivity" />
+        </Preference>
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_advanced">
         <EditTextPreference

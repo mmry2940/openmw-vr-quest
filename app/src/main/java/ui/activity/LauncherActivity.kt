@@ -29,6 +29,7 @@ class LauncherActivity : AppCompatActivity() {
     private lateinit var launchGameButton: Button
     private lateinit var manageModsButton: Button
     private lateinit var settingsButton: Button
+    private lateinit var vrCalibrationButton: Button
     private var launchInProgress: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,14 +42,16 @@ class LauncherActivity : AppCompatActivity() {
         
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
-        // Update displayed game data path
+        // Update displayed game data path and VR calibration
         updateGameDataDisplay()
+        updateVrCalibrationDisplay()
 
         // Set up button listeners
         selectDataButton = findViewById(R.id.select_data_button)
         launchGameButton = findViewById(R.id.launch_game_button)
         manageModsButton = findViewById(R.id.manage_mods_button)
         settingsButton = findViewById(R.id.settings_button)
+        vrCalibrationButton = findViewById(R.id.btn_vr_calibration)
 
         manageModsButton.setOnClickListener {
             startActivity(Intent(this, ModsActivity::class.java))
@@ -56,6 +59,14 @@ class LauncherActivity : AppCompatActivity() {
 
         settingsButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
+        }
+
+        vrCalibrationButton.setOnClickListener {
+            startActivity(Intent(this, VrCalibrationActivity::class.java))
+        }
+
+        findViewById<android.view.View>(R.id.card_vr_calibration).setOnClickListener {
+            startActivity(Intent(this, VrCalibrationActivity::class.java))
         }
 
         selectDataButton.setOnClickListener {
@@ -77,13 +88,48 @@ class LauncherActivity : AppCompatActivity() {
             selectDataButton.isEnabled = false
             manageModsButton.isEnabled = false
             settingsButton.isEnabled = false
+            vrCalibrationButton.isEnabled = false
             Log.d(TAG, "Launch game button clicked")
             checkStartGame()
         }
 
         Log.d(TAG, "LauncherActivity.onCreate: completed successfully")
     }
-    
+
+    override fun onResume() {
+        super.onResume()
+        updateGameDataDisplay()
+        updateVrCalibrationDisplay()
+    }
+
+    private fun updateVrCalibrationDisplay() {
+        val heightCm = try {
+            prefs.getFloat("pref_vr_height_val", prefs.getString("pref_vr_height", "175.0")?.toFloatOrNull() ?: 175f)
+        } catch (e: Exception) {
+            175f
+        }
+
+        val ipdMm = try {
+            prefs.getFloat("pref_vr_eye_offset_val", prefs.getString("pref_vr_eye_offset", "64.0")?.toFloatOrNull() ?: 64f)
+        } catch (e: Exception) {
+            64f
+        }
+
+        val stance = prefs.getString("pref_vr_stance", "standing")
+        val isSeated = stance.equals("seated", ignoreCase = true)
+
+        val badge = findViewById<TextView>(R.id.vr_calibration_badge)
+        val description = findViewById<TextView>(R.id.vr_calibration_description)
+
+        val totalInches = (heightCm / 2.54f).toInt()
+        val feet = totalInches / 12
+        val inches = totalInches % 12
+        val stanceLabel = if (isSeated) "Seated Mode" else "Standing Mode"
+
+        badge?.text = "${heightCm.toInt()} cm • ${ipdMm.toInt()} mm"
+        description?.text = "Height: ${heightCm.toInt()} cm (${feet}'${inches}\") • Eye IPD: ${String.format(java.util.Locale.ROOT, "%.1f", ipdMm)} mm • $stanceLabel"
+    }
+
     private fun updateGameDataDisplay() {
         val gameDataPath = prefs.getString("game_files", "")!!
         val pathDisplay = findViewById<TextView>(R.id.game_data_path)

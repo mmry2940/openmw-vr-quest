@@ -159,13 +159,20 @@ class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener 
     private fun updatePreference(preference: Preference?, key: String) {
         if (preference == null)
             return
-        if (preference is EditTextPreference) {
-            if (key == "pref_uiScaling" && (preference.text == null || preference.text.isEmpty()))
-                // Show "Auto (1.23)"
-                preference.summary = MyApp.app.getString(R.string.uiScaling_auto)
-                    .format(Locale.ROOT, MyApp.app.defaultScaling)
-            else
-                preference.summary = preference.text
+        if (preference is android.preference.ListPreference) {
+            if (key == "pref_uiScaling") {
+                val value = preference.value
+                if (value.isNullOrEmpty()) {
+                    preference.summary = MyApp.app.getString(R.string.uiScaling_auto)
+                        .format(Locale.ROOT, MyApp.app.defaultScaling)
+                } else {
+                    preference.summary = preference.entry ?: preference.value
+                }
+            } else {
+                preference.summary = preference.entry ?: preference.value
+            }
+        } else if (preference is EditTextPreference) {
+            preference.summary = preference.text
         }
         // Show selected value as a summary for game_files
         if (key == "game_files") {
