@@ -23,6 +23,7 @@ package ui.fragments
 import android.Manifest
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.widget.Toast
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -90,22 +91,22 @@ class FragmentSettings : PreferenceFragment(), OnSharedPreferenceChangeListener 
      */
     private fun setupData(path: String) {
         val sharedPref = preferenceScreen.sharedPreferences
+        val cleanPath = path.trim()
+        if (cleanPath.isEmpty()) return
 
-        // reset the setting so that it's erased on error instead of keeping
-        // possibly stale value
         var gameFiles = ""
-
-        val inst = GameInstaller(path)
+        val inst = GameInstaller(cleanPath)
         if (inst.check()) {
             inst.setNomedia()
-            if (!inst.convertIni(sharedPref.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF)!!)) {
-                showError(R.string.data_error_title, R.string.ini_error_message)
-            } else {
-                gameFiles = path
-            }
+            inst.convertIni(sharedPref.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF) ?: GameInstaller.DEFAULT_CHARSET_PREF)
+            gameFiles = cleanPath
+            Toast.makeText(activity, "Game data configured!\nData: ${inst.findDataFiles()}", Toast.LENGTH_LONG).show()
         } else {
-            showError(R.string.data_error_title, R.string.data_error_message,
-                    "https://omw.xyz.is/game.html")
+            AlertDialog.Builder(activity)
+                .setTitle(R.string.data_error_title)
+                .setMessage("Could not find Morrowind game data in:\n\n$cleanPath\n\nPlease make sure this folder contains:\n• Morrowind.esm (or .omwgame / .esm files)\n• or a 'Data Files' folder\n\nTip: You can select the Morrowind root folder OR the 'Data Files' folder directly.")
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
         }
 
         with(sharedPref.edit()) {

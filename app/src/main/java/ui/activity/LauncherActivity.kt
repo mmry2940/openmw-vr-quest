@@ -14,6 +14,7 @@ import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 import com.codekidlabs.storagechooser.StorageChooser
@@ -172,21 +173,29 @@ class LauncherActivity : AppCompatActivity() {
     
     private fun setupData(path: String) {
         Log.d(TAG, "setupData: path='$path'")
-        var gameFiles = ""
+        val cleanPath = path.trim()
+        if (cleanPath.isEmpty()) return
 
-        val inst = GameInstaller(path)
+        var gameFiles = ""
+        val inst = GameInstaller(cleanPath)
+
         if (inst.check()) {
             Log.d(TAG, "setupData: path is valid")
             inst.setNomedia()
-            if (!inst.convertIni(prefs.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF)!!)) {
-                showError(R.string.data_error_title, R.string.ini_error_message)
-            } else {
-                gameFiles = path
-                Log.d(TAG, "setupData: configuration successful")
-            }
+            inst.convertIni(prefs.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF) ?: GameInstaller.DEFAULT_CHARSET_PREF)
+            gameFiles = cleanPath
+            val resolvedData = inst.findDataFiles()
+            Toast.makeText(this, "Game data configured!\nData: $resolvedData", Toast.LENGTH_LONG).show()
         } else {
             Log.d(TAG, "setupData: path is NOT valid")
-            showError(R.string.data_error_title, R.string.data_error_message, "https://omw.xyz.is/game.html")
+            AlertDialog.Builder(this)
+                .setTitle(R.string.data_error_title)
+                .setMessage("Could not find Morrowind game data in:\n\n$cleanPath\n\nPlease make sure this folder (or a subfolder) contains:\n• Morrowind.esm (or .omwgame / .esm files)\n• or a 'Data Files' folder\n\nTip: You can select the Morrowind root folder OR the 'Data Files' folder directly.")
+                .setPositiveButton(android.R.string.ok, null)
+                .setNeutralButton("Manual Path") { _, _ ->
+                    selectGameData()
+                }
+                .show()
         }
 
         with(prefs.edit()) {
