@@ -606,26 +606,14 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun validateRuntimePayload(): Boolean {
-        val hasOpenmwLib = File(applicationInfo.nativeLibraryDir, "libopenmw.so").exists()
-        Log.d(TAG, "validateRuntimePayload: nativeLibDir=${applicationInfo.nativeLibraryDir}, hasOpenmwLib=$hasOpenmwLib")
-
-        val hasBundledOpenmw = try {
-            val openmwConfig = assets.list("libopenmw/openmw") ?: emptyArray()
-            val openmwResources = assets.list("libopenmw/resources") ?: emptyArray()
-            Log.d(TAG, "validateRuntimePayload: openmwConfig.size=${openmwConfig.size}, openmwResources.size=${openmwResources.size}")
-            openmwConfig.isNotEmpty() && openmwResources.isNotEmpty()
-        } catch (e: IOException) {
-            Log.e(TAG, "validateRuntimePayload: IOException listing assets", e)
-            false
-        }
-
-        if (hasOpenmwLib && hasBundledOpenmw) {
+        if (utils.RuntimeValidator.isRuntimePayloadValid(this)) {
             return true
         }
 
+        val missingSummary = utils.RuntimeValidator.getMissingSummary(this)
         AlertDialog.Builder(this)
-            .setTitle("Runtime files missing")
-            .setMessage("This APK is missing OpenMW runtime files (libraries/assets), so the game cannot launch. Rebuild using buildscripts/build.sh (or buildscripts/full-build.sh) before installing.")
+            .setTitle("OpenMW Runtime Files Missing")
+            .setMessage("This APK is missing OpenMW VR engine components:\n\n$missingSummary\n\nThe game cannot launch without these native libraries and assets. Please build the native engine first using:\ncd buildscripts && ./build.sh --arch arm64\nthen rebuild the APK.")
             .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int -> }
             .show()
         return false

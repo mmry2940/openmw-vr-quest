@@ -4,7 +4,7 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 
-export ARCH="arm"
+export ARCH="arm64"
 export CCACHE="false"
 ASAN="false"
 DEPLOY_RESOURCES="true"

@@ -27,6 +27,14 @@ class VrEntryActivity : MainActivity() {
                 return
             }
 
+            if (!utils.RuntimeValidator.isRuntimePayloadValid(this)) {
+                Log.e(TAG, "VrEntryActivity.$source: runtime payload missing, redirecting to LauncherActivity")
+                val launcherIntent = Intent(this, LauncherActivity::class.java)
+                startActivity(launcherIntent)
+                finish()
+                return
+            }
+
             autoStartHandled = true
             Log.d(TAG, "VrEntryActivity.$source: auto-starting via MainActivity pipeline")
             checkStartGame()

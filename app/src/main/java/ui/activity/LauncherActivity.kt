@@ -260,6 +260,7 @@ class LauncherActivity : AppCompatActivity() {
             selectDataButton.isEnabled = true
             manageModsButton.isEnabled = true
             settingsButton.isEnabled = true
+            vrCalibrationButton.isEnabled = true
             AlertDialog.Builder(this)
                 .setTitle(R.string.no_data_files_title)
                 .setMessage(R.string.no_data_files_message)
@@ -271,7 +272,25 @@ class LauncherActivity : AppCompatActivity() {
             return
         }
 
-        Log.d(TAG, "checkStartGame: game data valid, starting game")
+        if (!utils.RuntimeValidator.isRuntimePayloadValid(this)) {
+            Log.e(TAG, "checkStartGame: runtime payload validation failed")
+            launchInProgress = false
+            launchGameButton.isEnabled = true
+            selectDataButton.isEnabled = true
+            manageModsButton.isEnabled = true
+            settingsButton.isEnabled = true
+            vrCalibrationButton.isEnabled = true
+
+            val missingSummary = utils.RuntimeValidator.getMissingSummary(this)
+            AlertDialog.Builder(this)
+                .setTitle("Engine Files Missing")
+                .setMessage("This APK is missing OpenMW VR engine components:\n\n$missingSummary\n\nThe game cannot launch without these native libraries and assets. Please build the native engine first using:\ncd buildscripts && ./build.sh --arch arm64\nthen rebuild the APK.")
+                .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int -> }
+                .show()
+            return
+        }
+
+        Log.d(TAG, "checkStartGame: game data and engine payload valid, starting game")
         startGame()
     }
 

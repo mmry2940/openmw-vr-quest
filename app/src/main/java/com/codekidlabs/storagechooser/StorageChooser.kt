@@ -82,9 +82,10 @@ class StorageChooser private constructor(
         val itemNames = ArrayList<String>()
         val itemFiles = ArrayList<File>()
 
-        if (dir.parentFile != null && dir.absolutePath != Environment.getExternalStorageDirectory().parent) {
+        val parentDir = dir.parentFile
+        if (parentDir != null && parentDir.absolutePath != Environment.getExternalStorageDirectory().parent) {
             itemNames.add("📁 ⬆ .. (Up to Parent Folder)")
-            itemFiles.add(dir.parentFile!!)
+            itemFiles.add(parentDir)
         }
 
         for (f in files) {
