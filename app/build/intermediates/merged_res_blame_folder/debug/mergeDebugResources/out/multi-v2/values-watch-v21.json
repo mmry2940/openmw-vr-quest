@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.libopenmw.openmw.app-mergeDebugResources-30:/values-watch-v21/values-watch-v21.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\am3m0\\.gradle\\caches\\8.14\\transforms\\fa4c4227aad1fd097391554aa10d750e\\transformed\\appcompat-1.6.1\\res\\values-watch-v21\\values-watch-v21.xml",
+                    "from": {
+                        "startLines": "2,6,10",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,271,499",
+                        "endLines": "5,9,13",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "266,494,724"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,280 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.openmw.vr"
+4    android:versionCode="45"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10    <!-- Allow writing to external storage -->
+11    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+11-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:5:5-81
+11-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:5:22-78
+12    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+12-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:6:5-80
+12-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:6:22-77
+13    <uses-permission android:name="android.permission.INTERNET" />
+13-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:7:5-67
+13-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:7:22-64
+14    <uses-permission android:name="org.khronos.openxr.permission.OPENXR_SYSTEM" />
+14-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:8:5-83
+14-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:8:22-80
+15
+16    <uses-feature
+16-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:9:5-94
+17        android:name="android.hardware.vr.headtracking"
+17-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:9:19-66
+18        android:required="false" />
+18-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:9:67-91
+19    <uses-feature
+19-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:10:5-95
+20        android:name="android.hardware.sensor.gyroscope"
+20-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:10:19-67
+21        android:required="false" />
+21-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:10:68-92
+22
+23    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+23-->[com.bugsnag:bugsnag-android-core:4.22.3] C:\Users\am3m0\.gradle\caches\8.14\transforms\719f59465f2a69595fa4fa6478108abf\transformed\bugsnag-android-core-4.22.3\AndroidManifest.xml:9:5-79
+23-->[com.bugsnag:bugsnag-android-core:4.22.3] C:\Users\am3m0\.gradle\caches\8.14\transforms\719f59465f2a69595fa4fa6478108abf\transformed\bugsnag-android-core-4.22.3\AndroidManifest.xml:9:22-76
+24
+25    <permission
+25-->[androidx.core:core:1.9.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\e2937eacf1e1e433df94159cce2be903\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+26        android:name="com.openmw.vr.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+26-->[androidx.core:core:1.9.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\e2937eacf1e1e433df94159cce2be903\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+27        android:protectionLevel="signature" />
+27-->[androidx.core:core:1.9.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\e2937eacf1e1e433df94159cce2be903\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+28
+29    <uses-permission android:name="com.openmw.vr.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+29-->[androidx.core:core:1.9.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\e2937eacf1e1e433df94159cce2be903\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+29-->[androidx.core:core:1.9.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\e2937eacf1e1e433df94159cce2be903\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+30
+31    <application
+31-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:12:5-81:19
+32        android:name="utils.MyApp"
+32-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:14:9-35
+33        android:allowBackup="true"
+33-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:15:9-35
+34        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+34-->[androidx.core:core:1.9.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\e2937eacf1e1e433df94159cce2be903\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+35        android:debuggable="true"
+36        android:extractNativeLibs="false"
+37        android:hardwareAccelerated="true"
+37-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:16:9-43
+38        android:icon="@mipmap/ic_launcher"
+38-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:17:9-43
+39        android:label="@string/app_name"
+39-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:19:9-41
+40        android:requestLegacyExternalStorage="true"
+40-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:13:9-52
+41        android:roundIcon="@mipmap/ic_launcher_round"
+41-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:18:9-54
+42        android:theme="@style/MyTheme" >
+42-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:20:9-39
+43        <meta-data
+43-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:22:9-118
+44            android:name="com.oculus.supportedDevices"
+44-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:22:20-62
+45            android:value="quest|quest2|questpro|quest3|quest3s" />
+45-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:22:63-115
+46        <meta-data
+46-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:23:9-111
+47            android:name="com.oculus.supportedInputDevices"
+47-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:23:20-67
+48            android:value="controller|hand_tracking" />
+48-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:23:68-108
+49
+50        <activity
+50-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:24:9-29:52
+51            android:name="ui.activity.MainActivity"
+51-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:25:13-52
+52            android:configChanges="keyboardHidden|orientation|screenSize"
+52-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:27:13-74
+53            android:exported="true"
+53-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:26:13-36
+54            android:label="@string/app_name"
+54-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:28:13-45
+55            android:screenOrientation="fullUser" />
+55-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:29:13-49
+56        <activity
+56-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:30:9-44:20
+57            android:name="ui.activity.VrEntryActivity"
+57-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:31:13-55
+58            android:configChanges="keyboardHidden|orientation|screenSize"
+58-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:33:13-74
+59            android:exported="true"
+59-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:32:13-36
+60            android:label="@string/app_name"
+60-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:34:13-45
+61            android:screenOrientation="fullUser"
+61-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:35:13-49
+62            android:theme="@style/MyTheme" >
+62-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:36:13-43
+63            <intent-filter>
+63-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:37:13-43:29
+64                <action android:name="android.intent.action.MAIN" />
+64-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:38:17-69
+64-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:38:25-66
+65
+66                <category android:name="android.intent.category.DEFAULT" />
+66-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:40:17-76
+66-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:40:27-73
+67                <category android:name="android.intent.category.LAUNCHER" />
+67-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:41:17-77
+67-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:41:27-74
+68                <category android:name="com.oculus.intent.category.VR" />
+68-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:42:17-74
+68-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:42:27-71
+69            </intent-filter>
+70        </activity>
+71        <activity
+71-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:45:9-51:46
+72            android:name="ui.activity.LauncherActivity"
+72-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:46:13-56
+73            android:configChanges="keyboardHidden|orientation|screenSize"
+73-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:48:13-74
+74            android:exported="true"
+74-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:47:13-36
+75            android:label="@string/app_name"
+75-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:49:13-45
+76            android:screenOrientation="fullUser"
+76-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:50:13-49
+77            android:theme="@style/MyTheme" />
+77-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:51:13-43
+78        <activity
+78-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:52:9-67:20
+79            android:name="ui.activity.GameActivity"
+79-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:53:13-52
+80            android:configChanges="density|keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|uiMode"
+80-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:55:13-122
+81            android:exported="true"
+81-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:54:13-36
+82            android:launchMode="singleTask"
+82-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:56:13-44
+83            android:resizeableActivity="false"
+83-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:57:13-47
+84            android:screenOrientation="landscape"
+84-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:58:13-50
+85            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
+85-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:59:13-77
+86            <meta-data
+86-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:60:13-84
+87                android:name="com.oculus.vr.mode"
+87-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:60:24-57
+88                android:value="vr_only" />
+88-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:60:58-81
+89
+90            <intent-filter>
+90-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:61:13-66:29
+91                <action android:name="android.intent.action.MAIN" />
+91-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:38:17-69
+91-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:38:25-66
+92
+93                <category android:name="android.intent.category.DEFAULT" />
+93-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:40:17-76
+93-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:40:27-73
+94                <category android:name="com.oculus.intent.category.VR" />
+94-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:42:17-74
+94-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:42:27-71
+95            </intent-filter>
+96        </activity>
+97        <activity
+97-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:68:9-72:65
+98            android:name="ui.activity.ConfigureControls"
+98-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:69:13-57
+99            android:configChanges="keyboardHidden|orientation"
+99-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:70:13-63
+100            android:screenOrientation="sensorLandscape"
+100-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:71:13-56
+101            android:theme="@style/Theme.AppCompat.FullScreen" />
+101-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:72:13-62
+102        <activity
+102-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:73:9-80:15
+103            android:name="ui.activity.ModsActivity"
+103-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:74:13-52
+104            android:configChanges="keyboardHidden|orientation|screenSize"
+104-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:75:13-74
+105            android:exported="true"
+105-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:78:13-36
+106            android:label="@string/activity_mods"
+106-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:79:13-50
+107            android:screenOrientation="fullUser"
+107-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:76:13-49
+108            android:theme="@style/MyTheme" />
+108-->F:\New\openmw-vr-quest\app\src\main\AndroidManifest.xml:77:13-43
+109
+110        <uses-library
+110-->[com.bugsnag:bugsnag-android-core:4.22.3] C:\Users\am3m0\.gradle\caches\8.14\transforms\719f59465f2a69595fa4fa6478108abf\transformed\bugsnag-android-core-4.22.3\AndroidManifest.xml:12:9-14:40
+111            android:name="android.test.runner"
+111-->[com.bugsnag:bugsnag-android-core:4.22.3] C:\Users\am3m0\.gradle\caches\8.14\transforms\719f59465f2a69595fa4fa6478108abf\transformed\bugsnag-android-core-4.22.3\AndroidManifest.xml:13:13-47
+112            android:required="false" />
+112-->[com.bugsnag:bugsnag-android-core:4.22.3] C:\Users\am3m0\.gradle\caches\8.14\transforms\719f59465f2a69595fa4fa6478108abf\transformed\bugsnag-android-core-4.22.3\AndroidManifest.xml:14:13-37
+113
+114        <provider
+114-->[androidx.emoji2:emoji2:1.2.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\fee131928de319bad630ff463be54d4e\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+115            android:name="androidx.startup.InitializationProvider"
+115-->[androidx.emoji2:emoji2:1.2.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\fee131928de319bad630ff463be54d4e\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+116            android:authorities="com.openmw.vr.androidx-startup"
+116-->[androidx.emoji2:emoji2:1.2.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\fee131928de319bad630ff463be54d4e\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+117            android:exported="false" >
+117-->[androidx.emoji2:emoji2:1.2.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\fee131928de319bad630ff463be54d4e\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+118            <meta-data
+118-->[androidx.emoji2:emoji2:1.2.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\fee131928de319bad630ff463be54d4e\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+119                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+119-->[androidx.emoji2:emoji2:1.2.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\fee131928de319bad630ff463be54d4e\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+120                android:value="androidx.startup" />
+120-->[androidx.emoji2:emoji2:1.2.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\fee131928de319bad630ff463be54d4e\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+121            <meta-data
+121-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\am3m0\.gradle\caches\8.14\transforms\2e656b4faa263859a76f141784fab1dd\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+122                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+122-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\am3m0\.gradle\caches\8.14\transforms\2e656b4faa263859a76f141784fab1dd\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+123                android:value="androidx.startup" />
+123-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\am3m0\.gradle\caches\8.14\transforms\2e656b4faa263859a76f141784fab1dd\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+124            <meta-data
+124-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+125                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+125-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+126                android:value="androidx.startup" />
+126-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+127        </provider>
+128
+129        <receiver
+129-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+130            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+130-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+131            android:directBootAware="false"
+131-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+132            android:enabled="true"
+132-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+133            android:exported="true"
+133-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+134            android:permission="android.permission.DUMP" >
+134-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+135            <intent-filter>
+135-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+136                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+136-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+136-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+137            </intent-filter>
+138            <intent-filter>
+138-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+139                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+139-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+139-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+140            </intent-filter>
+141            <intent-filter>
+141-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+142                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+142-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+142-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+143            </intent-filter>
+144            <intent-filter>
+144-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+145                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+145-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+145-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\am3m0\.gradle\caches\8.14\transforms\be687f8ddba04ec57f6cd06a0d1e6377\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+146            </intent-filter>
+147        </receiver>
+148    </application>
+149
+150</manifest>

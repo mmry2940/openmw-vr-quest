@@ -4,6 +4,15 @@ NDK_VERSION="r21e"
 NDK_HASH="ad7ce5467e18d40050dc51b8e7affc3e635c85bd8c59be62de32352328ed467e"
 ANDROID_API="21"
 
+case "$(uname -s)" in
+	MINGW*|MSYS*|CYGWIN*|Windows_NT)
+		HOST_TAG="windows-x86_64"
+		;;
+	*)
+		HOST_TAG="linux-x86_64"
+		;;
+esac
+
 # End of configurable options
 
 NDK_FILE="ndk-$NDK_VERSION.zip"

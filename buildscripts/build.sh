@@ -84,6 +84,34 @@ fi
 
 source ./include/version.sh
 
+# Prefer the Android SDK CMake distribution when present, since Git Bash on Windows
+# does not always inherit a global PATH entry for it.
+if command -v cmake >/dev/null 2>&1; then
+	CMAKE_BIN="$(command -v cmake)"
+elif [[ -x "/c/Users/am3m0/AppData/Local/Android/Sdk/cmake/3.22.1/bin/cmake" ]]; then
+	CMAKE_BIN="/c/Users/am3m0/AppData/Local/Android/Sdk/cmake/3.22.1/bin/cmake"
+elif [[ -x "$LOCALAPPDATA/Android/Sdk/cmake/3.22.1/bin/cmake" ]]; then
+	CMAKE_BIN="$LOCALAPPDATA/Android/Sdk/cmake/3.22.1/bin/cmake"
+else
+	CMAKE_BIN="cmake"
+fi
+
+if command -v ninja >/dev/null 2>&1; then
+	CMAKE_MAKE_PROGRAM="$(command -v ninja)"
+elif [[ -x "/c/Users/am3m0/AppData/Local/Android/Sdk/cmake/3.22.1/bin/ninja" ]]; then
+	CMAKE_MAKE_PROGRAM="/c/Users/am3m0/AppData/Local/Android/Sdk/cmake/3.22.1/bin/ninja"
+else
+	CMAKE_MAKE_PROGRAM="ninja"
+fi
+
+export PATH="$(dirname "$CMAKE_BIN"):$PATH"
+
+if [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* || "$(uname -s)" == CYGWIN* || "$(uname -s)" == Windows_NT ]]; then
+	CMAKE_GENERATOR="Ninja"
+else
+	CMAKE_GENERATOR="Unix Makefiles"
+fi
+
 if [ $ASAN = true ]; then
 	CFLAGS="$CFLAGS -fsanitize=address -fuse-ld=gold -fno-omit-frame-pointer"
 	CXXFLAGS="$CXXFLAGS -fsanitize=address -fuse-ld=gold -fno-omit-frame-pointer"
@@ -140,6 +168,8 @@ mkdir -p prefix/$ARCH/
 
 # symlink lib64 -> lib so we don't get half the libs in one directory half in another
 mkdir -p prefix/$ARCH/lib
+rm -rf prefix/$ARCH/lib64
+rm -rf prefix/$ARCH/osg/lib64
 ln -sf lib prefix/$ARCH/lib64
 mkdir -p prefix/$ARCH/osg/lib
 ln -sf lib prefix/$ARCH/osg/lib64
@@ -162,7 +192,7 @@ pushd build/$ARCH/
 source ./command_wrapper.sh true
 
 # Build!
-cmake ../.. \
+"$CMAKE_BIN" -G "$CMAKE_GENERATOR" ../.. \
 	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 	-DCMAKE_INSTALL_PREFIX=$DIR/prefix/$ARCH/ \
 	-DARCH=$ARCH \
@@ -173,8 +203,9 @@ cmake ../.. \
 	-DBOOST_ARCH=$BOOST_ARCH \
 	-DBOOST_ADDRESS_MODEL=$BOOST_ADDRESS_MODEL \
 	-DFFMPEG_CPU=$FFMPEG_CPU \
-	-DALLOW_OPENMW_UPSTREAM_FALLBACK=$([[ "$REQUIRE_VR_RUNTIME" = "false" ]] && echo ON || echo OFF)
-make -j1
+	-DALLOW_OPENMW_UPSTREAM_FALLBACK=$([[ "$REQUIRE_VR_RUNTIME" = "false" ]] && echo ON || echo OFF) \
+	-DCMAKE_MAKE_PROGRAM="$CMAKE_MAKE_PROGRAM"
+"$CMAKE_BIN" --build . --parallel "$NCPU"
 
 popd
 
@@ -273,7 +304,7 @@ if [ $ASAN = true ]; then
 	chmod +x "../app/wrap/res/lib/$ABI/wrap.sh"
 fi
 
-PATH="$DIR/toolchain/ndk/prebuilt/linux-x86_64/bin/:$DIR/toolchain/$ARCH/$NDK_TRIPLET/bin/:$PATH" bash ./include/gdb-add-index ./symbols/$ABI/*.so
+PATH="$DIR/toolchain/ndk/prebuilt/${HOST_TAG}/bin/:$DIR/toolchain/$ARCH/$NDK_TRIPLET/bin/:$PATH" bash ./include/gdb-add-index ./symbols/$ABI/*.so
 
 # gradle should do it, but just in case...
 $NDK_TRIPLET-strip ../app/src/main/jniLibs/$ABI/*.so

@@ -45,4 +45,37 @@ Second=Another value
                 "fallback=Another_thing_Second,Another value\n",
             res)
     }
+
+    @Test
+    fun acceptsDataFilesDirectorySelection() {
+        val root = createTempDir(prefix = "morrowind-root")
+        val dataFiles = File(root, "Data Files").apply { mkdirs() }
+        File(root, "Morrowind.ini").writeText("""
+[Game Files]
+Test=Value
+        """.trimIndent())
+
+        val installer = GameInstaller(dataFiles.absolutePath)
+
+        assertTrue(installer.check())
+        assertEquals(dataFiles.absolutePath, installer.findDataFiles())
+        assertTrue(installer.convertIni("win1252"))
+    }
+
+    @Test
+    fun acceptsParentFolderWhenGameRootIsNested() {
+        val parent = createTempDir(prefix = "morrowind-parent")
+        val root = File(parent, "morrowind").apply { mkdirs() }
+        val dataFiles = File(root, "Data Files").apply { mkdirs() }
+        File(root, "Morrowind.ini").writeText("""
+[Game Files]
+Test=Value
+        """.trimIndent())
+
+        val installer = GameInstaller(parent.absolutePath)
+
+        assertTrue(installer.check())
+        assertEquals(dataFiles.absolutePath, installer.findDataFiles())
+        assertTrue(installer.convertIni("win1252"))
+    }
 }

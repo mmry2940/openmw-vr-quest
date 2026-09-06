@@ -32,7 +32,66 @@ import java.nio.charset.Charset
  */
 class GameInstaller(path: String) {
 
-    val dir = File(path)
+    private val dir = File(path.trim())
+
+    private fun resolveRootDir(): File {
+        val current = try {
+            dir.canonicalFile
+        } catch (_: Exception) {
+            dir.absoluteFile
+        }
+
+        if (current.name.equals(DATA_NAME, ignoreCase = true)) {
+            return current.parentFile ?: current
+        }
+
+        val candidates = arrayListOf<File>()
+        candidates += current
+        var parent = current.parentFile
+        while (parent != null) {
+            candidates += parent
+            parent = parent.parentFile
+        }
+
+        for (candidate in candidates) {
+            if (!candidate.exists() || !candidate.isDirectory) continue
+            if (findRecursive(candidate, INI_NAME) != null && findRecursive(candidate, DATA_NAME) != null) {
+                return candidate
+            }
+        }
+
+        return current
+    }
+
+    /**
+     * Recursively searches a directory tree for a file/dir with a matching name,
+     * ignoring case.
+     */
+    private fun findRecursive(root: File, name: String): File? {
+        val nameLower = name.lowercase()
+        val stack = ArrayDeque<File>()
+        stack.add(root)
+
+        while (stack.isNotEmpty()) {
+            val current = stack.removeFirst()
+            val children = try {
+                current.listFiles()
+            } catch (_: Exception) {
+                null
+            } ?: continue
+
+            for (child in children) {
+                if (child.name.equals(name, ignoreCase = true)) {
+                    return child
+                }
+                if (child.isDirectory) {
+                    stack.addLast(child)
+                }
+            }
+        }
+
+        return null
+    }
 
     /**
      * Lists the root directory and finds a file or directory named "name",
@@ -40,33 +99,60 @@ class GameInstaller(path: String) {
      * @param name Name to search
      * @return File object if it was found, null otherwise
      */
-    private fun findCaseInsensitive(name: String): File? {
-        val nameLower = name.toLowerCase()
-        return dir
-            .list { _, fileName -> fileName.toLowerCase() == nameLower }
-            .map { File(dir, it) }
-            .firstOrNull()
+    private fun findCaseInsensitive(root: File, name: String): File? {
+        return findRecursive(root, name)
     }
 
     /**
      * Checks that the "path" directory contains a morrowind.ini,
-     * and that there's a "Data Files" directory
+     * and that there's a "Data Files" directory.
+     *
+     * Accepts either the root game install directory or the selected "Data Files"
+     * directory itself.
      */
     fun check(): Boolean {
-        // Root directory must exist and be a directory
-        if (!dir.exists() || !dir.isDirectory)
+        val root = resolveRootDir()
+        if (!root.exists() || !root.isDirectory)
             return false
 
-        // morrowind.ini as well as data files must exist
-        return findCaseInsensitive(INI_NAME) != null
-            && findCaseInsensitive(DATA_NAME) != null
+        return findCaseInsensitive(root, INI_NAME) != null
+            && findCaseInsensitive(root, DATA_NAME) != null
     }
 
     /**
-     * Returns path to the Data Files directory as a string
+     * Returns path to the Data Files directory as a string.
+     * If the caller selected the Data Files folder itself, return it directly.
      */
     fun findDataFiles(): String {
-        return File(dir, DATA_NAME).absolutePath
+        val current = try {
+            dir.canonicalFile
+        } catch (_: Exception) {
+            dir.absoluteFile
+        }
+
+        if (current.name.equals(DATA_NAME, ignoreCase = true)) {
+            return current.absolutePath
+        }
+
+        val root = resolveRootDir()
+        val direct = File(root, DATA_NAME)
+        if (direct.exists() && direct.isDirectory) {
+            return direct.absolutePath
+        }
+
+        val recursive = findCaseInsensitive(root, DATA_NAME)
+        if (recursive != null && recursive.isDirectory) {
+            return recursive.absolutePath
+        }
+
+        if (current.exists() && current.isDirectory) {
+            val currentData = findCaseInsensitive(current, DATA_NAME)
+            if (currentData != null && currentData.isDirectory) {
+                return currentData.absolutePath
+            }
+        }
+
+        return direct.absolutePath
     }
 
     /**
@@ -75,7 +161,7 @@ class GameInstaller(path: String) {
      */
     fun setNomedia() {
         try {
-            val file = File(dir, ".nomedia")
+            val file = File(resolveRootDir(), ".nomedia")
             if (!file.exists())
                 file.createNewFile()
         } catch (e: IOException) {
@@ -89,7 +175,8 @@ class GameInstaller(path: String) {
      * @return Whether the conversion succeeded
      */
     fun convertIni(encoding: String): Boolean {
-        val file = findCaseInsensitive(INI_NAME) ?: return false
+        val root = resolveRootDir()
+        val file = findCaseInsensitive(root, INI_NAME) ?: return false
 
         val charset = when (encoding) {
             "win1250" -> Charset.forName("windows-1250")

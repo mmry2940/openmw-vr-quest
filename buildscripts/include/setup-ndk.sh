@@ -17,7 +17,7 @@ if [[ ! -d toolchain ]]; then
 	if [[ $CCACHE = "true" ]]; then
 		echo "==> Patching common toolchain for ccache support"
 
-		pushd toolchain/ndk/toolchains/llvm/prebuilt/linux-x86_64/bin
+		pushd "toolchain/ndk/toolchains/llvm/prebuilt/${HOST_TAG}/bin"
 
 		mv "clang" "clangX"
 		mv "clang++" "clangX++"
@@ -52,8 +52,13 @@ if [[ ! -d $ARCH ]]; then
 	ln -s $NDK_TRIPLET-clang $ARCH/bin/$NDK_TRIPLET-gcc
 	ln -s $NDK_TRIPLET-clang++ $ARCH/bin/$NDK_TRIPLET-g++
 
-	# copy over gas-preprocessor for ffmpeg
-	cp ../patches/gas-preprocessor.pl $ARCH/bin/
+	# copy over gas-preprocessor for ffmpeg when available. This helper is not
+	# always shipped in the repo snapshot and is not required for current NDKs.
+	if [[ -f ../patches/gas-preprocessor.pl ]]; then
+		cp ../patches/gas-preprocessor.pl $ARCH/bin/
+	else
+		echo "==> gas-preprocessor.pl not found; skipping optional copy"
+	fi
 
 	if [[ $CCACHE = "true" ]]; then
 		echo "==> Patching '$ARCH' toolchain for ccache support"

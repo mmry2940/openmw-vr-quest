@@ -1,0 +1,214 @@
+[
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_inventory.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/inventory.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/layout_mod_item.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/layout/mod_item.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_keyboard.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/keyboard.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_pause.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/pause.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_check_circle_24.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_check_circle_24.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/menu_menu_settings.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/menu/menu_settings.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_mouse.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/mouse.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/layout_main.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/layout/main.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/layout_activity_mods.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/layout/activity_mods.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_use.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/use.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/layout_configure_controls.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/layout/configure_controls.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_toggle_weapon.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/toggle_weapon.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_sneak.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/sneak.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_pointer_arrow.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/pointer_arrow.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_jump.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/jump.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_extension_24.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_extension_24.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_load.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/load.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_attack.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/attack.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_drag_handle_black_24dp.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_drag_handle_black_24dp.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_save.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/save.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_bg_launcher_gradient.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/bg_launcher_gradient.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_toggle_magic.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/toggle_magic.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/layout_launcher.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/layout/launcher.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_run.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/run.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_settings_24.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_settings_24.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/xml_settings.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/xml/settings.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_wait.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/wait.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_journal.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/journal.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-mdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_info_outline_24.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_info_outline_24.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_toggle.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/toggle.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_folder_open_24.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_folder_open_24.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_play_arrow_24.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_play_arrow_24.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_ic_morrowind_emblem.jpg.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/ic_morrowind_emblem.jpg"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.libopenmw.openmw.app-debug-32:/drawable_third_person.png.flat",
+        "source": "com.libopenmw.openmw.app-main-34:/drawable/third_person.png"
+    }
+]

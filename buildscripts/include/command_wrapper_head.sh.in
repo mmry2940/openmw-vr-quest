@@ -3,9 +3,11 @@
 # Head: Preprocessed by build.sh
 
 export PKG_CONFIG_LIBDIR="$DIR/prefix/$ARCH/lib/pkgconfig"
-export CC="$NDK_TRIPLET-clang"
-export CXX="$NDK_TRIPLET-clang++"
-export PATH="$DIR/toolchain/$ARCH/bin/:$DIR/toolchain/ndk/:$PATH"
+export CC="$DIR/toolchain/$ARCH/bin/$NDK_TRIPLET-clang"
+export CXX="$DIR/toolchain/$ARCH/bin/$NDK_TRIPLET-clang++"
+# In Git Bash on Windows, inherited PATH entries may still use semicolon form.
+# The compiler variables are absolute, so CMake can resolve them regardless.
+export PATH="$DIR/toolchain/$ARCH/bin:$DIR/toolchain/ndk:$PATH"
 
 export CFLAGS="$ENV_CFLAGS"
 export CXXFLAGS="$ENV_CXXFLAGS"
