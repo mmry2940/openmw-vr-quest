@@ -45,7 +45,47 @@
     <string name="pref_commandLine">Custom command line arguments</string>
     <string name="pref_ui">User interface</string>
     <string name="pref_gamma">Gamma</string>
-    <string name="pref_uiScaling">UI scaling factor</string>
+    <!-- VR Options & Calibration -->
+    <string name="activity_vr_calibration">VR Options &amp; Calibration</string>
+    <string name="vr_calibration_title">VR Height &amp; Eye Calibration</string>
+    <string name="vr_calibration_card_title">VR Calibration</string>
+    <string name="vr_calibration_card_btn">Calibrate VR Height &amp; Eyes</string>
+    <string name="vr_calibration_saved">VR calibration saved and applied successfully</string>
+    <string name="pref_vr_height">VR Player Height (cm)</string>
+    <string name="pref_vr_eye_offset">VR Eye Offset (IPD mm)</string>
+    <string name="pref_vr_eye_height_offset">VR Vertical Eye Offset (cm)</string>
+    <string name="pref_vr_stance_title">VR Play Stance (Standing / Seated)</string>
+    <string name="pref_vr_stance_dialog_title">Select VR Play Stance</string>
+    <string-array name="pref_vr_stance_entries">
+        <item>Standing Mode (Standard / Roomscale)</item>
+        <item>Seated Mode (Desk / Couch / Chair)</item>
+    </string-array>
+    <string-array name="pref_vr_stance_values">
+        <item>standing</item>
+        <item>seated</item>
+    </string-array>
+    <string name="pref_uiScaling">Font Presets</string>
+    <string name="pref_uiScaling_dialog_title">Select Font Preset</string>
+    <string-array name="pref_uiScaling_entries">
+        <item>Small (1.25x Scale)</item>
+        <item>Medium (1.50x Scale)</item>
+        <item>Large (1.75x Scale)</item>
+        <item>Extra Large (2.00x Scale - Recommended for VR)</item>
+        <item>Huge (2.50x Scale)</item>
+        <item>Maximum (3.00x Scale)</item>
+        <item>Auto (Device Calculated)</item>
+    </string-array>
+
+    <string-array name="pref_uiScaling_values">
+        <item>1.25</item>
+        <item>1.50</item>
+        <item>1.75</item>
+        <item>2.00</item>
+        <item>2.50</item>
+        <item>3.00</item>
+        <item></item>
+    </string-array>
+
     <string name="uiScaling_auto">Auto (%1$.2f)</string>
     <string name="pref_screen_keeper">Keep screen always on</string>
     <string name="pref_touchpadSensitivity">Virtual touchpad sensitivity</string>

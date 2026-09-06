@@ -79,11 +79,21 @@ class ModsCollection(private val type: ModType,
     private fun initDbMods(files: List<String>, type: ModType) {
         val database = db.writableDatabase
         var order = 0
+        val fsFiles = try {
+            File(dataFiles).listFiles() ?: emptyArray()
+        } catch (e: Exception) {
+            emptyArray()
+        }
+
         files
-            .map { File(dataFiles, it) }
-            .filter { it.exists() }
-            .map { order += 1; Mod(type, it.name, order, true) }
-            .forEach { it.insert(database) }
+            .mapNotNull { targetName ->
+                fsFiles.firstOrNull { it.name.equals(targetName, ignoreCase = true) }
+            }
+            .forEach { file ->
+                order += 1
+                val mod = Mod(type, file.name, order, true)
+                mod.insert(database)
+            }
     }
 
     /**

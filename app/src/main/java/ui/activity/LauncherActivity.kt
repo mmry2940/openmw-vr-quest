@@ -14,6 +14,7 @@ import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 import com.codekidlabs.storagechooser.StorageChooser
@@ -29,6 +30,7 @@ class LauncherActivity : AppCompatActivity() {
     private lateinit var launchGameButton: Button
     private lateinit var manageModsButton: Button
     private lateinit var settingsButton: Button
+    private lateinit var vrCalibrationButton: Button
     private var launchInProgress: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,14 +43,16 @@ class LauncherActivity : AppCompatActivity() {
         
         prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
-        // Update displayed game data path
+        // Update displayed game data path and VR calibration
         updateGameDataDisplay()
+        updateVrCalibrationDisplay()
 
         // Set up button listeners
         selectDataButton = findViewById(R.id.select_data_button)
         launchGameButton = findViewById(R.id.launch_game_button)
         manageModsButton = findViewById(R.id.manage_mods_button)
         settingsButton = findViewById(R.id.settings_button)
+        vrCalibrationButton = findViewById(R.id.btn_vr_calibration)
 
         manageModsButton.setOnClickListener {
             startActivity(Intent(this, ModsActivity::class.java))
@@ -56,6 +60,14 @@ class LauncherActivity : AppCompatActivity() {
 
         settingsButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
+        }
+
+        vrCalibrationButton.setOnClickListener {
+            startActivity(Intent(this, VrCalibrationActivity::class.java))
+        }
+
+        findViewById<android.view.View>(R.id.card_vr_calibration).setOnClickListener {
+            startActivity(Intent(this, VrCalibrationActivity::class.java))
         }
 
         selectDataButton.setOnClickListener {
@@ -77,13 +89,48 @@ class LauncherActivity : AppCompatActivity() {
             selectDataButton.isEnabled = false
             manageModsButton.isEnabled = false
             settingsButton.isEnabled = false
+            vrCalibrationButton.isEnabled = false
             Log.d(TAG, "Launch game button clicked")
             checkStartGame()
         }
 
         Log.d(TAG, "LauncherActivity.onCreate: completed successfully")
     }
-    
+
+    override fun onResume() {
+        super.onResume()
+        updateGameDataDisplay()
+        updateVrCalibrationDisplay()
+    }
+
+    private fun updateVrCalibrationDisplay() {
+        val heightCm = try {
+            prefs.getFloat("pref_vr_height_val", prefs.getString("pref_vr_height", "175.0")?.toFloatOrNull() ?: 175f)
+        } catch (e: Exception) {
+            175f
+        }
+
+        val ipdMm = try {
+            prefs.getFloat("pref_vr_eye_offset_val", prefs.getString("pref_vr_eye_offset", "64.0")?.toFloatOrNull() ?: 64f)
+        } catch (e: Exception) {
+            64f
+        }
+
+        val stance = prefs.getString("pref_vr_stance", "standing")
+        val isSeated = stance.equals("seated", ignoreCase = true)
+
+        val badge = findViewById<TextView>(R.id.vr_calibration_badge)
+        val description = findViewById<TextView>(R.id.vr_calibration_description)
+
+        val totalInches = (heightCm / 2.54f).toInt()
+        val feet = totalInches / 12
+        val inches = totalInches % 12
+        val stanceLabel = if (isSeated) "Seated Mode" else "Standing Mode"
+
+        badge?.text = "${heightCm.toInt()} cm • ${ipdMm.toInt()} mm"
+        description?.text = "Height: ${heightCm.toInt()} cm (${feet}'${inches}\") • Eye IPD: ${String.format(java.util.Locale.ROOT, "%.1f", ipdMm)} mm • $stanceLabel"
+    }
+
     private fun updateGameDataDisplay() {
         val gameDataPath = prefs.getString("game_files", "")!!
         val pathDisplay = findViewById<TextView>(R.id.game_data_path)
@@ -126,21 +173,29 @@ class LauncherActivity : AppCompatActivity() {
     
     private fun setupData(path: String) {
         Log.d(TAG, "setupData: path='$path'")
-        var gameFiles = ""
+        val cleanPath = path.trim()
+        if (cleanPath.isEmpty()) return
 
-        val inst = GameInstaller(path)
+        var gameFiles = ""
+        val inst = GameInstaller(cleanPath)
+
         if (inst.check()) {
             Log.d(TAG, "setupData: path is valid")
             inst.setNomedia()
-            if (!inst.convertIni(prefs.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF)!!)) {
-                showError(R.string.data_error_title, R.string.ini_error_message)
-            } else {
-                gameFiles = path
-                Log.d(TAG, "setupData: configuration successful")
-            }
+            inst.convertIni(prefs.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF) ?: GameInstaller.DEFAULT_CHARSET_PREF)
+            gameFiles = cleanPath
+            val resolvedData = inst.findDataFiles()
+            Toast.makeText(this, "Game data configured!\nData: $resolvedData", Toast.LENGTH_LONG).show()
         } else {
             Log.d(TAG, "setupData: path is NOT valid")
-            showError(R.string.data_error_title, R.string.data_error_message, "https://omw.xyz.is/game.html")
+            AlertDialog.Builder(this)
+                .setTitle(R.string.data_error_title)
+                .setMessage("Could not find Morrowind game data in:\n\n$cleanPath\n\nPlease make sure this folder (or a subfolder) contains:\n• Morrowind.esm (or .omwgame / .esm files)\n• or a 'Data Files' folder\n\nTip: You can select the Morrowind root folder OR the 'Data Files' folder directly.")
+                .setPositiveButton(android.R.string.ok, null)
+                .setNeutralButton("Manual Path") { _, _ ->
+                    selectGameData()
+                }
+                .show()
         }
 
         with(prefs.edit()) {
@@ -205,6 +260,7 @@ class LauncherActivity : AppCompatActivity() {
             selectDataButton.isEnabled = true
             manageModsButton.isEnabled = true
             settingsButton.isEnabled = true
+            vrCalibrationButton.isEnabled = true
             AlertDialog.Builder(this)
                 .setTitle(R.string.no_data_files_title)
                 .setMessage(R.string.no_data_files_message)
@@ -216,7 +272,25 @@ class LauncherActivity : AppCompatActivity() {
             return
         }
 
-        Log.d(TAG, "checkStartGame: game data valid, starting game")
+        if (!utils.RuntimeValidator.isRuntimePayloadValid(this)) {
+            Log.e(TAG, "checkStartGame: runtime payload validation failed")
+            launchInProgress = false
+            launchGameButton.isEnabled = true
+            selectDataButton.isEnabled = true
+            manageModsButton.isEnabled = true
+            settingsButton.isEnabled = true
+            vrCalibrationButton.isEnabled = true
+
+            val missingSummary = utils.RuntimeValidator.getMissingSummary(this)
+            AlertDialog.Builder(this)
+                .setTitle("Engine Files Missing")
+                .setMessage("This APK is missing OpenMW VR engine components:\n\n$missingSummary\n\nThe game cannot launch without these native libraries and assets. Please build the native engine first using:\ncd buildscripts && ./build.sh --arch arm64\nthen rebuild the APK.")
+                .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int -> }
+                .show()
+            return
+        }
+
+        Log.d(TAG, "checkStartGame: game data and engine payload valid, starting game")
         startGame()
     }
 

@@ -305,17 +305,11 @@ open class MainActivity : AppCompatActivity() {
      * Determines required screen scaling based on resolution and physical size of the device
      */
     private fun determineScaling(): Float {
-        // The idea is to stretch an old-school 1024x768 monitor to the device screen
-        // Assume that 1x scaling corresponds to resolution of 1024x768
-        // Assume that the longest side of the device corresponds to the 1024 side
-        // Therefore scaling is calculated as longest size of the device divided by 1024
-        // Note that it doesn't take into account DPI at all. Which is fine for now, but in future
-        // we might want to add some bonus scaling to e.g. phone devices so that it's easier
-        // to click things.
-
         val dm = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(dm)
-        return maxOf(dm.heightPixels, dm.widthPixels) / 1024.0f
+        val calculated = maxOf(dm.heightPixels, dm.widthPixels) / 1024.0f
+        // Ensure a comfortable baseline (at least 1.60f) so in-game text and UI are crisp and legible by default
+        return if (calculated < 1.60f) 1.60f else calculated
     }
 
     /**
@@ -483,6 +477,36 @@ open class MainActivity : AppCompatActivity() {
 
                 file.Writer.write(Constants.OPENMW_CFG, "encoding", prefs!!.getString("pref_encoding", GameInstaller.DEFAULT_CHARSET_PREF)!!)
 
+                val vrStance = prefs!!.getString("pref_vr_stance", "standing")
+                val isSeated = vrStance.equals("seated", ignoreCase = true)
+
+                var vrHeightCm = try {
+                    prefs!!.getFloat("pref_vr_height_val", prefs!!.getString("pref_vr_height", if (isSeated) "120.0" else "175.0")?.toFloatOrNull() ?: (if (isSeated) 120f else 175f))
+                } catch (e: Exception) {
+                    if (isSeated) 120f else 175f
+                }
+                if (isSeated && vrHeightCm > 140f) {
+                    vrHeightCm = 120f
+                }
+
+                val vrIpdMm = try {
+                    prefs!!.getFloat("pref_vr_eye_offset_val", prefs!!.getString("pref_vr_eye_offset", "64.0")?.toFloatOrNull() ?: 64f)
+                } catch (e: Exception) {
+                    64f
+                }
+                val vrIpdMeters = vrIpdMm / 1000f
+
+                try {
+                    val settingsCfg = File(Constants.USER_CONFIG, "settings.cfg")
+                    if (!settingsCfg.exists()) {
+                        settingsCfg.createNewFile()
+                    }
+                    file.Writer.write(settingsCfg.absolutePath, "real height", "%.2f".format(Locale.ROOT, vrHeightCm))
+                    file.Writer.write(settingsCfg.absolutePath, "eye offset", "%.3f".format(Locale.ROOT, vrIpdMeters))
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not write VR settings to settings.cfg", e)
+                }
+
                 configureDefaultsBin(mapOf(
                         "scaling factor" to "%.2f".format(Locale.ROOT, scaling),
                         // android-specific defaults
@@ -491,6 +515,8 @@ open class MainActivity : AppCompatActivity() {
                         "camera sensitivity" to "0.4",
                         "enable controller" to "true",
                         "enable gyroscope" to "true",
+                        "real height" to "%.2f".format(Locale.ROOT, vrHeightCm),
+                        "eye offset" to "%.3f".format(Locale.ROOT, vrIpdMeters),
                         // and a bunch of windows positioning
                         "stats x" to "0.0",
                         "stats y" to "0.0",
@@ -580,26 +606,14 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun validateRuntimePayload(): Boolean {
-        val hasOpenmwLib = File(applicationInfo.nativeLibraryDir, "libopenmw.so").exists()
-        Log.d(TAG, "validateRuntimePayload: nativeLibDir=${applicationInfo.nativeLibraryDir}, hasOpenmwLib=$hasOpenmwLib")
-
-        val hasBundledOpenmw = try {
-            val openmwConfig = assets.list("libopenmw/openmw") ?: emptyArray()
-            val openmwResources = assets.list("libopenmw/resources") ?: emptyArray()
-            Log.d(TAG, "validateRuntimePayload: openmwConfig.size=${openmwConfig.size}, openmwResources.size=${openmwResources.size}")
-            openmwConfig.isNotEmpty() && openmwResources.isNotEmpty()
-        } catch (e: IOException) {
-            Log.e(TAG, "validateRuntimePayload: IOException listing assets", e)
-            false
-        }
-
-        if (hasOpenmwLib && hasBundledOpenmw) {
+        if (utils.RuntimeValidator.isRuntimePayloadValid(this)) {
             return true
         }
 
+        val missingSummary = utils.RuntimeValidator.getMissingSummary(this)
         AlertDialog.Builder(this)
-            .setTitle("Runtime files missing")
-            .setMessage("This APK is missing OpenMW runtime files (libraries/assets), so the game cannot launch. Rebuild using buildscripts/build.sh (or buildscripts/full-build.sh) before installing.")
+            .setTitle("OpenMW Runtime Files Missing")
+            .setMessage("This APK is missing OpenMW VR engine components:\n\n$missingSummary\n\nThe game cannot launch without these native libraries and assets. Please build the native engine first using:\ncd buildscripts && ./build.sh --arch arm64\nthen rebuild the APK.")
             .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int -> }
             .show()
         return false

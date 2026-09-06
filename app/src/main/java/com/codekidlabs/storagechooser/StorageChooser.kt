@@ -2,11 +2,16 @@ package com.codekidlabs.storagechooser
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.Settings
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import java.io.File
+import java.util.Locale
 
 class StorageChooser private constructor(
     private val activity: Activity?,
@@ -18,37 +23,86 @@ class StorageChooser private constructor(
     fun show() {
         if (activity == null || activity.isFinishing) return
 
+        // Verify storage permissions on Android 11+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                AlertDialog.Builder(activity)
+                    .setTitle("Storage Permission Required")
+                    .setMessage("To access Morrowind game files on your device or VR headset, OpenMW VR requires All Files Access permission.\n\nPlease enable 'Allow management of all files' in settings.")
+                    .setPositiveButton("Grant Access") { _, _ ->
+                        try {
+                            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                                data = Uri.parse("package:${activity.packageName}")
+                            }
+                            activity.startActivity(intent)
+                        } catch (e: Exception) {
+                            val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                            activity.startActivity(intent)
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                return
+            }
+        }
+
         val defaultRoot = Environment.getExternalStorageDirectory() ?: activity.filesDir
-        var currentDir = if (defaultRoot.exists()) defaultRoot else activity.filesDir
+        val currentDir = if (defaultRoot.exists()) defaultRoot else activity.filesDir
 
         showDirectoryPicker(currentDir)
+    }
+
+    private fun hasGameAssets(dir: File): Boolean {
+        if (!dir.exists() || !dir.isDirectory) return false
+        val files = try {
+            dir.listFiles()
+        } catch (e: Exception) {
+            null
+        } ?: return false
+
+        return files.any { f ->
+            val name = f.name.lowercase(Locale.ROOT)
+            name == "morrowind.esm" || name == "morrowind.ini" || name == "data files" ||
+            name.endsWith(".esm") || name.endsWith(".bsa") || name.endsWith(".omwgame")
+        }
     }
 
     private fun showDirectoryPicker(dir: File) {
         if (activity == null || activity.isFinishing) return
 
         val files = try {
-            dir.listFiles()?.filter { it.isDirectory && !it.name.startsWith(".") }?.sortedBy { it.name.lowercase() }
+            dir.listFiles()?.filter { it.isDirectory && !it.name.startsWith(".") }?.sortedBy { it.name.lowercase(Locale.ROOT) }
                 ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }
 
+        val isGameDir = hasGameAssets(dir)
+
         val itemNames = ArrayList<String>()
         val itemFiles = ArrayList<File>()
 
-        if (dir.parentFile != null && dir.absolutePath != Environment.getExternalStorageDirectory().parent) {
-            itemNames.add("📁 .. (Parent Directory)")
-            itemFiles.add(dir.parentFile!!)
+        val parentDir = dir.parentFile
+        if (parentDir != null && parentDir.absolutePath != Environment.getExternalStorageDirectory().parent) {
+            itemNames.add("📁 ⬆ .. (Up to Parent Folder)")
+            itemFiles.add(parentDir)
         }
 
         for (f in files) {
-            itemNames.add("📁 " + f.name)
+            val containsGame = hasGameAssets(f)
+            val prefix = if (containsGame) "🎮 [Game Files] 📁 " else "📁 "
+            itemNames.add(prefix + f.name)
             itemFiles.add(f)
         }
 
+        val title = if (isGameDir) {
+            "✓ Game Files Found!\n${dir.absolutePath}"
+        } else {
+            "Select Folder:\n${dir.absolutePath}"
+        }
+
         val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Select Folder: ${dir.absolutePath}")
+        builder.setTitle(title)
 
         builder.setItems(itemNames.toTypedArray()) { _, which ->
             val target = itemFiles[which]
@@ -59,12 +113,46 @@ class StorageChooser private constructor(
             selectListener?.invoke(dir.absolutePath)
         }
 
-        builder.setNeutralButton("Enter Path") { _, _ ->
-            showManualPathDialog(dir.absolutePath)
+        builder.setNeutralButton("Shortcuts / Enter Path") { _, _ ->
+            showShortcutsDialog(dir.absolutePath)
         }
 
         builder.setNegativeButton("Cancel", null)
         builder.show()
+    }
+
+    private fun showShortcutsDialog(currentPath: String) {
+        if (activity == null || activity.isFinishing) return
+
+        val shortcuts = arrayListOf(
+            "📂 /sdcard (Internal Storage)" to Environment.getExternalStorageDirectory().absolutePath,
+            "📂 /sdcard/Morrowind" to File(Environment.getExternalStorageDirectory(), "Morrowind").absolutePath,
+            "📂 /sdcard/Download" to Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath,
+            "📂 /sdcard/openmw" to File(Environment.getExternalStorageDirectory(), "openmw").absolutePath,
+            "📂 App Private Files" to (activity.getExternalFilesDir(null)?.absolutePath ?: activity.filesDir.absolutePath),
+            "✏ Type Custom Path..." to ""
+        )
+
+        val names = shortcuts.map { it.first }.toTypedArray()
+
+        AlertDialog.Builder(activity)
+            .setTitle("Quick Folder Jump")
+            .setItems(names) { _, which ->
+                val chosen = shortcuts[which].second
+                if (chosen.isEmpty()) {
+                    showManualPathDialog(currentPath)
+                } else {
+                    val file = File(chosen)
+                    if (!file.exists()) {
+                        file.mkdirs()
+                    }
+                    showDirectoryPicker(file)
+                }
+            }
+            .setNegativeButton("Back") { _, _ ->
+                showDirectoryPicker(File(currentPath))
+            }
+            .show()
     }
 
     private fun showManualPathDialog(initialPath: String) {
@@ -72,12 +160,13 @@ class StorageChooser private constructor(
 
         val input = EditText(activity)
         input.setText(initialPath)
+        input.hint = "/sdcard/Morrowind or /sdcard/Download/..."
         val container = LinearLayout(activity)
         container.setPadding(40, 20, 40, 20)
         container.addView(input, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
 
         AlertDialog.Builder(activity)
-            .setTitle("Enter Path")
+            .setTitle("Enter Path to Game Data")
             .setView(container)
             .setPositiveButton("OK") { _, _ ->
                 val path = input.text.toString().trim()
